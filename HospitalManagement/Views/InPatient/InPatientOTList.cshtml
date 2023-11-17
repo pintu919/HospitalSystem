@@ -1,0 +1,623 @@
+﻿@model HospitalManagement.Models.IP_OT_Transfer
+@{
+    ViewBag.Title = "InPatientOTList";
+}
+<style>
+    .imgnone {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<link href="~/wwwroot/assets/css/bootstrap-multiselect.css" rel="stylesheet" />
+<div class="content" id="htmldata">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">OT Transfer List</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling">
+                <table class="table table-border custom-table mb-0" id="OT_lsttable">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Patient Name</th>
+                            <th hidden>oprationDate</th>
+                            <th>Doctor Name</th>
+                            <th>Age</th>
+                            <th>Operation</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{int x = 0; }
+                        @if (Model.OT_transfer_List != null && Model.OT_transfer_List.Count > 0)
+                        {
+                            foreach (var item in Model.OT_transfer_List)
+                            {
+                                {
+                                    ViewBag.x = x;
+                                }
+                                <tr id="@item.TransferId" title="@item.operation_type">
+
+                                    <td class="plusicon text-center">
+                                        @if (item.is_status == 0)
+                                        {
+                                            <img src="~/Image/plus.png" />
+                                        }
+                                        else
+                                        { <img class="imgnone" src="~/Image/plus.png" />}
+
+                                        <div style="display: none" class="table-responsive">
+                                            @if (item.operation_type == "IPOT")
+                                            {
+                                                @Html.Partial("_InPatientOTStatus", Model)
+                                            }
+                                            else
+                                            {
+                                                @Html.Partial("_OPDPatientOTStatus", Model)
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                            if (item.Profile != "" && item.Profile != null)
+                                            { PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.Profile; }
+                                        }
+                                        <img class="avatar" src="@PatProfile" alt="User Image"><h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.patient_name </a><span class="d-block"> @item.patient_code</span><span class="d-block text-secondary">@item.Mobile</span> </h2>
+                                    </td>
+                                    <td hidden>@Html.DisplayFor(model => item.OperationDatetime)</td>
+                                    <td> <h2> @item.doctor_name <span class="text-secondary">@item.DepartmentName</span></h2> </td>
+                                    <td><h2>@item.Gender <span class="text-secondary">@item.Age</span></h2></td>
+
+                                    <td>
+                                        <h2>
+                                            @item.operation_date &nbsp; @item.operation_time  <span class="text-secondary d-block">@item.appointment_code</span>
+                                            @if (item.operation_type == "OPDOT")
+                                            {
+                                                <span class="badge badge-light-primary d-inline-block">OPD OT</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-light-warning d-inline-block">IP OT</span>
+                                            }
+                                        </h2>
+                                    </td>
+                                    <td>
+                                        @if (item.is_status == 0)
+                                        {
+                                            <span class="badge badge-danger">Admited</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-success">Released</span>
+                                        }
+
+                                    </td>
+                                    <td id=@item.appointment_code@x>
+                                        @if (item.is_status == 0)
+                                        {
+                                            <a class="btn btn-sm blue-gradient-btn" href="#" title="Confirm OT Details" onclick="ConfirmOT(@item.TransferId,'@item.appointment_code@x','@item.operation_type')" data-toggle="modal" data-target="#Confirm_OT">OT Release</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="custom-badge status-green"><i class="fa fa-check"></i>Released</span>
+                                        }
+                                    </td>
+                                </tr>
+                                x++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Confirm_OT" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure you want to release patient from this operation room ?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="ConfirmOTDetail()" class="btn red-gradient-btn">Confirm</button> &nbsp;
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardboxalert" class="mt-3" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hiddenid" />
+<input type="hidden" id="hiddenchangeAPCode" />
+@section scripts{
+    <script src="~/wwwroot/assets/js/bootstrap-multiselect.js"></script>
+    <script src="~/wwwroot/assets/js/date-eu.js"></script>
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script type="text/javascript">
+        //$(".InPatient").addClass("subdrop");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".InPatientOTList").addClass("active");
+        $(document).ready(function () {
+            $('#OT_lsttable').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+            });
+            $(".del").find(".service_id_" + id).select2();
+            $(".del").find(".Surgeon_" + id).select2();
+            $(".del").find(".AsstSurgeon_" + id).select2();
+
+        });
+        var id = "";
+        var type = "";
+        $("body").on("click", "img[src*='plus.png']", function () {
+            debugger;
+            $(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+            $('.loadingimg').css('display', 'block');
+            id = $(this).closest('tr').attr('id').toString();
+            type = $(this).closest('tr').attr('title').toString();
+            url = "/InPatient/GetOTtrasferDetails?TransferId=" + parseInt(id) + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                if (type == "IPOT") {
+                    $(".bindmed-" + id).empty();
+                    $(".bindmed-" + id).html($(datahtml).find(".bindmed-" + id).html());
+                    $(".Bind_medicine_remark-" + id).empty();
+                    $(".Bind_medicine_remark-" + id).html($(datahtml).find(".Bind_medicine_remark-" + id).html());
+                    $(".OTPreoperativedata-" + id).empty();
+                    $(".OTPreoperativedata-" + id).html($(datahtml).find(".OTPreoperativedata-" + id).html());
+                    $(".OTPreoperativedata-" + id).find("#hiddenpreopcode").val(id);
+                    $(".bindpostdata-" + id).empty();
+                    $(".bindpostdata-" + id).html($(datahtml).find(".bindpostdata-" + id).html());
+                    $(".bindpostdata-" + id).find("#hiddenbindappcode").val(id);
+                    //$(".OTPostoperativedata-" + id).empty();
+                    //$(".OTPostoperativedata-" + id).html($(datahtml).find(".OTPostoperativedata-" + id).html());
+                    SetMedAutocomplate();
+                    $(".OTPostoperativedata-" + id).find("#hiddenpostopcode").val(id);
+                    $(".OTdteails-" + id).empty();
+                    $(".OTdteails-" + id).html($(datahtml).find(".OTdteails-" + id).html());
+                    $(".OTdteails-" + id).find("#hiddenotcode").val(id);
+                    $(".del").find(".Surgeon_" + id).select2();
+                    $(".del").find(".AsstSurgeon_" + id).select2();
+                    if ($(".del").find(".AsstSurgeon_" + id).val() == "0") {
+                        $(".del").find(".bindasstt_name-" + id).removeAttr('hidden');
+                    }
+                    $(".OTservices-" + id).empty();
+                    $(".OTservices-" + id).html($(datahtml).find(".OTservices-" + id).html());
+                    $(".OTservices-" + id).find("#hiddenotservicecode").val(id);
+                    $(".OTservicelistbind-" + id).empty();
+                    $(".OTservicelistbind-" + id).html($(datahtml).find(".OTservicelistbind-" + id).html());
+                    $(".del").find(".service_id_" + id).select2();
+                    $(".postmedmsg-" + id).empty();
+                    $(".postmedmsg-" + id).html($(datahtml).find(".postmedmsg-" + id).html());
+                    Setadvicetext();
+                }
+                else {
+                    $(".OTdteails-" + id).empty();
+                    $(".OTdteails-" + id).html($(datahtml).find(".OTdteails-" + id).html());
+                    $(".OTdteails-" + id).find("#hiddenotcode").val(id);
+                    $(".del").find(".Surgeon_" + id).select2();
+                    $(".del").find(".AsstSurgeon_" + id).select2();
+                    if ($(".del").find(".AsstSurgeon_" + id).val() == "0") {
+                        $(".del").find(".bindasstt_name-" + id).removeAttr('hidden');
+                    }
+                    $(".OTservices-" + id).empty();
+                    $(".OTservices-" + id).html($(datahtml).find(".OTservices-" + id).html());
+                    $(".OTservices-" + id).find("#hiddenotservicecode").val(id);
+                    $(".OTservicelistbind-" + id).empty();
+                    $(".OTservicelistbind-" + id).html($(datahtml).find(".OTservicelistbind-" + id).html());
+                    $(".del").find(".service_id_" + id).select2();
+                }
+            });
+            var inx = $("ul.nav-tabs li a.active").attr("data_id");//get current active tab
+            var co = $("ul.nav-tabs li a.active").attr('id');
+            $('.nav-tabs a[data_id="' + inx + '"]').removeClass('active');
+            $('.tab-content div[id="' + co + '"]').removeClass('show');
+            $('.tab-content div[id="' + co + '"]').removeClass('active');
+
+            $('.nav-tabs a[id="home-' + id + '"]').addClass('active');
+            $('.tab-content div[id="home-' + id + '"]').addClass('show');
+            $('.tab-content div[id="home-' + id + '"]').addClass('active');
+            //var index = $(".active").attr("data_id");//get current active tab
+            //$('.nav-tabs a[data_id="' + index + '"]').tab('show');
+            $('#myTab li a').click(function () {
+                var index = $(this).attr('data_id');
+                var contant = $(this).attr('id');
+                var index1 = $("ul.nav-tabs li a.active").attr("data_id");//get current active tab
+                var contant1 = $("ul.nav-tabs li a.active").attr('id');
+                $('.nav-tabs a[data_id="' + index1 + '"]').removeClass('active');
+                $('.nav-tabs a[data_id="' + index + '"]').addClass('active');
+                $('.nav-tabs a[data_id="' + index + '"]').tab('show');
+                $('.tab-content div[id="' + contant1 + '"]').removeClass('show');
+                $('.tab-content div[id="' + contant1 + '"]').removeClass('active');
+                $('.tab-content div[id="' + contant + '"]').addClass('show');
+                $('.tab-content div[id="' + contant + '"]').addClass('active');
+            });
+            $('.loadingimg').css('display', 'none');
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            //$(this).closest("tr").next().remove();
+            $(this).closest("tr").next('.del').remove();
+        });
+        function PreOperativeSuccess(data) {
+            debugger;
+            $(".preopmsg-" + id).empty();
+            $(".preopmsg-" + id).html($(data).find(".preopmsg-" + id).html());
+        }
+        function PostOperativeSuccess(data) {
+            debugger;
+            $(".postopmsg-" + id).empty();
+            $(".postopmsg-" + id).html($(data).find(".postopmsg-" + id).html());
+        }
+        function OTSuccess(data) {
+            debugger;
+            $(".postmedmsg-" + id).empty();
+            $(".postmedmsg-" + id).html($(data).find(".postmedmsg-" + id).html());
+            $(".bindmed-" + id).empty();
+            $(".bindmed-" + id).html($(data).find(".bindmed-" + id).html());
+            SetMedAutocomplate();
+
+        }
+        function OTDetailSuccess(data) {
+            debugger;
+            $(".OTdteails-" + id).empty();
+            $(".OTdteails-" + id).html($(data).find(".OTdteails-" + id).html());
+            $(".del").find(".Surgeon_" + id).select2();
+            $(".del").find(".AsstSurgeon_" + id).select2();
+            $(".otmsg-" + id).empty();
+            $(".otmsg-" + id).html($(data).find(".otmsg-" + id).html());
+            if ($(".del").find(".AsstSurgeon_" + id).val() == "0") {
+                $(".del").find(".bindasstt_name-" + id).removeAttr('hidden');
+            }
+
+        }
+        function OTServiceSuccessMethod(data) {
+            debugger;
+            $(".OTservicelistbind-" + id).empty();
+            $(".OTservicelistbind-" + id).html($(data).find(".OTservicelistbind-" + id).html());
+            $(".del").find(".service_id_" + id).select2();
+            $(".Otservicemsg-" + id).empty();
+            $(".Otservicemsg-" + id).html($(data).find(".Otservicemsg-" + id).html());
+            $(".del").find("#btnAddservice").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+
+        }
+        function SetMedAutocomplate() {
+            debugger;
+            $('.del').find(".postmend_" + id).autocomplete({
+                source: function (request, response) {
+                    debugger;
+                    var Checkbox = $("input[type='checkbox']").is(":checked");
+                    if (Checkbox == true) {
+                        $('.del').find(".postmepp_" + id).val("");
+                        $('.del').find(".brand_code" + id).val("");
+                        return;
+                    }
+                    $('.del').find(".postmend_" + id).text("")
+                    $('.del').find("postmepp_" + id).val(0);
+                    $('.del').find("postbrand_code_" + id).val("");
+                    var MedicineIds = "";
+                    //$('#example4 > tbody  > tr').each(function () {
+                    //    MedicineIds += $(this).find("td").eq(0).find(":hidden").val() + ',';
+                    //});
+                    var FilterBy = $("input[name='Medicine_FilterBy']:checked", "#FilterByMedicine_Prog").val();
+                    $.ajax({
+                        url: '/DischargeProfile/GetSearchMedicine',
+                        type: "POST",
+                        dataType: "json",
+                        async: false,
+                        data: { Prefix: request.term, MedIds: MedicineIds, FilterBy: FilterBy, BrandCodess: "" },
+                        success: function (list) {
+
+                            if (list.length > 0) {
+                                response($.map(list, function (dataitem) {
+                                    return { label: dataitem.drug_generic_name, value: dataitem.drug_generic_name, med_id: dataitem.medicine_id, Brand_Name: dataitem.Brand_Name, title: dataitem.title, brand_code: dataitem.brand_code };
+                                }))
+                            }
+                            else {
+                                var list_dt = [];
+                                var arr = {};
+                                arr.drug_generic_name = "No Record Found";
+                                arr.medicine_id = "No Record Found";
+                                list_dt.push(arr);
+                                response($.map(list_dt, function (dataitem) {
+                                    return { label: dataitem.drug_generic_name, value: dataitem.medicine_id, Brand_Name: dataitem.Brand_Name };
+                                }))
+                                $('.del').find(".postmend_" + id).val("");
+                            }
+                        }
+                    })
+                },
+                select: function (e, i) {
+                    if (i.item.value == "No Record Found") { return false; }
+                    else {
+                        $('.del').find(".postmend_" + id).text(i.item.med_id);
+                        $('.del').find(".postmepp_" + id).val(i.item.med_id);
+                        $('.del').find(".postbrand_code_" + id).val(i.item.brand_code);
+                    }
+                },
+                minLength: 3,
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<div>" + "<span style='color:#15558d;font-size:15px;font-weight:600;'>" + item.Brand_Name + "</span> <span style='color:#888;font-size:15px;font-weight:600;padding-left:15px;'>" + item.title + "</span >" + "<br>" + "<span style='font-size:13px;'>" + item.label + "</span>" + "</div>")
+                    .appendTo(ul);
+            };
+        }
+
+        function GetAssttName(p) {
+            debugger;
+            var type = $(".del").find(".AsstSurgeon_" + p).val();
+            if (type == "0") {
+                $(".del").find(".bindasstt_name-" + p).removeAttr('hidden');
+                $(".del").find(".AsstSurgeonName_" + p).val('');
+            }
+            else {
+                $(".del").find(".bindasstt_name-" + p).attr('hidden', true);
+                $(".del").find(".AsstSurgeonName_" + p).val('');
+            }
+        }
+
+        function Getcost(post) {
+            debugger;
+            var serviceid = 0
+            var type = "";
+            serviceid = $(".del").find(".service_id_" + post).val();
+            if (serviceid == '' || serviceid == 0) {
+                //$('#service_cost').attr('hidden', true);
+                $(".bindcost-" + post).attr('hidden', true);
+                //$("#service_cost").find('input:text,input:file,select,textarea').val('');
+                return;
+            }
+            $(".bindcost-" + post).empty();
+            url = "/InPatient/GetOTServiceCost?ServiceId=" + serviceid + " &Type=" + type + " &TransferId=" + post + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).success(function (datahtml) {
+                debugger;
+                $(".bindcost-" + post).html($(datahtml).find(".bindcost-" + post).html());
+                $(".bindcost-" + post).removeAttr('hidden');
+            });
+        }
+        function ONbeginService(serviceid) {
+            debugger;
+            if ($(".del").find("#OTservice_is_realtime").val() == "1") {
+                if ($(".del").find("#OTservice_ServiceName").val() == null || $(".del").find("#OTservice_ServiceName").val() == "") {
+                    $(".del").find('#oth_Sname').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $(".del").find('#oth_Sname').attr('hidden', true);
+                }
+                if ($(".del").find("#OTservice_Cost").val() == null || $(".del").find("#OTservice_Cost").val() == "0.00") {
+                    $(".del").find('#oth_cost').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $(".del").find('#oth_cost').attr('hidden', true);
+                }
+                if ($(".del").find("#OTservice_SellingCost").val() == null || $(".del").find("#SellingCost").val() == "0.00") {
+                    $(".del").find('#oth_Scost').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $(".del").find('#oth_Scost').attr('hidden', true);
+                }
+            }
+            var sellingcost = $("#invSellingCost-" + serviceid).val();
+            var discount = $(".del").find("#OTservice_Discount").val();
+            var mincost = $(".del").find("#OTservice_MinSellingCost").val();
+            //var doscountamount = (sellingcost * discount) / 100;
+            if ((sellingcost - discount) < mincost) {
+                $(".del").find('#dismsg').removeAttr('hidden');
+                return false;
+            }
+            else {
+                $("#progress").show();
+                $(".del").find('#dismsg').attr('hidden', true);
+                $(".del").find('#oth_Sname').attr('hidden', true);
+                $(".del").find('#oth_cost').attr('hidden', true);
+                $(".del").find('#oth_Scost').attr('hidden', true);
+                $(".del").find("#btnAddservice").css({ "cursor": "not-allowed", "pointer-events": "none", "opacity": "0.65", "box-shadow": "none" });
+                $("#progress").hide();
+            }
+        }
+
+        function ONbeginpreoperative(serviceid) {
+            debugger;
+            if ($(".del").find("#OTPreOperative_pre_operative_date").val() == "") {
+                $(".del").find("#OTPreOperative_pre_operative_date").focus();
+                return false;
+            }
+            if ($(".del").find("#OTPreOperative_pre_operative_time").val() == "") {
+                $(".del").find("#OTPreOperative_pre_operative_time").focus();
+                return false;
+            }
+        }
+
+        function ONbeginpostoperative(serviceid) {
+            debugger;
+            if ($(".del").find("#OTPostOperative_post_operative_date").val() == "") {
+                $(".del").find("#OTPostOperative_post_operative_date").focus();
+                return false;
+            }
+            if ($(".del").find("#OTPostOperative_post_operative_time").val() == "") {
+                $(".del").find("#OTPostOperative_post_operative_time").focus();
+                return false;
+            }
+        }
+
+        function ONbeginpostmed(serviceid) {
+            debugger;
+            if ($(".del").find("#OTPostOperative_otpost_med_genericname").val() == "") {
+                $(".del").find("#OTPostOperative_otpost_med_genericname").focus();
+                return false;
+            }
+            if ($(".del").find("#OTPostOperative_otpost_med_Duration").val() == "") {
+                $(".del").find("#OTPostOperative_otpost_med_Duration").focus();
+                return false;
+            }
+        }
+
+        function ONbeginOtdetails(serviceid) {
+            debugger;
+            if ($(".del").find("#OTdetail_Name_of_Operation").val() == "") {
+                $(".del").find("#OTdetail_Name_of_Operation").focus();
+                return false;
+            }
+
+        }
+        var ConfirmDeletemed = function (delid) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/InPatient/DeleteMed",
+                data: { Id: delid },
+                success: function (result) {
+                    debugger;
+                    if (result == true) {
+                        $(".del").find("#row_" + delid).remove();
+                    }
+                }
+            })
+        }
+        var ConfirmServiceDelete = function (serviceid, code) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/InPatient/ConfirmServiceDelete",
+                data: { Id: serviceid, AppCode: code },
+                success: function (result) {
+                    debugger;
+                    if (result == true) {
+                        $(".del").find("#row_" + serviceid).remove();
+                    }
+                }
+            })
+        }
+
+        var ConfirmOT = function (otid, changecode, OTType) {
+            debugger;
+            $("#hiddenid").val(otid);
+            type = OTType;
+            $("#hiddenchangeAPCode").val(changecode);
+            $("#Confirm_OT").modal('show');
+        }
+        var ConfirmOTDetail = function () {
+            debugger;
+            $('#cardboxalert').attr('hidden', true);
+            var service_id = $("#hiddenid").val();
+            var change = $("#hiddenchangeAPCode").val();
+            $.ajax({
+                type: "POST",
+                url: type == "IPOT" ? "/InPatient/ConfirmOTDteails" : "/InPatient/OPDConfirmOTDteails",
+                data: { Serviceid: service_id },
+                success: function (result) {
+                    if (result == true) {
+
+                        $("#Confirm_OT").modal("hide");
+                        $("#" + change + "").html("");
+                        $("#" + change + "").html("<span class='badge badge-success'>Complete</span >");
+                        $("#" + service_id).find(".plusicon").find('img').addClass('imgnone');
+                    }
+                    else {
+                        $("#Confirm_OT").modal("show");
+                        $('#cardboxalert').removeAttr('hidden');
+                        htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>You need to expand OT and this OT related all tab detail enter in require filed. then after realse OT !! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $("#cardboxalert").html(htmlstr);
+                        return false;
+                    }
+                }
+            })
+        }
+        function Setadvicetext() {
+
+            $(".todolist").focus(function () {
+                debugger;
+                if ($('.del').find('#todolist_' + id).val() === '') {
+                    $('.del').find('#todolist_' + id).val($('.del').find('#todolist_' + id).val() + '=> ');
+                }
+            });
+            $(".todolist").keyup(function (event) {
+                debugger;
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    $('.del').find('#todolist_' + id).val($('.del').find('#todolist_' + id).val() + '=> ');
+                }
+                var txtval = $('.del').find('#todolist_' + id).val();
+                if (txtval.substr(txtval.length - 1) == '\n') {
+                    $('.del').find('#todolist_' + id).val(txtval.substring(0, txtval.length - 1));
+                }
+            });
+
+            $(".gentodolist").focus(function () {
+                debugger;
+                if ($('.del').find('#gentodolist_' + id).val() === '') {
+                    $('.del').find('#gentodolist_' + id).val($('.del').find('#gentodolist_' + id).val() + '=> ');
+                }
+            });
+            $(".gentodolist").keyup(function (event) {
+                debugger;
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    $('.del').find('#gentodolist_' + id).val($('.del').find('#gentodolist_' + id).val() + '=> ');
+                }
+                var txtval = $('.del').find('#gentodolist_' + id).val();
+                if (txtval.substr(txtval.length - 1) == '\n') {
+                    $('.del').find('#gentodolist_' + id).val(txtval.substring(0, txtval.length - 1));
+                }
+            });
+
+            $(".posttodolist").focus(function () {
+                debugger;
+                if ($('.del').find('#posttodolist_' + id).val() === '') {
+                    $('.del').find('#posttodolist_' + id).val($('.del').find('#posttodolist_' + id).val() + '=> ');
+                }
+            });
+            $(".posttodolist").keyup(function (event) {
+                debugger;
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    $('.del').find('#posttodolist_' + id).val($('.del').find('#posttodolist_' + id).val() + '=> ');
+                }
+                var txtval = $('.del').find('#posttodolist_' + id).val();
+                if (txtval.substr(txtval.length - 1) == '\n') {
+                    $('.del').find('#posttodolist_' + id).val(txtval.substring(0, txtval.length - 1));
+                }
+            });
+        }
+    </script>
+}
+
+
+

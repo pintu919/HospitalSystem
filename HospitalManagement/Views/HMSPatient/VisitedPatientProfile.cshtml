@@ -1,0 +1,348 @@
+﻿@model HospitalManagement.Models.HMSPatientModel
+@{
+    ViewBag.Title = "VisitedPatientProfile";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-md-6 col-12">
+            <h4 class="page-title">My Profile</h4>
+        </div>
+
+        <div class="col-md-6 col-12 text-md-right m-b-20">
+            <a href="javascript:;" onclick="submitcode('@Model.uniqrow')" title="Edit" class="btn btn-sm skin-gradient-btn"><i class="fa fa-plus"></i> Edit Profile </a>
+            <input type="hidden" id="uniqid" value="@Model.uniqrow" />
+
+        </div>
+
+    </div>
+    <div class="row profile-sidebar">
+        @foreach (var item in Model.visitpatientlist)
+        {
+            <div class="col-md-6">
+                <div class="card card-topline-skin">
+                    <div class="card-body">
+
+                        <div class="profile-view text-center">
+                            <div class="profile-img-wrap">
+                                <div class="profile-img">
+                                    <a href="#">
+                                        @if (item.photo == null || item.photo == "")
+                                        {
+                                            <img class="avatar" src="~/wwwroot/assets/img/user.jpg" alt="">
+                                        }
+                                        else
+                                        {
+                                            var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.photo;
+                                            <img class="avatar" src=@img alt="">
+                                        }
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="profile-basic">
+                                <h4 class="doctor-name text-ellipsis">@item.patient_firstname @item.patient_lastname</h4>
+                                <div class="doc-prof">@item.patient_code</div>
+                                <input type="hidden" value="@item.patient_code" id="pat_code" />
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-unbordered">
+
+                            <li class="list-group-item">
+                                <b>Age</b>
+                                <div class="profile-desc-item pull-right">@item.age</div>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Date of Birth </b>
+                                <div class="profile-desc-item pull-right">@item.dateofbirth</div>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Follow Us </b>
+                                <div class="profile-desc-item pull-right">
+                                    <!-- social-icon -->
+                                    <ul class="profile-social-icon">
+                                        <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-instagram"></i></a></li>
+                                    </ul><!-- END social-icon -->
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-topline-skin">
+                    <div class="card-header card-topline-aqua text-center">
+                        <header class="card-title">More Info</header>
+                    </div>
+                    <div class="card-body no-padding height-9">
+                        <div class="profile-desc text-center">
+                            <b class="text-primary">Address</b><br>
+                            @item.present_address
+                            @*<br> @item., @item.country.*@
+                        </div>
+                        <ul class="list-group list-group-unbordered">
+                            <li class="list-group-item">
+                                <b>Father Name :</b>
+                                <div class="profile-desc-item pull-right">@item.patient_fathername</div>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Gender :</b>
+                                <div class="profile-desc-item pull-right">@item.gender</div>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Mobile No. :</b>
+                                <div class="profile-desc-item pull-right">@item.phone</div>
+                            </li>
+                            <li class="list-group-item">
+                                <b>Email :</b>
+                                <div class="profile-desc-item pull-right">@item.email</div>
+                            </li>
+                            @*<li class="list-group-item">
+                                    <b>Birth reg No :</b>
+                                    <div class="profile-desc-item pull-right">@item.nid_birthregno</div>
+                                </li>*@
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="inv_tab">
+                <ul class="nav nav-tabs nav-tabs-bottom">
+                    <li class="nav-item"><a class="nav-link active" href="#bottom-tab2" data-toggle="tab">OPD History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about-cont" onclick="getIPHistory('ip_history')" data-toggle="tab">IP History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#bottom-tab3" onclick="getIPHistory('inv_history')" data-toggle="tab">Investigation History</a></li>
+                </ul>
+                <div class="tab-content p-0">
+                    <div class="tab-pane show active" id="bottom-tab2">
+                        <div class="card-body">
+                            <h3 class="card-title">OPD History</h3>
+                            <div class="experience-box">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped custom-table datatable w-100">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Invoice Code</th>
+                                                <th>Doctor Name</th>
+                                                <th>Visit Date</th>
+                                                <th class="text-danger">Due Amount</th>
+                                                <th>Compalin</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.opd_history)
+                                            {
+                                                <tr>
+                                                    <td><a href="~/Invoice/InvoiceView/@item.uniqrow" target="_blank">@item.invoice_code</a></td>
+                                                    <td>@item.doctor_name</td>
+                                                    <td>@item.visit_date</td>
+                                                    <td><span class="text-danger"> @Math.Round(Convert.ToDecimal(item.due_amount), 2)</span></td>
+                                                    <td>@item.complain</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="about-cont">
+                        <div class="card-box">
+                            <h3 class="card-title">IP History:</h3>
+                            <div class="experience-box bind_ip_history">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped custom-table datatable w-100">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Invoice Code</th>
+                                                <th>Appointment Code</th>
+                                                <th>Doctor Name</th>
+                                                <th>Admit Date</th>
+                                                <th>Release Date</th>
+                                                <th class="text-danger">Due Amount</th>
+                                                <th>OT</th>
+                                                <th>Admit Days</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.ip_history)
+                                            {
+                                                <tr>
+                                                    <td><a href="~/Invoice/IPInvoiceView/@item.uniqrow" target="_blank">@item.invoice_code</a></td>
+                                                    <td>@item.appoinment_code</td>
+                                                    <td>@item.doctor_name</td>
+                                                    <td>@item.admited_date</td>
+                                                    <td>@item.release_date</td>
+                                                    <td><span class="text-danger">@Math.Round(Convert.ToDecimal(item.due_amount), 2)</span> </td>
+                                                    <td>
+                                                        @if (item.otcomplete > 0)
+                                                        {
+                                                            <a href="~/InPatient/OperationDetails/@item.appoinment_code" target="_blank" data-toggle='tooltip' title="View Operation Details">
+                                                                OT Details
+                                                            </a>
+                                                        }
+                                                    </td>
+                                                    <td>@item.AdmitDays</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="bottom-tab3">
+                        <div class="card-box">
+                            <h3 class="card-title">Investigation History:</h3>
+                            <div class="experience-box bind_inv_history">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped custom-table datatable w-100">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>code</th>
+                                                <th>Investigation Name</th>
+                                                <th>Type</th>
+                                                <th>Supplier</th>
+                                                <th>Date</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.inv_history)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @if (item.appointment_code == "")
+                                                        {
+                                                            @item.invoice_code
+                                                        }
+                                                        else if (item.invoice_code == "")
+                                                        {
+                                                            @item.appointment_code
+                                                        }
+                                                    </td>
+                                                    <td>@item.investigationmaster_name</td>
+                                                    <td>@item.invtype</td>
+                                                    <td>@item.SupplierName</td>
+                                                    <td>@item.invstigation_date</td>
+                                                    <td>
+                                                        @if (item.supplierid == 0)
+                                                        {
+                                                            if (item.invoice_code != "")
+                                                            {
+                                                                @Ajax.ActionLink("View", "ViewInvestigationPara_op", "HMSPatient",
+                                                                                                                          new { service_id = item.service_id, investigation_id = item.investigationmaster_id, invoice_code = item.invoice_code, unique_invstigation_id = item.investigation_investigationid, InvType = item.invtype },
+                                                                                                                          new AjaxOptions
+                                                                                                                          {
+                                                                                                                              HttpMethod = "POST",
+                                                                                                                              InsertionMode = InsertionMode.Replace,
+                                                                                                                              UpdateTargetId = item.invtype == "radiology" ? "View_radiology_BindInvestigationpara" : "BindInvestigationpara",
+                                                                                                                              OnSuccess = "showModal(\"" + item.invtype + "\")",
+                                                                                                                              LoadingElementId = "progress"
+                                                                                                                          },
+                                                                                                                          new { @class = "btn green-gradient-btn fa fa-eye" })
+                                                            }
+                                                            else
+                                                            {
+                                                                @Ajax.ActionLink("View", "ViewInvestigationPara", "HMSPatient",
+                                                                                                      new { service_id = item.service_id, investigation_id = item.investigationmaster_id, Appointmentcode = item.appointment_code, unique_invstigation_id = item.investigation_investigationid, InvType = item.invtype },
+                                                                                                      new AjaxOptions
+                                                                                                      {
+                                                                                                          HttpMethod = "POST",
+                                                                                                          InsertionMode = InsertionMode.Replace,
+                                                                                                          UpdateTargetId = item.invtype == "radiology" ? "View_radiology_BindInvestigationpara" : "BindInvestigationpara",
+                                                                                                          OnSuccess = "showModal(\"" + item.invtype + "\")",
+                                                                                                          LoadingElementId = "progress"
+                                                                                                      },
+                                                                                                      new { @class = "btn green-gradient-btn fa fa-eye" })
+
+                                                            }
+
+
+                                                        }
+                                                        else
+                                                        {
+                                                            if (item.reportpath != null)
+                                                            {
+                                                                var path = System.Configuration.ConfigurationManager.AppSettings["gethosinvreport"] + item.reportpath;
+                                                                <a class="btn green-gradient-btn fa fa-eye" href="@path" target="_blank"></a>
+                                                            }
+
+                                                        }
+
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("_ViewInvestigationModel", Model)
+<!--Added by Dhaval-->
+@Html.Partial("_ViewInvestigationRediologyModel", Model)
+<!--End-->
+@section scripts{
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.js"></script>
+    <script type="text/javascript">
+        //$(".Patients").addClass("subdrop");
+        //$(".Submenu_Patients").css("display", "block");
+        //$(".Submenu_Patients").css("display", "block");
+        //$(".HMSVisitedPatientList").addClass("active");
+
+        function getIPHistory(type) {
+            debugger;
+            $("#progress").show();
+            var Patientcode = $('#pat_code').val();
+            var uniqid = $('#uniqid').val();
+            url = "/HMSPatient/GetIPHistory?PatientCode=" + Patientcode + " &Type=" + type + " &uniqrow=" + uniqid + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                if (type == 'ip_history') {
+                    $(".bind_ip_history").empty();
+                    $(".bind_ip_history").html($(datahtml).find(".bind_ip_history").html());
+                }
+                if (type == 'inv_history') {
+                    $(".bind_inv_history").empty();
+                    $(".bind_inv_history").html($(datahtml).find(".bind_inv_history").html());
+                }
+                $("#progress").hide();
+            });
+        }
+        function showModal(InvType) {
+            debugger;
+            if (InvType == "radiology") {
+                $('#radiology_view_model').modal('show');
+                $('#invSubgroupList_0__invParaList_0__investigationsubgroup_name').summernote({
+                    height: 520,                 // set editor height
+                    minHeight: null,             // set minimum height of editor
+                    maxHeight: null,             // set maximum height of editor
+                    focus: true
+                });
+            }
+            else
+                $('#delete_employee').modal('show');
+        }
+        function submitcode(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/HMSPatient/EditHMSPatient', '_blank') });
+        }
+
+    </script>
+}
+

@@ -1,0 +1,82 @@
+﻿
+
+@model HospitalManagement.Models.HMSPatientModel
+
+@using (Ajax.BeginForm("AddHOSInvestigation", "TestAndInvestigation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div id="BindInvestigationpara">
+        <div id="delete_employee" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header skin-bg-gradient">
+                        <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Add Investigation Para</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <div class="form-group">
+                                        <span style="font-size:13px;">@Model.investigationname</span>
+                                    </div>
+                                    <table class="table table-bordered table-striped custom-table" id="example">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Investigation Para Name</th>
+                                                <th>Investigation Value</th>
+                                                <th>Reference</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.invSubgroupList != null)
+                                            {
+                                                @Html.HiddenFor(Model => Model.appointment_code)
+                                                for (int i = 0; i < Model.invSubgroupList.Count; i++)
+                                                {
+                                                    if (Model.invSubgroupList[i].SubgroupName != "")
+                                                    {
+
+                                                        <tr>
+                                                            <th colspan="3" style="border:unset;font-weight:600;">@Model.invSubgroupList[i].SubgroupName</th>
+                                                        </tr>
+                                                    }
+                                                    for (int j = 0; j < Model.invSubgroupList[i].invParaList.Count; j++)
+                                                    {
+                                                        <tr class="">
+                                                            <td>@Html.DisplayFor(Model => Model.invSubgroupList[i].invParaList[j].investigationpara_name, new { @class = "form-control" })</td>
+                                                            <td>@Html.TextBoxFor(Model => Model.invSubgroupList[i].invParaList[j].find_ip_reference, new { @class = "form-control" })</td>
+                                                            <td>
+                                                                @foreach (var item in Model.invSubgroupList[i].invParaList[j].investigationpara_reference.Split(','))
+                                                                {
+                                                                    <ul style="list-style-type: none;padding-left:0;margin-bottom:3px;">
+                                                                        <li>@item</li>
+                                                                    </ul>
+                                                                }
+                                                                @*@Html.DisplayFor(Model => Model.invSubgroupList[i].invParaList[j].investigationpara_reference, new { @class = "form-control" })*@
+                                                                @Html.HiddenFor(Model => Model.invSubgroupList[i].invParaList[j].investigationmaster_id)
+                                                                @Html.HiddenFor(Model => Model.invSubgroupList[i].invParaList[j].investigationsubgrop_id)
+                                                                @Html.HiddenFor(Model => Model.invSubgroupList[i].invParaList[j].investigationpara_id)
+                                                                @Html.HiddenFor(Model => Model.invSubgroupList[i].invParaList[j].investigation_uniqcode)
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+}

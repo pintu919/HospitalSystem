@@ -1,0 +1,387 @@
+﻿@model HospitalManagement.Models.AgentComissionReportModel
+@{
+    ViewBag.Title = "ComissionAgentReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Comission Agent Report</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("GetComissionAgentReportfilter", "Comission", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-4 col-xl-3">
+                <div class="form-group form-focus select-focus">
+                    @*<label class="focus-label">select Leadger Head</label>*@
+                    @if (Model.comission_agent_list != null)
+                    {
+                        @Html.DropDownListFor(model => model.comission_agentid, new SelectList(Model.comission_agent_list, "Comission_Agent_Id", "Commision_Agent"), "select Comission Agent", new { @class = "form-control" })
+                    }
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4 col-xl-3 ml-auto">
+                <div class="form-group form-focus focused">
+                    <label class="focus-label">From</label>
+                    @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating datetimepicker" })
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4 col-xl-3">
+                <div class="form-group form-focus focused">
+                    <label class="focus-label">To</label>
+                    @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating datetimepicker" })
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4 col-xl-3">
+                <button class="btn skin-bg-gradient btn-block submit-btn">Search</button>
+            </div>
+        </div>
+    }
+    <div class="row  m-0">
+        <div class="col-md-12">
+                <div class="table-responsive table-scrolling bindtable">
+                    <table class="table mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th></th>
+                                <th>Date</th>
+                                <th>InvoiceCode</th>
+                                <th>Patient Name</th>
+                                <th>Total Comission</th>
+                                <th>Pending Amount</th>
+                                <th hidden>Paid Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var item in Model.agent_comission_data)
+                            {
+
+                                var tbl_uniq_id = item.InvoiceCode;
+                                <tr>
+                                    <th class="plusicon text-center">
+                                        <img src="~/Image/plus.png" class="plusimg" title="" />
+                                    </th>
+                                    <td>@item.Date</td>
+                                    <td>@item.InvoiceCode</td>
+                                    <td>@item.PatientName</td>
+                                    <td>@item.TotalCommission</td>
+                                    <td>@item.PendingAmount</td>
+                                    <td hidden>@item.PaidAmount</td>
+                                    <td style="width:5%;"><input class="uncheck_@item.InvoiceCode" onchange="CheckedAll('@item.InvoiceCode', this)" type="checkbox" /> </td>
+                                </tr>
+                                <tr class="d-none">
+                                    <th colspan="999">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered datatable mb-0" id="InvoiceAllTr_@tbl_uniq_id">
+                                                <thead>
+                                                    <tr>
+                                                        <td>Service Date</td>
+                                                        <th>Service</th>
+                                                        <th>Service Amount</th>
+                                                        <th>Comission Type</th>
+                                                        <th>Comission</th>
+                                                        <th>Comission Amount</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (Model.agent_comission_service != null)
+                                                    {
+                                                        var servicelst = Model.agent_comission_service.FindAll(d => d.InvoiceCode == item.InvoiceCode).ToList();
+                                                        foreach (var g in servicelst)
+                                                        {
+                                                            <tr>
+                                                                <td>@g.Date</td>
+                                                                <td>@g.Service</td>
+                                                                <td>@g.Amount</td>
+                                                                <td>@g.ComissionType</td>
+                                                                <td>@g.Comission</td>
+                                                                <td>@g.ComissionAmount</td>
+                                                                <td hidden>@g.invoice_id</td>
+                                                                <td hidden>@g.ID</td>
+                                                                <td hidden>@g.InvoiceCode</td>
+                                                                <td> <input class="checkbox_@g.ID" onchange="CheckBoxSet('@g.InvoiceCode', @g.invoice_id, this,'@tbl_uniq_id',@g.ID)" type="checkbox" /></td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </th>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            @using (Ajax.BeginForm("SaveAgentComission", "Comission", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ReceiveSuccessMethod", OnBegin = "OnbeginMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                <div hidden>
+                    <table>
+                        <tbody id="invoice_id_lst">
+                        </tbody>
+                    </table>
+                </div>
+                @Html.HiddenFor(m => m.FromDate, new { @id = "Pay_FromDate" })
+                @Html.HiddenFor(m => m.ToDate, new { @id = "Pay_ToDate" })
+                @Html.HiddenFor(m => m.ChannelId, new { @id = "Pay_ChannelId" })
+                @Html.HiddenFor(m => m.PaymentTypeId, new { @id = "Pay_PaymentTypeId" })
+                @Html.HiddenFor(m => m.comission_agentid, new { @id = "Pay_Commission_AgentId" })
+                <table class="table table-bordered mt-3">
+                    <tbody>
+                        <tr class="table-primary">
+                            <th class="fw-500">Select Payment Type :</th>
+                            <th>
+                                @if (Model.PaymentType_List != null)
+                                {
+                                    @Html.DropDownListFor(model => model.PaymentTypeId, new SelectList(Model.PaymentType_List, "Id", "PaymentType"), "Select Payment Type", new { @onchange = "GetPaymentTypeChannel('')", @class = "form-control select requiredSelect" })
+                                }
+                            </th>
+                            <th class="fw-500">Select Payment Channel :</th>
+                            <th>
+                                @if (Model.paymentType_Channel_list != null)
+                                {
+                                    <div class="bindChanneltype">
+                                        @Html.DropDownListFor(model => model.ChannelId, new SelectList(Model.paymentType_Channel_list, "Id", "ChannelName"), "Select Payment Channel", new { @onchange = "GetPaymentTypeChannel('setaccount_id')", @class = "form-control floating requiredSelect" })
+                                    </div>
+                                }
+                            </th>
+                            <th class="fw-500">Total Amount </th>
+                            <th>
+                                @Html.TextBoxFor(m => m.TotalComissionAmount, new { @class = "form-control", @id = "SetTotaldisableamount", @readonly = "readonly" })
+                            </th>
+                            <th><button class="btn btn-sm pink-gradient-btn">  Pay </button></th>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+            <div class="BindStatus col-md-12 mt-2">
+                @if (Model.Status == "sucess")
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span> Selected  service's amount is payed sucess !!</span>
+                        <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
+                            <span aria-hidden='true'>&times;</span>
+                        </button>
+                    </div>
+                }
+                else if (Model.Status == "fail")
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role='alert'>
+                        <span>Error occured. Selected  service's amount is not payed !!</span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden='true'>&times;</span>
+                        </button>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Report").addClass("subdrop");
+        //$(".Submenu_Report").css("display", "block");
+        //$(".Submenu_Report").css("display", "block");
+        //$(".ComissionAgentReport").addClass("active");
+        var myarray = []; var TotalAMt = 0; var indx = 0;
+        $(document).ready(function () {
+            $('#datetimepicker11').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2
+            }).on('changeDate', function (e) {
+                debugger;
+                ToDate();
+                $('.datetimepicker12').val("").datetimepicker('setStartDate', new Date(e.date));
+            });
+            function ToDate() {
+                debugger;
+                $('#datetimepicker12').datetimepicker({
+                    format: "dd/mm/yyyy",
+                    autoclose: true,
+                    minView: 2
+
+                });
+            }
+        });
+
+        function sucessmethod(data) {
+            debugger;
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $("#Pay_FromDate").val($("#FromDate").val());
+            $("#Pay_ToDate").val($("#ToDate").val());
+            $("#Pay_Commission_AgentId").val($("#comission_agentid").val());
+
+        }
+        function CheckedAll(Month, ths) {
+            debugger;
+            indx = 0;
+            var invid, invcode, date = ""; var amt = 0, ItemId = 0;
+            if ($(ths).is(":checked")) {
+                $("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]').each(function () {
+                    if (!this.checked) {
+                        $('.' + $("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]')[indx].className).prop("checked", true);
+                        invid = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(6).text().trim();
+                        date = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(0).text().trim();
+                        ItemId = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(7).text().trim();
+                        amt = parseFloat($($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(5).text().trim());
+                        invcode = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(8).text().trim();
+                        ManageCheckBoxData(true, invid, amt, date, invcode, ItemId);
+                        indx++;
+                    }
+                });
+            }
+            else {
+                $("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]').each(function () {
+                    if (this.checked) {
+                        $('.' + $("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]')[indx].className).prop("checked", false);
+                        invid = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(6).text().trim();
+                        date = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(0).text().trim();
+                        ItemId = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(7).text().trim();
+                        amt = parseFloat($($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(5).text().trim());
+                        invcode = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(8).text().trim();
+                        ManageCheckBoxData(false, invid, amt, date, invcode, ItemId);
+                        indx++;
+                    }
+                });
+            }
+        }
+        function CheckBoxSet(inv_code, inv_id, row, Month, itemId) {
+            debugger;
+            ManageCheckBoxData($(row).is(":checked"), inv_id, parseFloat($(row).closest('tr').find('td').eq(5).text().trim()), $(row).closest('tr').find('td').eq(0).text().trim(), inv_code, itemId);
+            if ($("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]').length == myarray.length) {
+                $(".uncheck_" + Month).prop('checked', true);
+            }
+            else {
+                $(".uncheck_" + Month).prop('checked', false);
+            }
+        }
+        function ManageCheckBoxData(ischecked, inv_id, amount, date, inv_code, itemid) {
+            var IDs = inv_id;
+            if (ischecked) {
+                debugger;
+                TotalAMt += amount;
+                myarray.push({
+                    invoiceId: IDs,
+                    Amount: amount,
+                    Date: date,
+                    invoicecode: inv_code,
+                    ItemId: itemid
+                });
+            }
+            else {
+                for (var k = 0; k < myarray.length; k++) {
+                    if (myarray[k].invoiceId == IDs && myarray[k].Date == date && myarray[k].invoicecode == inv_code && myarray[k].ItemId == itemid) {
+                        TotalAMt = TotalAMt - myarray[k].Amount;
+                        myarray.splice(k, 1);
+                        break;
+                    }
+                }
+            }
+            $("#invoice_id_lst").html("");
+            for (var j = 0; j < myarray.length; j++) {
+                $("#invoice_id_lst").append('<tr><td><input type="text" name="invoiceId_lst[' + j + '].invoicecode" value=' + myarray[j].invoicecode + '></td> <td><input type="text" name="invoiceId_lst[' + j + '].invoiceId" value=' + myarray[j].invoiceId + '></td><td><input type="text"  name="invoiceId_lst[' + j + '].amount" value=' + myarray[j].Amount + '></td><td><input type="text" name="invoiceId_lst[' + j + '].date" value=' + myarray[j].Date + '></td><td><input type="text" name="invoiceId_lst[' + j + '].itemid" value=' + myarray[j].ItemId + '></td></tr>')
+            }
+            $("#SetTotaldisableamount").val(TotalAMt);
+        }
+
+        function OnbeginMethod() {
+            debugger;
+
+            var rowCount = $('#invoice_id_lst>tr').length;
+            if (rowCount == 0) {
+                alert("Please select atleast one services !!");
+                return false;
+            }
+
+            if ($("#Pay_Commission_AgentId").val() == "" || $("#Pay_Commission_AgentId").val() == null) {
+                alert("Please select Comission Agent !!");
+                return false;
+            }
+
+            if ($("#Pay_PaymentTypeId").val() == "" || $("#Pay_PaymentTypeId").val() == 0) {
+                alert("Please select Payment Type !!");
+                return false;
+            }
+
+            if ($("#Pay_ChannelId").val() == "" || $("#Pay_ChannelId").val() == 0) {
+                alert("Please Select Payment Channel !!");
+                return false;
+            }
+            if ($("#SetTotaldisableamount").val() == 0) {
+                $("#SetTotalPayableAmount").focus();
+                return false;
+            }
+        }
+        function ReceiveSuccessMethod(data) {
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $(".BindStatus").html($(data).find(".BindStatus").html());
+            $("#Pay_FromDate").val($("#FromDate").val());
+            $("#Pay_ToDate").val($("#ToDate").val());
+            $("#SetTotaldisableamount").val(0);
+            $("#Pay_PaymentTypeId").val("");
+            $("#Pay_ChannelId").val("");
+        }
+        function GetPaymentTypeChannel(type) {
+            debugger;
+            var PaymentTypeId = $("#PaymentTypeId").val()
+            if (type == "setaccount_id") {
+                $("#Pay_ChannelId").val($("#ChannelId").val());
+                return false;
+            }
+            if (PaymentTypeId != null && parseInt(PaymentTypeId) > 0) {
+                $("#Pay_PaymentTypeId").val(PaymentTypeId);
+                url = "/Comission/getPaymentTypeChannel_agentcomission?PaymentTypeId=" + PaymentTypeId + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    debugger;
+                    $('.bindChanneltype').removeAttr('hidden');
+                    $(".bindChanneltype").empty();
+                    $(".bindChanneltype").html($(datahtml).find(".bindChanneltype").html());
+                });
+            }
+            else {
+                $("#Pay_PaymentTypeId").val(0);
+                $("#Pay_ChannelId").val(0);
+                $('.bindChanneltype').attr('hidden', true);
+                $("#ChannelId option").remove();
+            }
+        }
+
+
+        //Assign Click event to Plus Image for LabName.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        $("body").on("click", "img[src*='minus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+                           //End
+
+
+    </script>
+}
+
+

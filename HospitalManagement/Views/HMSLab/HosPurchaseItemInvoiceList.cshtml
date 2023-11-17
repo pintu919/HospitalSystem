@@ -1,0 +1,141 @@
+﻿@model HospitalManagement.Models.HosPurchaseItemInovice
+@{
+    ViewBag.Title = "HosPurchaseItemInvoiceList";
+}
+<div class="content">
+
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Hospital Purchase Item Invoice List</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20 res-575-mb-15">
+            <a href="~/HMSLab/AddHosPurchaseItemNew" class="btn  skin-gradient-btn btn-sm"><i class="fa fa-plus"></i>Add Purchase Item +</a>
+        </div>
+    </div>
+
+    @*<div class="row">
+            <div class="col-lg-12">
+                <h4 class="page-title">Hospital Purchase Item Invoice List</h4>
+            </div>
+        </div>*@
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.hos_purchaseItem_Invoice != null && Model.hos_purchaseItem_Invoice.Count > 0)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+
+                                <th>Invoice Code</th>
+                                <th>Supplier</th>
+                                <th>Purchase Date</th>
+                                <th>Create Date</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.hos_purchaseItem_Invoice)
+                            {
+                                <tr id="row_@item.pi_code">
+                                    <td>
+                                        @*<a href="~/HMSLab/DcotorProfile/@item.pi_code" title="Click and view doctor profile" target="_blank">@item.pi_code</a>*@
+                                        <a href="javascript:;" onclick="submit('@item.pi_code')" title="Click and view Purchase Item Invoice">@item.pi_code</a>
+                                    </td>
+                                    <td>@item.supplier</td>
+                                    @*<td>@item.Data.patient_name</td>*@
+                                    @*<td>@item.Data.doctor_name</td>*@
+                                    <td>@item.purchase_date</td>
+                                    <td>@item.cdate</td>
+                                    <td>@item.total_amount</td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td>
+                                            <span class="badge badge-light-warning">Pending</span>
+                                        </td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="custom-badge status-green"><i class="fa fa-check"></i>Post</span></td>
+                                    }
+                                    <td class="text-center">
+                                        <a href="javascript:;" onclick="submitedit('@item.pi_code')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete('@item.pi_code')" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    @*<input type="hidden" id="message" value=@Model.PatientAllotmentList[0].message />*@
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="delete_inv" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to delete this Employee?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteEmployee()" class="btn red-gradient-btn">Delete</button>
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardboxdelemp" class="" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="hdninvcode" />
+
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".HosPurchaseItemInvoiceList").addClass("active");
+
+        var ConfirmDelete = function (InvCode) {
+            debugger;
+            $("#hdninvcode").val(InvCode);
+            $("#delete_inv").modal('show');
+        }
+        var DeleteEmployee = function () {
+            debugger;
+            var invcode = $("#hdninvcode").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSLab/InvoiceDelete",
+                data: { InvCode: invcode },
+                success: function (result) {
+                    if (result == true) {
+                        $("#delete_inv").modal("hide");
+                        $("#row_" + invcode).remove();
+                    }
+                }
+            })
+        }
+        function submit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/HMSLab/ViewPurchaseItemInvoice', '_self') });
+            }
+     function submitedit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/HMSLab/EditPurchaseItem', '_self') });
+        }
+    </script>
+}
+
+

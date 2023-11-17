@@ -1,0 +1,293 @@
+﻿@model HospitalManagement.Models.ClinicProfile
+@{
+    /**/
+
+    ViewBag.Title = "ClinicTheamSetting";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4 class="page-title">Control Setings</h4>
+        </div>
+    </div>
+
+    @using (Ajax.BeginForm("ClinicChageProfilePic", "HMSClinic", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="form-group row align-items-center">
+                        <label class="col-lg-12 col-form-label">Light Logo</label>
+                        <div class="col-lg-5">
+                            @Html.TextBoxFor(model => model.clklogo.cliniclogo, new { @class = "form-control", name = "postedFile", @id = "imageUploadForm", onchange = "readURL(this);", @type = "file" })
+                            @Html.ValidationMessageFor(model => model.clklogo.cliniclogo, "", new { @class = "text-danger" })
+                            <span class="form-text text-muted">Recommended image size is 250px x 75px</span>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="img-thumbnail">
+                                @if (Model.clklogo.ClinicDoclogo == "" || Model.clklogo.ClinicDoclogo == null)
+                                {
+                                    <img id="blah" alt="your image" src="~/wwwroot/assets/img/logo-dark.png" width="250" height="75">
+                                }
+                                else
+                                {
+                                    var img = System.Configuration.ConfigurationManager.AppSettings["gethosimgUrl"] + Model.clklogo.ClinicDoclogo;
+                                    <img id="blah" alt="your image" src="@img">
+                                    @Html.HiddenFor(model => model.clklogo.ClinicDoclogo)
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="">
+                                <button class="btn skin-gradient-btn submit-btn">Save</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div id="cardbox" class="card-box" hidden>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    @using (Ajax.BeginForm("ClinicChagePrescriptionPic", "HMSClinic", new AjaxOptions { HttpMethod = "POST", OnSuccess = "preSuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-lg-12">
+                <form>
+
+                    <div class="form-group row align-items-center">
+                        <label class="col-lg-12 col-form-label">Prescription Logo</label>
+                        <div class="col-lg-5">
+                            @Html.TextBoxFor(model => model.clklogo.clinicfevicon, new { @class = "form-control", name = "postedFile", @id = "imageUploadForm1", onchange = "readURLsmall(this);", @type = "file" })
+                            @Html.ValidationMessageFor(model => model.clklogo.clinicfevicon, "", new { @class = "text-danger" })
+                            <span class="form-text text-muted">Recommended image size is 250px x 75px</span>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="img-thumbnail">
+                                @if (Model.clklogo.clinicfevicon == "" || Model.clklogo.clinicfevicon == null)
+                                {
+                                    <img id="blahsmall" alt="your image" src="~/wwwroot/assets/img/logo-dark.png" width="250" height="75">
+                                }
+                                else
+                                {
+                                    var img = System.Configuration.ConfigurationManager.AppSettings["gethosimgUrl"] + Model.clklogo.clinicfevicon;
+                                    <img id="blahsmall" alt="your image" src="@img">
+                                    @Html.HiddenFor(model => model.clklogo.clinicfevicon)
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="">
+                                <button class="btn skin-gradient-btn submit-btn">Save</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="cardboxpre" class="card-box" hidden>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    <!-- Set Hospital Invoice Content && admission Form tearms and Condition -->
+    @using (Ajax.BeginForm("AddInvContent", "HMSClinic", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethodInv", LoadingElementId = "progress" }))
+    {
+        <div class="row patient-form m-0">
+            <div class="col-md-10">
+                <div class="col-lg-12">
+                    <label>Patient Admission Form Tearms And Condtion</label>
+                    @Html.TextAreaFor(model => model.inv_content.AdmissionFormTerms_Condition, new { @class = "form-control" })
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label>Invoice Footer Content</label>
+                        @Html.TextAreaFor(model => model.inv_content.invcontent, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="margin-top: 15%;">
+                <div class="col-lg-2 mt-3">
+                    <div class="m-t-20 text-center">
+                        <button class="btn skin-gradient-btn submit-btn">Add</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div id="cardboxinv" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+    }
+    <!-- Set Hospital Control -->
+    @using (Ajax.BeginForm("SetHosControl", "HMSClinic", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethodControl", LoadingElementId = "progress" }))
+    {
+        <div class="row patient-form  m-0">
+            <div class="col-md-6">
+                <div class="form-check form-check-inline m-t-20">
+                    <label class="form-check-label" for="AllowDischargeWithoutPayment">
+                        @Html.CheckBoxFor(model => model.Hos_Control.AllowDischargeWithoutPayment, new { @id = "AllowDischargeWithoutPayment" }) Allow InPatient Discharge Without Full Payment
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-check-inline m-t-20">
+                    <label class="form-check-label" for="DoctorVisitFeesAddOPDInvoice">
+                        @Html.CheckBoxFor(model => model.Hos_Control.DoctorVisitFeesAddOPDInvoice, new { @id = "DoctorVisitFeesAddOPDInvoice" }) Doctor Visit Fees Add in OPD Invoice
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-check-inline m-t-20">
+                    <label class="form-check-label" for="AllowTestReportEmailWithoutFullPayment">
+                        @Html.CheckBoxFor(model => model.Hos_Control.AllowTestReportEmailWithoutFullPayment, new { @id = "AllowTestReportEmailWithoutFullPayment" }) Allow Investigation Report Email Without full payment
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-check-inline m-t-20">
+                    <label class="form-check-label" for="Showpatientiamgeinprescription">
+                        @Html.CheckBoxFor(model => model.Hos_Control.Showpatientiamgeinprescription, new { @id = "Showpatientiamgeinprescription" }) Show Patient Iamge in Prescription
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-check-inline m-t-20">
+                    <label class="form-check-label" for="Showpatientdistrictinprescription">
+                        @Html.CheckBoxFor(model => model.Hos_Control.Showpatientdistrictinprescription, new { @id = "Showpatientdistrictinprescription" }) Show Patient District in Prescription
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-check-inline m-t-20">
+                    <label class="form-check-label" for="Showeyeinprescription">
+                        @Html.CheckBoxFor(model => model.Hos_Control.Showeyeinprescription, new { @id = "Showeyeinprescription" }) Show Eye Prescription
+                    </label>
+                </div>
+            </div>
+            <div class="col-lg-3 offset-2">
+                <div class="m-t-10 text-center">
+                    <button class="btn btn-sm skin-gradient-btn submit-btn">Add Control</button>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div id="cardbox_control" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@section scripts{
+    <script src="~/wwwroot/assets/plugins/summernote/dist/summernote-bs4.min.js"></script>
+    <link href="~/wwwroot/assets/plugins/summernote/dist/summernote-bs4.css" rel="stylesheet" />
+    <script type="text/javascript">
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".ClinicTheamSetting").addClass("active");
+
+        $('#inv_content_AdmissionFormTerms_Condition').summernote(
+            {
+                height: 150,                 // set editor height
+                minHeight: null,             // set minimum height of editor
+                maxHeight: null,             // set maximum height of editor
+                focus: true
+            });
+
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data[0] == "Profile Change Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data[0] + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data[0] == "problem has been occurred while submitting your data.") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data[0] + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data[1] != null) {
+                $('#blah1').attr('src', data[1]);
+
+            }
+            $("#cardbox").html(htmlstr);
+        }
+
+        function preSuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data[0] == "Profile Change Sucessfully!!") {
+                $('#cardboxpre').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data[0] + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data[0] == "problem has been occurred while submitting your data.") {
+                $('#cardboxpre').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data[0] + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+
+            $("#cardboxpre").html(htmlstr);
+        }
+
+        function SuccessMethodInv(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Invoice Content Added Sucessfully!!") {
+                $('#cardboxinv').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "problem has been occurred while submitting your data.") {
+                $('#cardboxinv').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardboxinv").html(htmlstr);
+        }
+
+        function SuccessMethodControl(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Hospital Control Set Sucessfully!!") {
+                $('#cardbox_control').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>" + data + "</strong> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "problem has been occurred while submitting your data.") {
+                $('#cardbox_control').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox_control").html(htmlstr);
+        }
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result)
+                        .width(250)
+                        .height(75);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function readURLsmall(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#blahsmall')
+                        .attr('src', e.target.result)
+                        .width(250)
+                        .height(75);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+    </script>
+}

@@ -1,0 +1,282 @@
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\bin\Debug\HMS.BizLayer.dll
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+E:\CLIENT FOLDER\Juber\HMS\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csprojAssemblyReference.cache
+E:\NewProject\HospitalManagement\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+E:\NewProject\HospitalManagement\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+E:\NewProject\HospitalManagement\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+E:\NewProject\HospitalManagement\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+E:\NewProject\HospitalManagement\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+E:\NewProject\HospitalManagement\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+E:\NewProject\HospitalManagement\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csprojAssemblyReference.cache
+D:\10012020\HospitalManagement\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\10012020\HospitalManagement\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\10012020\HospitalManagement\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csprojAssemblyReference.cache
+D:\10012020\HospitalManagement\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\10012020\HospitalManagement\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\10012020\HospitalManagement\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\10012020\HospitalManagement\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current Working Project\BackupProject\21042020 night\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csprojAssemblyReference.cache
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\ankur\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+E:\Hardik07012021\27122020\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csprojAssemblyReference.cache
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current Working Project\09feb2021Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csprojAssemblyReference.cache
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+E:\Hardik11062021\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\CurrentWorkingProject\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Hardik\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Latest_project_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Hospital_Latest_Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+G:\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_18_Sep_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_09_Dec_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_28_Feb_2022\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\CurrentWorkingProject\Hospital_28_Feb_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\CurrentWorkingProject\Hospital_01_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\CurrentWorkingProject\Hospital_02_April_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\eClinicStagingHP_13_May_2023\New folder\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\25_May_2023_Hospital\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+E:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HMS.Data.dll
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.dll
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.pdb
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\bin\Debug\HtmlAgilityPack.xml
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.CopyComplete
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.dll
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMS.BizLogic.pdb
+D:\Current_Working_Project\Hospital_25_Oct_2023\eClinicStagingHP\HMSBusinessLogic\obj\Debug\HMSBusinessLogic.csproj.AssemblyReference.cache

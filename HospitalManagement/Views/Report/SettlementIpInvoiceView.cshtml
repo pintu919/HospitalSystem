@@ -1,0 +1,570 @@
+﻿@model HospitalManagement.Models.InvoiceModel
+@{
+    ViewBag.Title = "SettlementIpInvoiceView";
+}
+<style>
+    .medicine-brand {
+        display: inline-block;
+        margin-bottom: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: #15558d;
+    }
+
+    .formation {
+        display: inline-block;
+        font-size: 16px;
+        color: #888;
+        padding-left: 15px;
+    }
+
+    .table.bill-table td,
+    .table.bill-table th {
+        padding: 8px;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <table style="width:100%;">
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="card mb-0">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12 col-md-7 m-auto">
+                                            @if (Model.HospitalData != null)
+                                            {
+                                                foreach (var item in Model.HospitalData)
+                                                {
+                                                    <div class="text-center">
+                                                        @if (item.clinic_doclogo == "" || item.clinic_doclogo == null)
+                                                        {
+                                                            var im = System.Configuration.ConfigurationManager.AppSettings["gethosdefaultimg"] + "default_hplogo.png";
+                                                            <img class="inv-logo" alt="" src="@im">
+                                                        }
+                                                        else
+                                                        {
+                                                            var img = System.Configuration.ConfigurationManager.AppSettings["gethosimgUrl"] + item.clinic_doclogo;
+                                                            <img class="inv-logo" alt="" src="@img">
+
+                                                        }
+                                                        <ul class="list-unstyled mt-10">
+                                                            <li><h3><strong>@item.Cliniq_Name</strong></h3></li>
+                                                            <li>@item.Cliniq_Addr</li>
+                                                            <li>Ph No: @item.Cliniq_phone</li>
+                                                        </ul>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="row biling-row">
+                                        <div class="col-sm-6 col-lg-6 col-md-6">
+                                            <ul class="list-unstyled inv_view_list mb-0">
+                                                @if (Model.HospitalData != null)
+                                                {
+                                                    foreach (var pat in Model.PatientData)
+                                                    {
+                                                        <li>
+                                                            <h4><strong>Invoice to : @pat.patient_firstname @pat.patient_lastname</strong></h4>
+                                                        </li>
+                                                        <li><span>Patient ID : </span> @pat.patient_code</li>
+                                                        <li><span>Contact No : </span> @pat.phone</li>
+                                                        <li><span>Age : </span> @pat.age</li>
+                                                        <li><span>Gender : </span> @pat.gender</li>
+                                                        <li><span>Invoice Type : </span> IP Invoice</li>
+                                                    }
+                                                }
+                                            </ul>
+                                        </div>
+                                        <div class="col-12 col-sm-6 col-lg-6 col-md-6">
+                                            @if (Model.HospitalData != null)
+                                            {
+                                                foreach (var inv in Model.InvoiceData)
+                                                {
+                                                    <div class="text-sm-right float-sm-right res-mt-20">
+                                                        <h4 class="text-uppercase"><strong>Invoice: @inv.invoice_code  </strong></h4>
+                                                        <input hidden id="hdninvoicecode" value="@inv.invoice_code" />
+                                                        <ul class="list-unstyled inv_view_list mb-0">
+                                                            <li><span>Date : </span>@inv.cdate</li>
+                                                            <li><span>Due date : </span> @inv.due_date</li>
+                                                            <li><span>Print Date/Time : </span>@inv.print_date</li>
+                                                            <li>
+                                                                <span>User : </span>
+                                                                @if (Session["ClinicCode"] != null)
+                                                                {
+                                                                    if (Convert.ToString(Session["UserCode"]).Split('-')[0] == "HP")
+                                                                    {
+                                                                        @HttpContext.Current.Session["clinic_name"]
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        @Session["UserCode"].ToString();
+                                                                    }
+                                                                }
+                                                            </li>
+                                                            <li><span>ReferalDoctor : </span>@inv.doctor_name</li>
+                                                        </ul>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    @{
+                                        //decimal TotalSettalAmount = 0;
+                                        int rowNo = 0;
+                                        decimal subTotal = 0;
+                                        decimal Total = 0;
+                                        decimal discount = 0;
+                                        decimal PaidAmount = Convert.ToDecimal(Model.PaidAmount);
+                                        decimal Extradiscount = Convert.ToDecimal(Model.ExtraDiscount);
+                                    }
+                                    <input type="hidden" id="GetExtraDiscount" value="@Extradiscount" />
+                                    <div class="mt-3">
+                                        <h4> Service Details </h4>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-bordered bill-table invoice-table">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Date</th>
+                                                        <th>Service Name</th>
+                                                        <th>Amount</th>
+                                                        <th>Discount</th>
+                                                        <th class="w-210">Final</th>
+                                                        <th>SettlementAmount</th>
+                                                    </tr>
+                                                </thead>
+                                                @if (Model.IPInvoicePara.ipinvestigation != null && Model.IPInvoicePara.ipinvestigation.Count > 0)
+                                                {
+                                                    <tbody>
+                                                        <tr class="border-0"><th class="border-0" colspan="5"><h4 class="bill-title">Investigation:</h4></th></tr>
+                                                        @foreach (var IPinv in Model.IPInvoicePara.ipinvestigation)
+                                                        {
+                                                            subTotal += Convert.ToDecimal(IPinv.Price);
+                                                            <tr>
+                                                                <td> @(rowNo += 1) </td>
+                                                                <td>@IPinv.Date</td>
+                                                                <td>@IPinv.ServiceName</td>
+                                                                <td>@Math.Round(IPinv.Price, 2)</td>
+                                                                <td>
+                                                                    <label for="name" class="control-label">@Math.Round(IPinv.DiscountAmount, 2)</label>
+                                                                </td>
+                                                                <td class="w-210" id="amount_@rowNo">
+                                                                    @if (IPinv.DiscountAmount > 0)
+                                                                    {
+                                                                        discount += Convert.ToDecimal(IPinv.DiscountAmount);
+                                                                        Total += Convert.ToDecimal(IPinv.Price - IPinv.DiscountAmount);
+                                                                        <span>@(Math.Round(IPinv.Price, 2) - Math.Round(IPinv.DiscountAmount, 2))</span>
+                                                                        <del>@Math.Round(IPinv.Price, 2)</del>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Total += Convert.ToDecimal(IPinv.Price);
+                                                                        @Math.Round(IPinv.Price, 2)
+                                                                    }
+
+                                                                </td>
+                                                                <td>
+                                                                    <label for="name" class="control-label" style="display: block; width: 50%; float: left; margin-right: 10px; ">
+                                                                        <input id="SettalMentDiscount" type="number" value="@Math.Round(IPinv.settlement_discount)" style="width:100%" class="text-info_@(rowNo)" />
+                                                                    </label>
+                                                                    <div class="controls" style=" display: table-cell; width: 15%;">
+                                                                        <a href="javascript:;" id="edit" onclick="setdiscount(@(rowNo),@IPinv.serviceid,'@IPinv.type',@IPinv.Price,@IPinv.DiscountAmount)" class="btn btn-sm bg-success-light"><i class="fa fa-save"></i></a>
+                                                                        <span id="success_message_@(rowNo)" style="color:#2069a9;font-size:12px;font-weight: 600;"></span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                }
+                                                @if (Model.IPInvoicePara.ipadvanceservices != null && Model.IPInvoicePara.ipadvanceservices.Count > 0)
+                                                {
+                                                    <tbody>
+                                                        <tr class="border-0"><th class="border-0" colspan="5"><h4 class="bill-title">Service:</h4></th></tr>
+
+                                                        @foreach (var IPinv in Model.IPInvoicePara.ipadvanceservices)
+                                                        {
+                                                            subTotal += Convert.ToDecimal(IPinv.Price);
+                                                            <tr>
+                                                                <td> @(rowNo += 1)</td>
+                                                                <td>@IPinv.Date</td>
+                                                                <td>@IPinv.ServiceName</td>
+                                                                <td>@Math.Round(IPinv.Price, 2)</td>
+                                                                <td>
+                                                                    <label for="name" class="control-label">@Math.Round(IPinv.DiscountAmount, 2)</label>
+                                                                </td>
+                                                                <td class="w-210" id="amount_@rowNo">
+                                                                    @if (IPinv.DiscountAmount > 0)
+                                                                    {
+                                                                        discount += Convert.ToDecimal(IPinv.DiscountAmount);
+                                                                        Total += Convert.ToDecimal(IPinv.Price - IPinv.DiscountAmount);
+                                                                        <span>@(Math.Round(IPinv.Price, 2) - Math.Round(IPinv.DiscountAmount, 2))</span>
+                                                                        <del>@Math.Round(IPinv.Price, 2)</del>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Total += Convert.ToDecimal(IPinv.Price);
+                                                                        @Math.Round(IPinv.Price, 2)
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <label for="name" class="control-label" style="display: block; width: 50%; float: left; margin-right: 10px; ">
+                                                                        <input id="SettalMentDiscount" type="number" value="@Math.Round(IPinv.settlement_discount)" style="width:100%" class="text-info_@(rowNo)" />
+                                                                    </label>
+                                                                    <div class="controls" style=" display: table-cell; width: 15%;">
+                                                                        <a href="javascript:;" id="edit" onclick="setdiscount(@(rowNo),@IPinv.serviceid,'@IPinv.type',@IPinv.Price,@IPinv.DiscountAmount)" class="btn btn-sm bg-success-light"><i class="fa fa-save"></i></a>
+                                                                        <span id="success_message_@(rowNo)" style="color:#2069a9;font-size:12px;font-weight: 600;"></span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                }
+                                                @if (Model.IPInvoicePara.ipotservices != null && Model.IPInvoicePara.ipotservices.Count > 0)
+                                                {
+                                                    <tbody>
+                                                        <tr class="border-0"><th class="border-0" colspan="5"><h4 class="bill-title">OT Services:</h4></th></tr>
+
+                                                        @foreach (var IPinv in Model.IPInvoicePara.ipotservices)
+                                                        {
+                                                            subTotal += Convert.ToDecimal(IPinv.Price);
+                                                            <tr>
+                                                                <td> @(rowNo += 1)</td>
+                                                                <td>@IPinv.Date</td>
+                                                                <td>@IPinv.ServiceName</td>
+                                                                <td>@Math.Round(IPinv.Price, 2)</td>
+                                                                <td>
+                                                                    <label for="name" class="control-label">@Math.Round(IPinv.DiscountAmount, 2)</label>
+                                                                </td>
+                                                                <td class="w-210" id="amount_@rowNo">
+                                                                    @if (IPinv.DiscountAmount > 0)
+                                                                    {
+                                                                        discount += Convert.ToDecimal(IPinv.DiscountAmount);
+                                                                        Total += Convert.ToDecimal(IPinv.Price - IPinv.DiscountAmount);
+                                                                        <span>@(Math.Round(IPinv.Price, 2) - Math.Round(IPinv.DiscountAmount, 2))</span>
+                                                                        <del>@Math.Round(IPinv.Price, 2)</del>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Total += Convert.ToDecimal(IPinv.Price);
+                                                                        @Math.Round(IPinv.Price, 2)
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <label for="name" class="control-label" style="display: block; width: 50%; float: left; margin-right: 10px; ">
+                                                                        <input id="SettalMentDiscount" type="number" value="@Math.Round(IPinv.settlement_discount)" style="width:100%" class="text-info_@(rowNo)" />
+                                                                    </label>
+
+                                                                    <div class="controls pull-right" style=" display: table-cell; width: 15%;">
+                                                                        <a href="javascript:;" id="edit" onclick="setdiscount(@(rowNo),@IPinv.serviceid,'@IPinv.type',@IPinv.Price,@IPinv.DiscountAmount)" class="btn btn-sm bg-success-light"><i class="fa fa-eye"></i></a>
+                                                                        <span id="success_message_@(rowNo)" style="color:#2069a9;font-size:12px;font-weight: 600;"></span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                }
+                                                @if (Model.IPInvoicePara.doctorvisit != null && Model.IPInvoicePara.doctorvisit.Count > 0)
+                                                {
+                                                    <tbody>
+                                                        <tr class="border-0"><th class="border-0" colspan="5"><h4 class="bill-title">Doctor Visit :</h4></th></tr>
+                                                        @foreach (var IPdocvisit in Model.IPInvoicePara.doctorvisit)
+                                                        {
+                                                            subTotal += Convert.ToDecimal(IPdocvisit.Price);
+                                                            <tr>
+                                                                <td> @(rowNo += 1)</td>
+                                                                <td> @IPdocvisit.Date</td>
+                                                                <td>@IPdocvisit.ServiceName</td>
+                                                                <td>@Math.Round(IPdocvisit.Price, 2)</td>
+                                                                <td>
+                                                                    <label for="name" class="control-label">@Math.Round(IPdocvisit.DiscountAmount, 2)</label>
+                                                                </td>
+
+                                                                <td class="w-210" id="amount_@rowNo">
+                                                                    @if (IPdocvisit.DiscountAmount > 0)
+                                                                    {
+                                                                        discount += Convert.ToDecimal(IPdocvisit.DiscountAmount);
+                                                                        Total += Convert.ToDecimal(IPdocvisit.Price - IPdocvisit.DiscountAmount);
+                                                                        <span>@(Math.Round(IPdocvisit.Price, 2) - Math.Round(IPdocvisit.DiscountAmount, 2))</span>
+                                                                        <del>@Math.Round(IPdocvisit.Price, 2)</del>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Total += Convert.ToDecimal(IPdocvisit.Price);
+                                                                        @Math.Round(IPdocvisit.Price, 2)
+
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <label for="name" class="control-label" style="display: block; width: 50%; float: left; margin-right: 10px; ">
+                                                                        <input id="SettalMentDiscount" type="number" value="@Math.Round(IPdocvisit.settlement_discount,2)" style="width:100%" class="text-info_@(rowNo)" />
+                                                                    </label>
+                                                                    <div class="controls" style=" display: table-cell; width: 15%;">
+                                                                        <a href="javascript:;" id="edit" onclick="setdiscount(@(rowNo),@IPdocvisit.serviceid,'@IPdocvisit.type',@IPdocvisit.Price,@IPdocvisit.DiscountAmount)" class="btn btn-sm bg-success-light"><i class="fa fa-save"></i></a>
+                                                                        <span id="success_message_@(rowNo)" style="color:#2069a9;font-size:12px;font-weight: 600;"></span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                }
+                                                @if (Model.IPInvoicePara.IPMedList != null && Model.IPInvoicePara.IPMedList.Count > 0)
+                                                {
+                                                    <tbody>
+                                                        <tr class="border-0"><th class="border-0" colspan="5"><h4 class="bill-title">Medicine :</h4></th></tr>
+                                                        @foreach (var IPMed in Model.IPInvoicePara.IPMedList)
+                                                        {
+                                                            subTotal += Convert.ToDecimal(IPMed.Price);
+                                                            <tr>
+                                                                <td> @(rowNo += 1) </td>
+                                                                <td> @IPMed.medicine_date</td>
+                                                                <td><h5 style="display:inline-block;color: #15558d;" class="medicine-brand">@IPMed.Brand_Name </h5> <span style="display:inline-block;" class="formation">@IPMed.formulationname</span><p class="mb-0">@IPMed.drug_generic_name &nbsp;&nbsp;&nbsp;(@IPMed.strength)</p></td>
+                                                                <td>@Math.Round(IPMed.Price, 2)</td>
+                                                                <td>@Math.Round(IPMed.DiscountAmount, 2)</td>
+                                                                <td class="w-210">
+                                                                    @if (IPMed.DiscountAmount > 0)
+                                                                    {
+                                                                        discount += Convert.ToDecimal(IPMed.DiscountAmount);
+                                                                        Total += Convert.ToDecimal(IPMed.Price - IPMed.DiscountAmount);
+                                                                        <span>@(Math.Round(IPMed.Price, 2) - Math.Round(IPMed.DiscountAmount, 2))</span>
+                                                                        <span class="line_through">@Math.Round(IPMed.Price, 2)</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Total += Convert.ToDecimal(IPMed.Price);
+                                                                        @Math.Round(IPMed.Price, 2)
+
+                                                                    }
+                                                                </td>
+                                                                <td></td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                }
+                                                @if (Model.IPInvoicePara.IPAdmitRoomList != null && Model.IPInvoicePara.IPAdmitRoomList.Count > 0)
+                                                {
+                                                    <tbody>
+                                                        <tr class="border-0"><th class="border-0" colspan="5"><h4 class="bill-title">Admit Room Details :</h4></th></tr>
+                                                        @foreach (var IPadmit in Model.IPInvoicePara.IPAdmitRoomList)
+                                                        {
+                                                            subTotal += Convert.ToDecimal(IPadmit.Price);
+                                                            <tr>
+                                                                <td> @(rowNo += 1)</td>
+                                                                <td> @IPadmit.admited_date</td>
+                                                                <td>
+                                                                    <h5 style="display:inline-block;color: #15558d;" class="medicine-brand">@IPadmit.ward_type </h5> <span style="display:inline-block;" class="formation">@IPadmit.room_facility</span>
+                                                                    <span style="display:inline-block;margin-left:5px;">Room No: @IPadmit.room_no &nbsp;&nbsp; Bed No:&nbsp;@IPadmit.bed_no</span>
+                                                                    <p class="mb-0">
+                                                                        Admit Days: @if (Convert.ToInt32(IPadmit.AdmitDays) > 0)
+                                                                        {<label>@IPadmit.AdmitDays</label> }
+                                                                    else
+                                                                    {<label>1</label>}
+                                                                        :&nbsp;&nbsp; Per Day Rent:&nbsp;@IPadmit.Per_Day_rent
+                                                                        Status: @if (IPadmit.isrelease == true)
+                                                                        {<span class="badge badge-pill bg-danger badge-primary">Release</span> }
+                                                                        else
+                                                                        { <span class="badge badge-pill bg-success badge-primary">Admited</span>}
+                                                                    </p>
+                                                                </td>
+                                                                <td> @Math.Round(IPadmit.Price, 2) </td>
+                                                                <td>
+                                                                    <label for="name" class="control-label">@Math.Round(IPadmit.DiscountAmount, 2)</label>
+                                                                </td>
+                                                                <td class="w-210" id="amount_@rowNo">
+                                                                    @if (IPadmit.DiscountAmount > 0)
+                                                                    {
+                                                                        discount += Convert.ToDecimal(IPadmit.DiscountAmount);
+                                                                        Total += Convert.ToDecimal(IPadmit.Price - IPadmit.DiscountAmount);
+                                                                        <span>@(Math.Round(IPadmit.Price, 2) - Math.Round(IPadmit.DiscountAmount, 2))</span>
+                                                                        <del>@Math.Round(IPadmit.Price, 2)</del>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        Total += Convert.ToDecimal(IPadmit.Price);
+                                                                        @Math.Round(IPadmit.Price, 2)
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <label for="name" class="control-label" style="display: block; width: 50%; float: left; margin-right: 10px; ">
+                                                                        <input id="SettalMentDiscount" type="number" value="@Math.Round(IPadmit.settlement_discount,2)" style="width:100%" class="text-info_@(rowNo)" />
+                                                                    </label>
+                                                                    <div class="controls" style=" display: table-cell; width: 15%;">
+                                                                        <a href="javascript:;" id="edit" onclick="setdiscount(@(rowNo),@IPadmit.serviceid,'@IPadmit.type',@IPadmit.Price,@IPadmit.DiscountAmount)" class="btn btn-sm bg-success-light"><i class="fa fa-save"></i></a>
+                                                                        <span id="success_message_@(rowNo)" style="color:#2069a9;font-size:12px;font-weight: 600;"></span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                }
+                                            </table>
+                                        </div>
+                                    </div>
+                                    @*<input type="hidden" value="@TotalSettalAmount" id="TotalSettalmentAmount" />*@
+                                    <div class="row invoice-payment">
+                                        <div class="col-sm-7">
+                                            @if (Model.JournalData != null && Model.JournalData.Count > 0)
+                                            {
+                                                int rw = 1;
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped table-hover table-bordered">
+                                                        <thead class="thead-light">
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Receipt No</th>
+                                                                <th>Receipt Date</th>
+                                                                <th>Paymode</th>
+                                                                <th>Type</th>
+                                                                <th>Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var invjournal in Model.JournalData)
+                                                            {
+                                                                <tr>
+                                                                    <td> @(rw)</td>
+                                                                    <td>@invjournal.journal_ref</td>
+                                                                    <td>@invjournal.journal_date</td>
+                                                                    <td>@invjournal.paymode</td>
+                                                                    <td>@invjournal.payment_type</td>
+                                                                    <td> @Math.Round(invjournal.dr_amount, 2)</td>
+                                                                    @{rw++; }
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="col-sm-5">
+                                            <div class="m-b-20 position-relative">
+                                                <div class="table-responsive">
+                                                    <table class="table mb-0 table-bordered">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th><b>Total Amount (TK):</b></th>
+                                                                <td class="w-210">
+                                                                    <span id="total_item_discount">
+                                                                        @(Math.Round(subTotal, 2) - Math.Round(discount, 2))
+                                                                    </span>
+                                                                    <del id="tot_amount" class="@(Math.Round(discount, 2)> 0 ? "d-inline-block" : "d-none")">@Math.Round(subTotal, 2)</del>
+                                                                </td>
+                                                            </tr>
+                                                            <tr hidden>
+                                                                <th><b>Item Discount Amount (TK):</b></th>
+                                                                <td class="w-210" id="Discount_Amount">@Math.Round(discount, 2)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th><b>Discount Amount (TK):</b></th>
+                                                                <td class="w-210" id="Gross_Discount_Amount">
+                                                                    <label for="name" class="control-label">@Math.Round(Extradiscount, 2)</label>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th><b>Net Payable (TK):</b></th>
+                                                                <td class="w-210" id="Net_Payable">@(Math.Round(Total, 2) - Math.Round(Extradiscount, 2))</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th><b>Paid Amount (TK):</b></th>
+                                                                <td class="w-210" id="pad_amount">@Math.Round(PaidAmount, 2)</td>
+                                                            </tr>
+                                                            <tr class="table-primary">
+                                                                <th><b>Total Due (TK):</b> </th>
+                                                                <th class="w-210" id="Due_Amount">@((Math.Round(Total, 2) - Math.Round(Extradiscount, 2)) - Math.Round(PaidAmount, 2))</th>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="Alert_msg" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class=" modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Alert Message</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="~/wwwroot/assets/img/sent.png" alt="" width="50" height="46">
+                <h5 class="text-danger m-t-20" id="alt_msg"></h5>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_AccountData").css("display", "block");
+        //$(".SettlementInvoiceList").addClass("active");
+
+        function setdiscount(row, id, type, amount, DiscountAmount) {
+            debugger;
+            var TotalSetAmount = 0;
+            $(".invoice-table").find("tbody").find('tr').find("#SettalMentDiscount").each(function () {           
+                TotalSetAmount = parseFloat(TotalSetAmount) + parseFloat($(this).val());
+            });
+            var text = $('.text-info_' + row).val() == "" ? 0 : $('.text-info_' + row).val();
+            var invoicecode = $("#hdninvoicecode").val();
+            if ((parseFloat(text) > parseFloat(amount - DiscountAmount)) || (parseFloat(text) > parseFloat($("#GetExtraDiscount").val()))) {
+                $('#alt_msg').text('Please enter less amount then Overall bill Discount Amount and Service Amount.');
+                $("#Alert_msg").modal('show');
+                return false;
+            }
+            if ((parseFloat(TotalSetAmount) > parseFloat($("#GetExtraDiscount").val()))) {
+                $('#alt_msg').text('Please enter TotalSettlementAmount less then Overall bill Discount Amount.');
+                $("#Alert_msg").modal('show');
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Report/IPInvoiceSettalAccount",
+                data: { ServiceId: id, ServiceType: type, InvoiceCode: invoicecode, Settal_Discount: text, Type:"IP" },
+                success: function (data) {
+                    debugger;
+                    if (data.length > 0) {
+                        if (parseInt(data[0].Status) == 1) {
+                            $('#success_message_' + row).fadeIn().text("Sucess..");
+                            setTimeout(function () {
+                                $('#success_message_' + row).fadeOut("slow");
+                            }, 2000);
+                        }
+                        else if (parseInt(data[0].Status) == 2) {
+                            $('#alt_msg').text('Please enter less amount then Discount Amount (TK) and Service Amount');
+                            $("#Alert_msg").modal('show');
+                        }
+                        else if (parseInt(data[0].Status) == 0) {
+                            $('#alt_msg').text('Something went to wrong Please contact administrator');
+                            $("#Alert_msg").modal('show');
+                        }
+                    }
+                    else {
+                        $('#alt_msg').text('Something went to wrong Please contact administrator');
+                        $("#Alert_msg").modal('show');
+                    }
+                },
+                error: function (textStatus, errorThrown) {
+                    alert(textStatus);
+                }
+            });
+        }
+    </script>
+}

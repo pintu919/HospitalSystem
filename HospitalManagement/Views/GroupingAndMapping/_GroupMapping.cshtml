@@ -1,0 +1,84 @@
+﻿@model HospitalManagement.Models.MappingModel
+<div class="card-body package">
+    <div class="mb-3"><h3>@Model.groupName</h3></div>
+    <div class="w-50 m-auto">
+        <div class="form-group">
+            <select class="form-control select requiredSelect drp_services" onchange="MappService(@Model.group_id,0,'')">
+                <option value="services">Services</option>
+                <option value="investigation">Investigation</option>
+            </select>
+        </div>
+    </div>
+    <div class="pakage-wrap position-relative">
+        @using (Ajax.BeginForm("Add_Mapping", "GroupingAndMapping", new AjaxOptions { HttpMethod = "POST", OnSuccess = "MappSuccessMethod", LoadingElementId = "progress" }, new { @id = "Mapping_trigger" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => Model.Type, new { @id = "mapp_unmapp_type" })
+            @Html.HiddenFor(model => Model.group_id, new { @id = "mapp_unmapp_groupid" })
+
+            @Html.HiddenFor(model => Model.AddLeftValues, new { @id = "AddLeftValues" })
+            @Html.HiddenFor(model => Model.AddrightValues, new { @id = "AddrightValues" })
+
+            <div class="row">
+                <div class="col-md-5 order-1">
+                    <div class="package-box">
+                        <div class="trial" style="color:#ff0000bf;">UnMapped Data</div>
+                        <div class="form-group mt-2">
+                            <input type="text" class="form-control UnMappSearchList" placeholder="Search" style="max-height:30px;background-color: #f2f4f5;" />
+                        </div>
+                        <ul class="left" id="Unmapplst_UL">
+                            @if (Model.UnMappList != null)
+                            {
+                                for (int i = 0; i < Model.UnMappList.Count; i++)
+                                {
+                                    <li>
+                                        <div class="checkbox">
+                                            @Html.CheckBoxFor(m => Model.UnMappList[i].IsCheck, new { @onchange = "MappCheckBox(" + Model.UnMappList[i].Id + ",'" + Model.UnMappList[i].Type + "',this)" })
+                                            @Model.UnMappList[i].Name
+                                        </div>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-5 ml-auto order-3">
+                    <div class="package-box">
+                        <div class="trial">Mapped Data</div>
+                        <div class="">
+                            <div class="form-group mt-2">
+                                <input type="text" class="form-control MappSearchList" placeholder="Search" style="max-height:30px;background-color: #f2f4f5;" />
+                            </div>
+                        </div>
+                        <ul class="right" id="Mapplst_UL">
+                            @if (Model.MappList != null)
+                            {
+                                for (int j = 0; j < Model.MappList.Count; j++)
+                                {
+                                    <li>
+                                        <div class="checkbox">
+                                            @Html.CheckBoxFor(m => Model.MappList[j].IsCheck, new { @onchange = "UnMappCheckBox(" + Model.MappList[j].Id + ",'" + Model.MappList[j].Type + "',this)" })
+                                            @Model.MappList[j].Name
+                                        </div>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-1 col-md-2 order-2">
+                    <div class="go-right">
+                        <button title="Add right" class="right-arrow mb-3 d-block border-0" name="Click" value="add_right">
+                            <img src="~/wwwroot/assets/img/go-right.png" />
+                        </button>
+                    </div>
+                    <div class="go-left">
+                        <button class="mt-7 left-arrow d-block border-0" title="add left" name="Click" value="add_left">
+                            <img src="~/wwwroot/assets/img/go-left.png" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

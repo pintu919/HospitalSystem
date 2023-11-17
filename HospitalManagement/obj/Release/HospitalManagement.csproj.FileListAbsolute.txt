@@ -1,0 +1,3 @@
+E:\NewProject\HospitalManagement\HospitalManagement\obj\Release\HospitalManagement.csproj.CoreCompileInputs.cache
+D:\Currently Working Project\eClinicStagingHP\HospitalManagement\obj\Release\HospitalManagement.csproj.AssemblyReference.cache
+D:\Currently Working Project\eClinicStagingHP\HospitalManagement\obj\Release\HospitalManagement.csproj.CoreCompileInputs.cache

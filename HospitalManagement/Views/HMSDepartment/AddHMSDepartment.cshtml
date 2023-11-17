@@ -1,0 +1,106 @@
+﻿@model HospitalManagement.Models.HMSDeparmentModel
+@{
+    ViewBag.Title = "AddHMSDepartment";
+}
+<link href="~/wwwroot/assets/css/select2.min.css" rel="stylesheet" />
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Add Department</h4>
+        </div>
+    </div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="row employee-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="form-group">
+                        <label>Department </label>
+                        @Html.ValidationMessageFor(model => model.DepartmentCode, "", new { @class = "text-danger" })
+                        @Html.DropDownListFor(model => model.DepartmentCode, new SelectList(Model.DepartmentLst, "department_code", "department_name"), "Select Department", new { @class = "form-control requiredSelect", @id = "department" })
+                    </div>
+                    <div class="form-group">
+                        <label> Name</label>
+                        @Html.ValidationMessageFor(model => model.HosDepartmentName, "", new { @class = "text-danger" })
+                        @Html.TextBoxFor(model => model.HosDepartmentName, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <label class="display-block">Department Status</label>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_active">
+                                @Html.RadioButtonFor(model => model.Ctrl, true)
+                                Active
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_inactive">
+                                @Html.RadioButtonFor(model => model.Ctrl, false)
+                                Inactive
+                            </label>
+                        </div>
+                    </div>
+                    <div class="m-t-20 text-center">
+                        <button class="btn skin-gradient-btn submit-btn">Create Department</button>
+                        <a class="btn skin-border-btn submit-btn" href="~/HMSDepartment/HMSDepartmentList"><i class="fa fa-arrow-left"></i> Back To List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card-box">
+            @if ((string)TempData["message"] == "Record Added Successfully!")
+            {
+                <h4 class="card-title">Alerts</h4>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            else if ((string)TempData["message"] == "Record Not Saved!")
+            {
+
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            else if ((string)TempData["message"] == "Record Allrady Exists!")
+            {
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            else if ((string)TempData["message"] != null)
+            {
+                @TempData["message"].ToString()
+
+            }
+        </div>
+    }
+</div>
+
+@section scripts{
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script>
+
+        //$(".Department").addClass("subdrop");
+        //$(".Submenu_Department").css("display", "block");
+        //$(".Submenu_Department").css("display", "block");
+        //$(".HMSDepartmentList").addClass("active");
+
+        $(document).ready(function () { $("#department").select2(); });
+    </script>
+}
+
+

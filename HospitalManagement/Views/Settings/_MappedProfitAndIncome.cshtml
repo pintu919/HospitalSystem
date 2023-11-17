@@ -1,0 +1,65 @@
+﻿@model HospitalManagement.Models.MappedExpenseAndProfit
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <select class="form-control select requiredSelect" id="Serviceid" onchange="GetServices('')">
+                <option value="services">Services</option>
+                <option value="investigation">Investigation</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-12">
+        @if (Model.servicelst != null)
+        {
+            using (Ajax.BeginForm("MappedIncome", "Settings", new AjaxOptions { HttpMethod = "POST", OnSuccess = "IncomeSuccessMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.profitcenterid, new { @id = "profcenterid" })
+                <div class="table-responsive">
+
+                    <table class="table table-bordered datatable mb-0" id="example-table">
+                        <thead>
+                            <tr class="table-info">
+                                <th class="w-15"><input type="checkbox" id="check_uncheck_all_pro" onclick="allprocheck()" style="margin-right:5px;" />All</th>
+                                <th class="collapse">#</th>
+                                <th>Service Name</th>
+
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <input type="text" id="filter" class="form-control" placeholder="Search" style="max-height:30px;background-color: #f2f4f5;" />
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody id="Unmapplst_UL">
+                            @for (int i = 0; i < Model.servicelst.Count; i++)
+                            {
+                                
+                                <tr id="row_@Model.servicelst[i].Id" class="All_Checkbox_pro">
+                                    @Html.HiddenFor(Model => Model.servicelst[i].Id)
+                                    @Html.HiddenFor(Model=>Model.servicelst[i].Type)
+                                    <td class="table-warning">@Html.CheckBoxFor(Model => Model.servicelst[i].IsCheck,new { @onchange= "Checked_Unchecked_pro()" })</td>
+                                    <td class="collapse">@Model.servicelst[i].Id</td>
+                                    <td>@Model.servicelst[i].Name</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="col-md-12">
+                    <div class="m-t-20 text-center">
+                        <button class="btn skin-gradient-btn submit-btn" name="submit">Save</button>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+
+
+
+

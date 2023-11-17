@@ -1,0 +1,1047 @@
+﻿@using HospitalManagement.Helper
+@model HospitalManagement.Models.MainNurseModel
+@{
+    /**/
+
+    ViewBag.Title = "HMSRegPatientAppointmentList";
+}
+<style>
+    .imgnone {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .tooltip-inner {
+        max-width: 100%;
+        padding: 0.25rem 0.5rem;
+        color: #fff;
+        text-align: left;
+        background-color: #000;
+        border-radius: 0.25rem;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="page-title">Register Appointments</h4>
+        </div>
+    </div>
+    <div class="row filter-row">
+
+        <div class="col-sm-6 col-md-3">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Day</label>
+                <select class="select floating" id="Days" onchange="GetDropdownData()">
+                    <option>Today</option>
+                    <option>Weekly</option>
+                    <option>Custom</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpfrom">
+            <div class="form-group form-focus">
+                <label class="focus-label">From Date</label>
+                <input id="datetimepicker11" class="form-control datetimepicker floating" autocomplete="off">
+                <i class="fa fa-calendar"></i>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpto">
+            <div class="form-group form-focus">
+                <label class="focus-label">To Date</label>
+                <input id="datetimepicker12" class="form-control datetimepicker floating" autocomplete="off">
+                <i class="fa fa-calendar"></i>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-3">
+            @if (Model.Nurse.Nurselstation != null)
+            {
+                <div class="form-group form-focus select-focus nursedropbind">
+                    <label class="focus-label">Nurse Station</label>
+                    @{var ActiveStationLst = Model.Nurse.Nurselstation.Where(m => m.ctrl == 1).ToList(); }
+                    @Html.ValidationMessageFor(model => model.Nurse.NurseSationId, "", new { @class = "text-danger" })
+                    @Html.DropDownListFor(model => model.Nurse.NurseSationId, new SelectList(ActiveStationLst, "station_id", "nurse_station_name"), "Select Nurse Station", new { @class = "form-control select floating requiredSelect", onchange = "GetDropdownData('station')", @id = "hosnursestation" })
+                </div>
+            }
+        </div>
+        @if (Model.Nurse.dpartmentlst != null)
+        {
+            <div class="col-sm-6 col-md-3 bindDepartmentlist">
+                <div class="form-group form-focus select-focus">
+                    <label class="focus-label">Department</label>
+                    @Html.ValidationMessageFor(model => model.Nurse.HosDepartmentcode, "", new { @class = "text-danger" })
+                    @Html.DropDownListFor(model => model.Nurse.HosDepartmentcode, new SelectList(Model.Nurse.dpartmentlst, "Hos_department_code", "Hos_department_name"), "Select Department", new { @class = "form-control select floating requiredSelect", onchange = "GetDropdownData('department')", @id = "hosdepartment" })
+                </div>
+            </div>
+        }
+        @if (Model.Nurse.DoctorList != null)
+        {
+            <div class="col-sm-6 col-md-3 binddoc">
+                <div class="form-group form-focus select-focus">
+                    <label class="focus-label">Doctor</label>
+                    @Html.ValidationMessageFor(model => model.Nurse.HosDocCode, "", new { @class = "text-danger" })
+                    @Html.DropDownListFor(model => model.Nurse.HosDocCode, new SelectList(Model.Nurse.DoctorList, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData('doctor')", @id = "hosDoctor" })
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row bindtable">
+        @if (Model.Nurse.RegisterAppointmentlst != null)
+        {
+            <div class="col-md-12">
+                <div class="table-responsive table-scrolling p-t-30">
+                    <table class="table table-border table-striped custom-table mb-0" id="example1">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Patient Name</th>
+                                <th hidden>appointment_datetime</th>
+                                <th>Age</th>
+                                <th>Doctor Name</th>
+                                @*<th>Department</th>*@
+                                <th>Appointment</th>
+                                <th>Doctor Visted</th>
+                                <th data-orderable="false">Vital</th>
+                                <th data-orderable="false">Action</th>
+                                @*<th class="text-right" data-orderable="false">Action</th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Nurse.RegisterAppointmentlst)
+                            {
+                                int i = 0;
+                                <tr id="row_@item.appointment_code">
+                                    <td class="plusicon text-center">
+                                        @if (item.IsVisited == 1 || item.IsVisited == 2)
+                                        {<img src="~/Image/plus.png" /> }
+                                        else
+                                        { <img class="imgnone" src="~/Image/plus.png" />}
+                                        <div style="display: none" class="table-responsive">
+                                            <table cellpadding="0" cellspacing="0" class="table table-bordered table-striped custom-table">
+                                                <thead class="thead-light">
+                                                    <tr class="more-details">
+                                                        <th hidden>Investigation Id</th>
+                                                        <th>Investigation Name</th>
+                                                        <th>Amount</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                @{
+                                                    if (Model.investigationPriceList != null)
+                                                    {
+                                                        var inv_price = Model.investigationPriceList.FindAll(A => A.appoinment_code == item.appointment_code).ToList();
+                                                        <tbody>
+                                                            @foreach (var price in inv_price)
+                                                            {
+                                                                <tr>
+                                                                    <td hidden>@price.investigationmaster_id</td>
+                                                                    <td>@price.investigationmaster_name</td>
+                                                                    <td> @Math.Round(price.price, 2)</td>
+                                                                    @if (price.price == 0)
+                                                                    {
+                                                                        <td class="text-center"><span class="custom-badge status-red"> Not available here</span></td>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        if (price.IsOwnCheckUp == 1)
+                                                                        {
+                                                                            <td class="text-center"><span class="custom-badge status-green"><i class="fa fa-check"></i>Added</span></td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            if (price.canceled == 0)
+                                                                            {
+                                                                                <td class="text-center added_@price.appoinment_code@i">
+                                                                                    @Ajax.ActionLink("Add", "AddInvestigationAmount", "HMSNurse",
+                                                                                    new { service_id = price.service_id, Investigationid = price.investigationmaster_id, Amount = price.price, Appointmentcode = price.appoinment_code, PriceId = price.invpriceid },
+                                                                                     new AjaxOptions()
+                                                                                     {
+                                                                                         HttpMethod = "POST",
+                                                                                         OnSuccess = " $(this).remove(),SucessMethod('added_" + price.appoinment_code + i + "')",
+                                                                                     }, new { @class = "btn green-gradient-btn btn-sm" })
+                                                                                </td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td class="text-center">
+                                                                                    <span class="custom-badge status-red">Canceled</span>
+                                                                                </td>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    @if (price.pending_sample == 0)
+                                                                    {
+                                                                        if (price.price > 0)
+                                                                        {
+                                                                            if (price.canceled == 0)
+                                                                            {
+                                                                                <td id=@price.appoinment_code@i class="text-center  @price.appoinment_code@i@price.service_id">
+                                                                                    @Ajax.ActionLink("Cancel", "CancelOPDInvestigation", "HMSNurse",
+                                                                                                         new { service_id = price.service_id, Investigationid = price.investigationmaster_id, Amount = price.price, Appointmentcode = price.appoinment_code, PriceId = price.invpriceid },
+                                                                                                         new AjaxOptions
+                                                                                                         {
+                                                                                                             HttpMethod = "POST",
+                                                                                                             InsertionMode = InsertionMode.Replace,
+                                                                                                             UpdateTargetId = "Bindpara",
+                                                                                                             OnSuccess = "CancelshowModal('" + price.appoinment_code + i + price.service_id + "','added_" + price.appoinment_code + i + "')",
+                                                                                                             LoadingElementId = "progress"
+                                                                                                         },
+                                                                                                        new { @class = "btn red-gradient-btn btn-sm" })
+                                                                                </td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td class="text-center"><span class="custom-badge status-red">Canceled</span></td>
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td></td>
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <td></td>
+                                                                    }
+                                                                </tr>
+                                                                i++;
+                                                            }
+                                                        </tbody>
+                                                    }
+                                                }
+                                            </table>
+                                        </div>
+                                    </td>
+                                    @*<td>@item.appointment_code</td>*@
+                                    <td>
+                                        @{
+                                            var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                            if (item.patient_profile != "" && item.patient_profile != null)
+                                            {
+                                                PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.patient_profile;
+                                            }
+                                        }
+                                        @*<img class="avatar" src="@PatProfile" alt="User Image">
+                                            <h2>@item.patient_name <span class="d-block text-primary"><small>@item.patient_code</small></span></h2>*@
+                                        <img class="avatar" src="@PatProfile" alt="User Image"><h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.patient_name </a><span class="d-block text-secondary"> @item.patient_code </span> </h2>
+                                    </td>
+                                    <td hidden>@Html.DisplayFor(model => item.appointment_datetime)</td>
+                                    <td><h2>@item.gender <span class="text-secondary">@item.patient_age</span></h2></td>
+                                    <td><h2>@item.doctor_name <span class="text-secondary">  @item.department_name</span></h2></td>
+                                    @*<td></td>*@
+                                    <td>
+                                        @if (item.appointment_type != null)
+                                        {
+
+                                            if (item.appointment_type.Split('-')[0].Trim() == "Walking")
+                                            {
+
+                                                <span> @item.appointment_date @item.prefix-@item.appointment_type.Split('-')[1] </span>
+                                                <span class="d-block text-secondary"><small>@item.appointment_code</small></span>
+
+                                            }
+                                            else
+                                            {
+
+                                                <span>@item.appointment_date  @item.appointment_time </span>
+                                                <span class="d-block text-secondary"><small>@item.appointment_code</small></span>
+
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.IsVisited == 0)
+                                        {
+                                            <span class="badge badge-danger">Pending</span>
+                                        }
+                                        @if (item.IsVisited == 1)
+                                        {
+                                            <span class="badge badge-success">Complited</span>
+                                        }
+                                        @if (item.IsVisited == 2)
+                                        {
+                                            <span class="badge badge-warning">Hold</span>
+                                        }
+                                    </td>
+                                    <td id="tdreplace_@item.appointment_code">
+                                        @if ((item.Vital == null || item.Vital == ""))
+                                        {
+
+                                            if (item.IsVisited == 0)
+                                            {
+                                                <a class="btn blue-gradient-btn action-icon" href="#" onclick="OpenPopUpModal('@item.patient_code','@item.appointment_code')"><i class="flaticon flaticon-report-1"></i></a>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn blue-gradient-btn action-icon" href="#" disabled><i class="flaticon flaticon-report-1"></i></button>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            string VitalLsts = "";
+                                            foreach (var vi in item.Vital.Split('$'))
+                                            {
+                                                VitalLsts += "<b>" + vi + "</b><br />";
+                                            }
+                                            <button type="button" class="btn btn-xs btn-outline-info" data-toggle="tooltip" data-html="true" data-placement="right"
+                                                    title="@VitalLsts">
+                                                View Vital
+                                            </button>
+
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.IsVisited == 1 || item.IsVisited == 2)
+                                        {
+                                            if (item.otstatus == 0)
+                                            {
+                                                <div id="ot_@item.appointment_code" class="d-inline-block">
+                                                    @Ajax.RawActionLink(string.Format("<i class='fa fa-forward m-0'></i> OT"), "OPD_Patient_Transfer_OT", "HMSNurse",
+                                                                                       new { appointment_code = item.appointment_code },
+                                                                                       new AjaxOptions()
+                                                                                       {
+                                                                                           HttpMethod = "POST",
+                                                                                           OnSuccess = "OPDshowModalOT()",
+                                                                                           LoadingElementId = "progress",
+                                                                                           UpdateTargetId = "bind_opd_ot"
+                                                                                       }, new { @class = "btn btn-warning btn-xs-md", title = "Patient Transfer OT" }
+                                                                                     )
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-light-warning">OT Added</span>
+                                            }
+                                        }
+                                        @if (item.IsVisited == 1 || item.IsVisited == 2)
+                                        {
+                                            <button href="#" class="action-icon btn red-gradient-btn" disabled><i class="fa fa-remove"></i></button>
+                                            if (item.otcomplete > 0)
+                                            {
+
+                                                <a href="~/InPatient/OPDOperationDetails/@item.appointment_code" target="_blank" data-toggle='tooltip' title="View Operation Details" class="btn btn-sm btn-primary res-block-btn d-inline-block">
+                                                    OT Details
+                                                </a>
+                                            }
+                                        }
+                                        else
+                                        {
+
+                                            <div class="d-inline-block">
+                                                <a href="#" onclick="ConfirmDeleteAppointment('@item.appointment_code')" class="action-icon btn red-gradient-btn"><i class="fa fa-remove"></i></a>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@*<div id="Vital_model" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div id="bindSalary" class="modal-content">
+                <div class="content">
+                    <div class="modal-header skin-bg-gradient">
+                        <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Add Vital Para</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @if (Model.vital != null)
+                        {
+                            <div class="row bindvitalpara">
+                                <div class="col-md-12" hidden>
+                                    <label>Patient Code:</label>
+                                    <div class="form-group">
+                                        @Html.ValidationMessageFor(model => Model.vital.PatientCode, "", new { @class = "text-danger" })
+                                        @Html.TextBoxFor(model => Model.vital.PatientCode, new { @class = "form-control", @placeholder = "Patient Code", @readonly = "readonly", @id = "PatientCode" })
+
+                                        <i class="fa fa-pencil"></i>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Body Temperature(fahrenheit)</label>
+                                        @Html.TextBoxFor(model => Model.vital.BodyTemperature, new { @class = "form-control", @type = "number", @placeholder = "Enter Temperature", @id = "bt" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Blood Pressure</label>
+                                        @Html.TextBoxFor(model => Model.vital.BloodPressure, new { @class = "form-control", @placeholder = "Enter Blood Pressure", @id = "bp" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Weight(kg)</label>
+                                        @Html.TextBoxFor(model => Model.vital.Weight, new { @class = "form-control", @type = "number", @placeholder = "Enter Weight", @id = "we" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Sugar</label>
+                                        @Html.TextBoxFor(model => Model.vital.Sugar, new { @class = "form-control", @type = "number", @placeholder = "Enter Sugar", @id = "su" })
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Oxygen Level</label>
+                                        @Html.TextBoxFor(model => Model.vital.Oxygenlevel, new { @class = "form-control", @type = "number", @placeholder = "Enter Oxygen Level", @id = "ol" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Heart Rate</label>
+                                        @Html.TextBoxFor(model => Model.vital.Heartrate, new { @class = "form-control", @type = "number", @placeholder = "Heart Rate", @id = "hr" })
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label>Remarks</label>
+                                        @Html.TextAreaFor(model => Model.vital.Remarks, new { @class = "form-control", @col = "4", @placeholder = "Enter Remarks", @id = "re" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="m-t-20 text-center">
+                                        <button class="btn green-gradient-btn btn-sm" onclick="AddVitalPara()" type="submit"><i id="ajxloader" class=""></i> Add Vital</button>
+                                        <a href="#" class="btn red-gradient-btn btn-sm m-l-15 res-479-m-t-10" data-dismiss="modal"><i class="fa fa-close"></i> Close</a>
+                                    </div>
+                                </div>
+                                @if (Model.vital.status == "insert")
+                                {
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="alert alert-success alert-dismissible fade show text-center mb-0" role="alert">
+                                                <strong>Success!</strong> Your <a href="#" class="alert-link">Patient Vital</a> has been Add successfully.
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.vital.status == "update")
+                                {
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <div class="alert alert-success alert-dismissible fade show text-center mb-0" role="alert">
+                                                <strong>Success!</strong> Your <a href="#" class="alert-link">Patient Vital</a> has been Update successfully.
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-md-12">
+                                    <div id="cardboxvital" class="text-center mt-2" hidden>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <input type="hidden" id="hiddencode" />
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false" id="vital_history">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Health Today's Vital</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Ajax.BeginForm("Savetodayvitals", "HMSNurse", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="modal-body">
+                    @Html.HiddenFor(model => model.VitalPara.Appointmentcode)
+                    @Html.HiddenFor(model => model.VitalPara.PatientCode)
+                    @*<div id="ajx_modalloader" class="loadingmessage" style="top:42%;left:45%;bottom:0%;"></div>*@
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="form-group card-label">
+                                <select class="form-control ddlvitalvalue" onchange="drp_vital_onchange(this)"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <div class="input-group mb-3">
+                                <input type="text" placeholder="Enter Vital value" class="form-control" id="Vital_Value" />
+                                <span class="input-group-text" id="VitalUnit"></span>
+                            </div>
+                            @*<div class="form-group">
+                                    <input type="text" placeholder="Enter Vital value" class="form-control" id="Vital_Value" />
+                                </div>*@
+                        </div>
+                        <div class="col-md-2 col-sm-12 mt-2">
+                            <a href="javascript:void(0);" onclick="AddVital()" class="btn btn-xs btn-info"> Add</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="dataTable dataTables_info border-dark">
+                                <table class="table res-991-table-bordered datatable table-hover table-center mb-0 dataTable no-footer" id="Vital_table">
+                                    <thead>
+                                        <tr role="row">
+                                            <th>Vital</th>
+                                            <th>Value</th>
+                                            <th>Unit</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbl_bind_vital"> </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row">
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group card-label">
+                                    <label>Body Temperature </label>
+                                    @Html.TextBoxFor(model => model.VitalPara.BodyTemperature, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group card-label">
+                                    <label>Blood Pressure (Diastolic/Systolic)</label>
+                                    @Html.TextBoxFor(model => model.VitalPara.BloodPressure, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group card-label">
+                                    <label>Weight<strong>(Kg)</strong> </label>
+                                    @Html.TextBoxFor(model => model.VitalPara.Weight, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group card-label">
+                                    <label>Sugar </label>
+                                    @Html.TextBoxFor(model => model.VitalPara.Sugar, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group card-label">
+                                    <label>Oxygen Level (%) </label>
+                                    @Html.TextBoxFor(model => model.VitalPara.OxygenLevel, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group card-label">
+                                    <label>Heart Rate (BPM) </label>
+                                    @Html.TextBoxFor(model => model.VitalPara.Heartrate, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-12">
+                                <div class="form-group">
+                                    <label>Remarks</label>
+                                    @Html.TextAreaFor(model => model.VitalPara.Remarks, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-12">
+                                <div id="BindStatusHtml" class="form-group">
+                                </div>
+                            </div>
+                        </div>*@
+                </div>
+                <div class="modal-footer" style="justify-content:center">
+                    <button type="submit" class="btn btn-sm btn-primary mr-10">Save <i class="fa fa-plus"></i></button>
+                    <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Close<i class="fas fa-times"></i></button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="delete_RegAppointment" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to delete this Appointment?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteRegAppointment()" class="btn red-gradient-btn">Delete</button> &nbsp;
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="bind_opd_ot">
+    @Html.Partial("_OPDPatientOTPopUp", Model)
+</div>
+@Html.Partial("_OPDInvestigationCancel_Reason", Model)
+<input id="apt_code" hidden />
+<input id="added_id" hidden />
+@section scripts{
+    <script src="~/wwwroot/assets/js/jquery.maskedinput.min.js"></script>
+    <script src="http://cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js"></script>
+    <script type="text/javascript">
+
+        //$(".RegisterAppointment").addClass("subdrop");
+        //$(".Submenu_RegisterAppointment").css("display", "block");
+        //$(".Submenu_RegisterAppointment").css("display", "block");
+        //$(".HMSRegPatientAppointmentList").addClass("active");
+
+        $(document).ready(function () {
+
+            $('#datetimepicker11').datetimepicker({
+                dateFormat: "dd/mm/yy"
+            }).on('dp.change', function (e) {
+                GetDropdownData('Custom');
+            });
+
+            $('#datetimepicker12').datetimepicker({
+                dateFormat: "dd/mm/yy"
+            }).on('dp.change', function (e) {
+                GetDropdownData('Custom');
+            });
+            $('#example1').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true,
+                "fnDrawCallback": function (oSettings) {
+                    debugger;
+                    DataToogle();
+                }
+            });
+        });
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode != 46 && charCode > 31
+                && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        function GetDropdownData(type) {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            var day = $("#Days").val() == 'Select Day' ? 'Select Day' : $("#Days").val();
+            var firstDay = new Date();
+            var lastDay = new Date();
+            if ($('#Days').val() == 'Today') {
+                firstDay = new Date().toDateString();
+                lastDay = new Date().toDateString();
+            }
+            if ($('#Days').val() == 'Weekly') {
+                var curr = new Date; // get current date
+                var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+                var last = first + 6; // last day is the first day + 6
+                firstDay = new Date(curr.setDate(first)).toUTCString();
+                lastDay = new Date(curr.setDate(last)).toUTCString();
+            }
+            if ($('#Days').val() == 'Custom') {
+                $('#colpfrom').removeClass('collapse');
+                $('#colpto').removeClass('collapse');
+
+                if ($('#datetimepicker11').val() != null && $('#datetimepicker11').val() != "") {
+                    var from = $("#datetimepicker11").val().split("/")
+                    var f = new Date(from[2], from[1] - 1, from[0])
+                    firstDay = f.toDateString();
+                }
+                if ($('#datetimepicker12').val() != null && $('#datetimepicker12').val() != "") {
+                    var to = $("#datetimepicker12").val().split("/")
+                    var t = new Date(to[2], to[1] - 1, to[0])
+                    lastDay = t.toDateString();
+                }
+            }
+            else {
+                $('#colpfrom').addClass('collapse');
+                $('#colpto').addClass('collapse');
+
+            }
+            var stationid = $("#hosnursestation").val() == '' ? 0 : $("#hosnursestation").val();
+            var hosdepcode = $("#hosdepartment").val() == '' ? '' : $("#hosdepartment").val()
+            var doccode = $("#hosDoctor").val() == '' ? '' : $("#hosDoctor").val()
+            if (doccode == undefined) { doccode = ""; }
+            url = "/HMSNurse/GetAllRegesterAppoinmentLists?fromdate=" + firstDay + " &todate=" + lastDay + " &sationid=" + stationid + " &hosdepcode=" + hosdepcode + " &doccode=" + doccode + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                if (type == 'station') {
+                    $(".binddoc").empty();
+                    $(".bindDepartmentlist").empty();
+                    $(".bindDepartmentlist").html($(datahtml).find(".bindDepartmentlist").html());
+                }
+                if (type == 'department') {
+                    $(".binddoc").empty();
+                    $(".binddoc").html($(datahtml).find(".binddoc").html());
+                }
+                $(".bindtable").empty();
+                $(".bindtable").html($(datahtml).find(".bindtable").html());
+                //$("#example1").dataTable();
+                $('#example1').DataTable({
+                    "paging": true,
+                    "order": [[2, "desc"]],
+                    "scrollCollapse": true,
+                    "searching": true,
+                    "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                    "bInfo": true,
+                    "fnDrawCallback": function (oSettings) {
+                        debugger;
+                        DataToogle();
+                    }
+                });
+                DataToogle();
+            });
+        }
+        //var AddVital = function (patcode, appointcode) {
+        //    debugger;
+        //    $("#Vital_model").find('input:text,input:file,select, textarea').val('');
+        //    $("#PatientCode").val(patcode);
+        //    $("#hiddencode").val(appointcode);
+        //    url = "/HMSNurse/GetVitalPara?PatientCode=" + patcode + " &Appointmentcode=" + appointcode + "";
+        //    $.ajax({
+        //        url: url,
+        //        datatype: 'json',
+        //        ContentType: 'application/json;utf-8'
+        //    }).done(function (datahtml) {
+        //        $(".bindvitalpara").empty();
+        //        $(".bindvitalpara").html($(datahtml).find(".bindvitalpara").html());
+        //        $("#Vital_model").modal('show');
+        //        $('#bp').mask('999/999');
+        //    });
+        //}
+
+        function OpenPopUpModal(patcode, Apptcode) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/HMSNurse/GetAllVital",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    debugger;
+                    $("#VitalUnit").text("");
+                    $("#Vital_Value").val("");
+                    $(".ddlvitalvalue").empty();
+                    var optionhtml1 = '<option value="' + 0 + '">' + "-- Select Vital --" + '</option>';
+                    $(".ddlvitalvalue").append(optionhtml1);
+                    $.each(data, function (i) {
+                        var optionhtml = '<option value="' + data[i].hos_vital_code + '">' + data[i].hos_vital_name + '</option>';
+                        $(".ddlvitalvalue").append(optionhtml);
+                    });
+                    $("#VitalPara_Appointmentcode").val(Apptcode);
+                    $("#VitalPara_PatientCode").val(patcode);
+                    $("#VitalPara_Remarks").val('');
+                    $("#vital_history").modal();
+                },
+                Error: function (status) {
+                    debugger;
+                    alert(status);
+                    $("#ajx_modalloader").hide();
+                }
+            });
+        }
+
+        function drp_vital_onchange(drpobject) {
+            if (drpobject.value != "0")
+                $("#VitalUnit").text(drpobject.value.split("$")[1]);
+            else {
+                $("#VitalUnit").text("");
+                $("#Vital_Value").val("");
+            }
+        }
+
+        //var AddVitalPara = function () {
+        //    debugger;
+        //    $("#ajxloader").addClass('fa fa-refresh fa-spin');
+        //    var PatientCode = $("#PatientCode").val();
+        //    var bt = $('#bt').val();
+        //    var bp = $('#bp').val();
+        //    var we = $('#we').val();
+        //    var su = $('#su').val();
+        //    var re = $('#re').val();
+        //    var ol = $('#ol').val();
+        //    var hr = $('#hr').val();
+        //    var Appointmentcode = $("#hiddencode").val();
+        //    if ((bt == '0' || bt == '') && bp == '' && (we == '' || we == 0) && (su == '' || su == '0') && (ol == '' || ol == '0') && (hr == '' || hr == '0')) {
+        //        $('#cardboxvital').removeAttr('hidden');
+        //        var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong><a href='#' class='alert-link'></a> <span id='statusmsg'> Please Enter At least one Vital !! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+        //        $("#cardboxvital").html(htmlstr);
+        //        return;
+        //    }
+        //    var ischeck = true;
+        //    if (ischeck) {
+        //        $.ajax({
+        //            type: "POST",
+        //            url: "/HMSNurse/InsertVitalPara",
+        //            data: '{BodyTemperature:"' + bt + '", BloodPressure: "' + bp + '", Weight: "' + we + '", Sugar: "' + su + '", Oxygenlevel: "' + ol + '", Heartrate: "' + hr + '", Remarks: "' + re + '", PatientCode:"' + PatientCode + '", Appointmentcode:"' + Appointmentcode + '"}',
+        //            contentType: "application/json; charset=utf-8",
+        //            dataType: "html",
+        //            success: function (datahtml) {
+        //                $(".bindvitalpara").empty();
+        //                $(".bindvitalpara").html($(datahtml).find(".bindvitalpara").html());
+        //                $('#bp').mask('999/999');
+        //            }
+        //        });
+        //    }
+        //    $("#ajxloader").removeClass('fa fa-refresh fa-spin');
+        //};
+        //var SaveMainVitalPara = function () {
+        //    debugger;
+        //    var PatientCode = $("#PatientCode").val();
+        //    var FatherMedicalHistory = $("#FatherMedicalHistory").val();
+        //    var MotherMedicalHistory = $("#MotherMedicalHistory").val();
+        //    var Allergies = $("#Allergies").val();
+        //    var Appointmentcode = $("#hiddencode").val();
+        //    var ischeck = true;
+        //    if (ischeck) {
+        //        $.ajax({
+        //            type: "POST",
+        //            url: "/HMSNurse/InsertMainVitalPara",
+        //            data: '{FatherMedicalHistory:"' + FatherMedicalHistory + '", MotherMedicalHistory: "' + MotherMedicalHistory + '", Allergies: "' + Allergies + '", Appointmentcode:"' + Appointmentcode + '", patientCode:"' + PatientCode + '" }',
+        //            contentType: "application/json; charset=utf-8",
+        //            dataType: "html",
+        //            success: function (datahtml) {
+        //                var htmlstr = "";
+        //                if (datahtml == "Record Added Successfully!") {
+        //                    $('#cardbox').removeAttr('hidden');
+        //                    htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + datahtml + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+        //                }
+        //                if (datahtml == "Record Not Saved!") {
+        //                    $('#cardbox').removeAttr('hidden');
+        //                    htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + datahtml + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+        //                }
+        //                else {
+        //                    $('#cardbox').removeAttr('hidden');
+        //                    htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + datahtml + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+        //                }
+        //                $("#cardbox").html(htmlstr);
+        //            }
+        //        });
+        //    }
+        //};
+        var ConfirmDelete = function (vitalid) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/HMSNurse/DeleteVitalPara",
+                data: { VitalId: vitalid },
+                success: function (result) {
+                    $("#row_" + vitalid).remove();
+                }
+            })
+        }
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr><td></td><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next().remove();
+        });
+        function SucessMethod(cls) {
+            debugger;
+            $("." + cls + "").html("");
+            $("." + cls + "").html("<span class='custom-badge status-green'><i class='fa fa-check'></i>Added</span>");
+        }
+
+        var ConfirmDeleteAppointment = function (Appointmentcode) {
+            debugger;
+            $("#hiddencode").val(Appointmentcode);
+            $("#delete_RegAppointment").modal('show');
+        }
+        var DeleteRegAppointment = function () {
+            debugger;
+            var RegAppointmentcode = $("#hiddencode").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSNurse/DeleteRegAppointment",
+                data: { RegAppointmentcode: RegAppointmentcode },
+                success: function (result) {
+                    $("#delete_RegAppointment").modal("hide");
+                    $("#row_" + RegAppointmentcode).remove();
+                }
+            })
+        }
+
+        function OPDshowModalOT() {
+            debugger;
+            $(".select2").select2();
+            //$("#Investigation_uniqrow").val(id);
+            $('#OPD_OT_transfer').modal('show');
+        }
+        function OTOnBegin() {
+            debugger;
+
+            if ($("#OPDOTTransfer_operation_date").val() == "" || $("#OPDOTTransfer_operation_date").val() == null) {
+                $('#cardboxOT').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>Please Enter Operation Date !!! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxOT").html(htmlstr);
+                return false;
+            }
+            if ($("#OPDOTTransfer_operation_time").val() == "" || $("#OPDOTTransfer_operation_time").val() == null) {
+                $('#cardboxOT').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>Please Enter Operation Time !!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxOT").html(htmlstr);
+                return false;
+            }
+            //if ($("#OTTransfer_operation_type").val() == "" || $("#OTTransfer_operation_type").val() == null) {
+            //    $('#cardboxOT').removeAttr('hidden');
+            //    htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>Please Enter Operation Type !!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            //    $("#cardboxOT").html(htmlstr);
+            //    return false;
+            //}
+            if ($("#OPDOTTransfer_doctor_code").val() == "" || $("#OPDOTTransfer_doctor_code").val() == null) {
+                $('#cardboxOT').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>Please Select Doctor !!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxOT").html(htmlstr);
+                return false;
+            }
+            $("#ottransfer").css({ "cursor": "not-allowed", "pointer-events": "none", "opacity": "0.65", "box-shadow": "none" });
+
+        }
+        function OTSuccess(data) {
+            debugger;
+            if (data != "0") {
+                $('#cardboxOT').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'>  <span id='statusmsg'> Patient transfer OT sucessfully !!! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxOT").html(htmlstr);
+                $("#ot_" + data).html("<span class='custom-badge status-green'>OT Added</span>");
+                $("#ottransfer").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+            }
+        }
+        function CancelshowModal(appointcode, added_id) {
+            debugger;
+            $("#apt_code").val(appointcode);
+            $("#added_id").val(added_id);
+            $('#delete_investigation_Modal').modal('show');
+        }
+
+        function CancelSuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "1") {
+                var Code = $("#apt_code").val();
+                var AddedId = $("#added_id").val();
+                $("." + Code).html("");
+                $("." + Code + "").html("<span class='custom-badge status-red'> Canceled</span>");
+                $("." + AddedId + "").html("<span class='custom-badge status-red'> Canceled</span>");
+                $('#delete_investigation_Modal').modal('hide');
+            }
+            else if (data == "3") {
+                $('#cardboxcancelinv').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Message!</strong><span id='statusmsg'> This investigation Collection is done so you can't able to cancle!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "0") {
+                $('#cardboxcancelinv').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Record Not Saved!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardboxcancelinv").html(htmlstr);
+
+        }
+
+        function SuccessMethod(data) {
+            debugger;
+            var strhtml = "";
+            $("#BindStatusHtml").html(" ");
+            if (data.Status == "1") {
+                $("#tdreplace_" + data.Appointmentcode).html(" ");
+                var strhtml = ""; var vtl_data = "";
+                for (var i = 0; i < data.VitalList.length; i++) {
+                    vtl_data += '<b>' + data.VitalList[i].VitalName + " : " + (data.VitalList[i].VitalValue + " " + data.VitalList[i].VitalUnit) + '</b><br />';
+                }
+                strhtml = '<button type="button" class="btn btn-xs btn-outline-info" data-toggle="tooltip" data-html="true" data-placement="right" title="' + vtl_data + '">' +
+                    'View Vital </button >';
+                $("#tdreplace_" + data.Appointmentcode).html(strhtml);
+                $("#vital_history").modal("hide");
+            }
+            else if (data.Status == "0") {
+                strhtml = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>" +
+                    "<strong>Error!</strong> error occurred while submitting your data." +
+                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button> </div>";
+                $("#BindStatusHtml").html(strhtml);
+            }
+            else if (data.Status == "2") {
+                strhtml = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>" +
+                    "<strong>Warning!</strong> Please add at least one vital !!" +
+                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button> </div>";
+                $("#BindStatusHtml").html(strhtml);
+            }
+            DataToogle();
+            $("#ajx_modalloader").hide();
+        }
+
+        function DataToogle() {
+            if ($('[data-toggle="tooltip"]').length > 0) {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+        }
+
+        function AddVital() {
+            debugger;
+            var VitalCode = $('.ddlvitalvalue option:selected').val();
+            var VitalName = $('.ddlvitalvalue option:selected').text();
+            var VitalUnit = $("#VitalUnit").text();
+            var VitalValue = $('#Vital_Value').val(); var IsAvailable = false;
+
+            if (VitalCode == "0") {
+                $('.ddlvitalvalue').focus()
+                return false;
+            }
+            if (VitalValue == "") {
+                $('#Vital_Value').focus();
+                return false;
+            }
+            VitalCode = VitalCode.split("$")[0];
+            $("#Vital_table tbody").find("tr").each(function () {
+                debugger;
+                if ($(this).find("td").eq(0).find(":hidden").val() == VitalCode) {
+                    IsAvailable = true;
+                }
+            });
+            if (!IsAvailable) {
+                var row = parseInt($("#Vital_table tbody").find("tr").length);
+                var count = row;
+                var New_TR = '<tr id="VitalRow_' + count + '"><td> <input type="hidden" name="VitalPara.VitalList[' + count + '].VitalCode" id="VitalCode_' + count + '" value="' + VitalCode + '" /> <input type="text" name="VitalPara.VitalList[' + count + '].VitalName" id="VitalName_' + count + '" class="form-control" value="' + VitalName + '" readonly /></td>' +
+                    '<td> <input type="text" name="VitalPara.VitalList[' + count + '].VitalValue" id="VitalValue_' + count + '" class="form-control" value="' + VitalValue + '" readonly /></td>' +
+                    '<td> <input type="text" name="VitalPara.VitalList[' + count + '].VitalUnit" id="VitalUnit_' + count + '" class="form-control" value="' + VitalUnit + '" readonly /></td>' +
+                    '<td> <a href="javascript:void(0);" onclick="RemoveVital(' + count + ')" class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></a></td></tr>';
+                $("#tbl_bind_vital").append(New_TR);
+                $('.ddlvitalvalue').val("0");
+                $('#Vital_Value').val("");
+                $("#VitalUnit").text("");
+            }
+            else {
+                alert("Selected Vital Allrady Added.");
+            }
+        }
+
+        function RemoveVital(VitalRowId) {
+            debugger;
+            $("#VitalRow_" + VitalRowId).remove();
+        }
+
+    </script>
+}
+
+

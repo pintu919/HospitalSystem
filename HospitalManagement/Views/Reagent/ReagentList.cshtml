@@ -1,0 +1,268 @@
+﻿@using HospitalManagement.Models;
+@using HospitalManagement.Helper
+@{QueryStringModule Encr = new QueryStringModule();}
+@model HospitalManagement.Models.List_regent
+@{
+    ViewBag.Title = "ReagentList";
+}
+<style type="text/css">
+    .pagination {
+        display: inline-block;
+    }
+
+        .pagination a {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+        }
+
+            .pagination a.active {
+                background-color: #2069a9;
+                color: white;
+            }
+
+            .pagination a:hover:not(.active) {
+                background-color: #ddd;
+            }
+</style>
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Reagent Lists</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Reagent/AddReagent" class="btn skin-gradient-btn btn-sm">Add Reagent <i class="fa fa-arrow-right"></i> </a>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("FilterReagent", "Reagent", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-sm-6 col-md-6 col-xl-6">
+                <div class="form-group form-focus">
+                    <label class="focus-label">Search By Reagent & Investigation Name </label>
+                    @Html.TextBoxFor(model => model.SearchText, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-sm-4 col-md-4 col-xl-4">
+                <div class="form-group form-focus select-focus">
+                    <label class="focus-label">Parameter Status</label>
+                    @{
+                        List<SelectListItem> listIteminvtype = new List<SelectListItem>();
+                        listIteminvtype.Add(new SelectListItem
+                        {
+                            Text = "All",
+                            Value = "all",
+                            Selected = true
+
+                        });
+                        listIteminvtype.Add(new SelectListItem
+                        {
+                            Text = "Investigation Parameter Added",
+                            Value = "para_added"
+                        });
+                        listIteminvtype.Add(new SelectListItem
+                        {
+                            Text = "Investigation Parameter Not Added",
+                            Value = "para_not_added"
+                        });
+                    }
+                    @Html.DropDownListFor(model => model.ParamaterStatus, new SelectList(listIteminvtype, "Value", "Text"), new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-sm-2 col-md-2 col-xl-1 mt-2">
+                <button class="btn skin-gradient-btn btn-block submit-btn"><i class="fa fa-search"></i></button>
+            </div>
+        </div>
+    }
+    <div class="row bindtable">
+        <div class="col-12">
+            <div class="table-responsive table-scrolling">
+                <table class="table table-border table-striped custom-table mb-0" id="example1">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Investigation</th>
+                            <th>Reagent Name</th>
+                            <th>No of Use Unit</th>
+                            <th>Purchase Unit</th>
+                            @*<th>Status</th>*@
+                            <th>Validity Date</th>
+                            <th>Is Para Added</th>
+                            <th>Reagent Edit/Delete</th>
+                            <th>Investigation Paramater Add</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.lst_regent != null && Model.lst_regent.Count > 0)
+                        {
+                            foreach (var r in Model.lst_regent)
+                            {
+                                <tr>
+                                    <td>
+                                        @r.investigation_name
+                                    </td>
+                                    <td>
+                                        @r.reagent_name
+                                    </td>
+                                    <td>
+                                        @r.use_unit
+                                    </td>
+                                    <td>
+                                        @r.unit_of_purchase
+                                    </td>
+                                    <td>@r.validity_date</td>
+                                    @*<td>
+                                            @if (r.ctrl == 1)
+                                            {
+                                                <span class="badge badge-success">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-danger">Deactive</span>
+                                            }
+                                        </td>*@
+                                    <td>
+                                        @if (r.is_para_added > 0)
+                                        {
+                                            <i class="fa fa-circle text-primary"></i> <span>Added</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="fa fa-circle text-danger"></i> <span>Not Added</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn skin-gradient-btn action-icon" title="Edit Reagent" href="~/Reagent/AddReagent?@Encr.Encrypt(""+r.reagent_id+"")"><i class="fa fa-edit"></i></a>
+                                        <a class="btn red-gradient-btn action-icon" title="Delete Reagent" onclick="DeleteReagent(@r.reagent_id)" href="javascript:void(0);"><i class="fa fa-trash-o"></i></a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn blue-gradient-btn action-icon" title="Add Investigation Paramater" href="~/Reagent/ReagentMaster?@Encr.Encrypt(""+r.investigation_id+"="+r.inv_type+"="+r.reagent_id+"")"><i class="fa fa-plus-circle"></i></a>
+                                        @*@Ajax.RawActionLink(string.Format("<i class='fa fa-eye''></i>"), "ViewInvestigationPara", "Reagent",
+                                                                                                    new { reagent_id = r.reagent_id, Investigationid = r.investigation_id },
+                                                                                                    new AjaxOptions
+                                                                                                    {
+                                                                                                        HttpMethod = "POST",
+                                                                                                        InsertionMode = InsertionMode.Replace,
+                                                                                                        UpdateTargetId = "BindInvestigationpara",
+                                                                                                        OnSuccess = "showModal()",
+                                                                                                        LoadingElementId = "progress"
+                                                                                                    },
+                                                                                                    new { @class = "btn green-gradient-btn action-icon", title = "View Investigation Paramater" })*@
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="text-center">
+                                <td colspan="8" class="font-weight-bold"> No Data Available ! </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-12 mt-3 text-right">
+            <div class="pagination PaginationBind"></div>
+        </div>
+    </div>
+
+    <div id="cardbox" class="card-box">
+    </div>
+</div>
+@Html.Partial("_ViewInvestigationParaFormate", Model)
+<!--End-->
+@section scripts{
+    <script src="http://cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.js"></script>
+    <script type="text/javascript">
+        debugger;
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Lab").css("display", "block");
+        //$(".ReagentList").addClass("active");
+
+        SetPagination(@Html.Raw(Json.Encode(Model.rows_count)), 'PaginationBind');
+
+        function sucessmethod(h) {
+            debugger;
+            $("#example1").html($(h.Cleared).find("#example1").html());
+            SetPagination(h.rows_count, 'PaginationBind');
+        }
+        function showModal() {
+            debugger;
+            $('#paramater_view_model').modal('show');
+        }
+        function DeleteReagent(regent_id) {
+            debugger;
+            $('#progress').show();
+            if (confirm("Are you sure wants to delete ?.")) {
+                var htmlstr = "";
+                $.ajax({
+                    url: "/Reagent/DeleteReagent?id=" + regent_id + "",
+                    dataType: "json",
+                    type: "POST",
+                    contentType: "application/json",
+                    error: function (err) {
+                        htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>" + err.responseText + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $("#cardbox").html(htmlstr);  },
+                    success: function (response) {
+                        debugger;
+                        $('#progress').hide();
+                        if (response == "Record Deleted Successfully!") {
+                            window.location.href ="/Reagent/ReagentList"
+                        }
+                        else if (response == "Record Not Delete!") {
+                            htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>" + response + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                            $("#cardbox").html(htmlstr);
+                        }
+                        else if (response == "It is not delete because of that investigation parameter is exists!") {
+                            htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>" + response + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                            $("#cardbox").html(htmlstr);
+                        }
+                    }
+                });
+            }
+            else
+                $('#progress').hide();
+        }
+        function SetPagination(Rows, bind_id) {
+            var html = "";
+            for (let i = 1; i <= Rows; i++) {
+                if (i == 1)
+                    html += "<a class='active' href='javascript:void(0);' id='PagewiseNumber_" + bind_id + "_1' onclick='GetPageWiseData(1,\"" + bind_id + "\")'>1</a>";
+                else
+                    html += "<a href='javascript:void(0);' id='PagewiseNumber_" + bind_id + "_" + i + "' onclick='GetPageWiseData(" + i + ",\"" + bind_id + "\")'>" + i + "</a>";
+            }
+            $("." + bind_id).html(html);
+        }
+        function GetPageWiseData(PageNumber, Type) {
+            debugger;
+            if ($('#PagewiseNumber_' + Type + '_' + PageNumber).attr('class') != 'active') {
+                var Search_Txt = $("#SearchText").val();
+                var ParaStatus = $("#ParamaterStatus").val();
+                var Jsondata = { Type: Type, PageNumber: PageNumber, Search_Txt: Search_Txt, ParaStatus: ParaStatus };
+
+                $.ajax({
+                    async: true,
+                    url: '/Reagent/GetPageWiseData',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: JSON.stringify(Jsondata),
+                    contentType: 'application/json',
+                    success: function (data) {
+                        debugger;
+                        $("." + Type).find("a").each(function (i) {
+                            $(this).removeClass("active");
+                        })
+                        $('#PagewiseNumber_' + Type + '_' + PageNumber).addClass("active");
+                        $("#example1").html($(data.Cleared).find("#example1").html());
+                    }
+                });
+            }
+        }
+    </script>
+}

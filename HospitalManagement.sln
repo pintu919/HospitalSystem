@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HospitalManagement", "HospitalManagement\HospitalManagement.csproj", "{D805A306-83FF-481B-8AF5-7848CD9B3097}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DA394CA1-A208-4D1C-9FE3-C6DA60D91370} = {DA394CA1-A208-4D1C-9FE3-C6DA60D91370}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HMSBusinessLogic", "HMSBusinessLogic\HMSBusinessLogic.csproj", "{DA394CA1-A208-4D1C-9FE3-C6DA60D91370}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D805A306-83FF-481B-8AF5-7848CD9B3097}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D805A306-83FF-481B-8AF5-7848CD9B3097}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D805A306-83FF-481B-8AF5-7848CD9B3097}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D805A306-83FF-481B-8AF5-7848CD9B3097}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA394CA1-A208-4D1C-9FE3-C6DA60D91370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA394CA1-A208-4D1C-9FE3-C6DA60D91370}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA394CA1-A208-4D1C-9FE3-C6DA60D91370}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA394CA1-A208-4D1C-9FE3-C6DA60D91370}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42AF943D-6B40-4417-B5C9-4742FF02667F}
+	EndGlobalSection
+EndGlobal

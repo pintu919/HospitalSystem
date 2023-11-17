@@ -1,0 +1,99 @@
+﻿@model HospitalManagement.Models.StockItemModel
+@{
+    ViewBag.Title = "EditStockItem";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Update Stock Item Master </h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Stock/StockItemList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddStockItem", "Stock", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-md-12">
+                <form>
+                    <div class="row" id="clear_data">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Item Name</label>
+                                @Html.ValidationMessageFor(model => model.item_name, "", new { @class = "text-danger" })
+                                @Html.TextBoxFor(model => model.item_name, new { @class = "form-control" })
+                                @Html.HiddenFor(model=>model.id)
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Category</label>
+                                @Html.ValidationMessageFor(model => model.category_id, "", new { @class = "text-danger" })
+                                @Html.DropDownListFor(model => model.category_id, new SelectList(Model.stockcategory_List, "id", "category_name"), "Select Category", new { @class = "form-control select requiredSelect" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Item Details</label>
+                                @Html.TextAreaFor(model => model.Details, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="display-block">Status</label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="active">
+                                        @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "active" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="Inactive">
+                                        @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                        InActive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-lg-2 m-auto col-sm-4 col-4">
+                            <div class="text-center">
+                                <button class="btn skin-gradient-btn btn-block">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cardbox" class="mt-3" hidden>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+@section scripts{
+    <script type="text/javascript">
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Updated Successfully!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Not Saved!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Alert!</strong> <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+
+    </script>
+}
+
+

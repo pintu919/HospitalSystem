@@ -1,0 +1,215 @@
+﻿@model HospitalManagement.Models.HMSDocotContract
+@{
+    ViewBag.Title = "EditHMSDoctorContract";
+}
+<style type="text/css">
+   /* #Prefix {
+        pointer-events: none;
+    }*/
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Edit Contract Doctors</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("EditDoctorContract", "HMSDoctor", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row employee-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Doctor Name</label>
+                                @Html.ValidationMessageFor(model => model.EmployeeCode, "", new { @class = "text-danger" })
+                                @Html.DropDownListFor(model => model.EmployeeCode, new SelectList(Model.DoctorContractlist, "employee_code", "doctor_code"), "Select Doctor", new { disabled = "disabled", @class = "form-control select requiredSelect", @id = "Doctor" })
+                                @Html.HiddenFor(model => model.EmployeeCode, new { @id = "EmployeeCode" })
+                                @Html.HiddenFor(model => model.ContactId, new { @id = "ContractId" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Visit Fees <span class="text-danger"> @Html.ValidationMessageFor(model => model.VisitFees, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.VisitFees, new { @class = "form-control" })
+                                <i class="fa fa-money"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Followup Fees <span class="text-danger">@Html.ValidationMessageFor(model => model.FollowupFees, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.FollowupFees, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label> Follow Policy(Days)<span class="text-danger">@Html.ValidationMessageFor(model => model.FollowPolicy, "", new { @class = "text-danger" })</span></label>
+                                @{
+                                    List<SelectListItem> listFollowPolicy = new List<SelectListItem>();
+                                    listFollowPolicy.Add(new SelectListItem
+                                    {
+                                        Text = "1",
+                                        Value = "1"
+                                    });
+                                    listFollowPolicy.Add(new SelectListItem
+                                    {
+                                        Text = "2",
+                                        Value = "2",
+
+                                    });
+                                    listFollowPolicy.Add(new SelectListItem
+                                    {
+                                        Text = "3",
+                                        Value = "3",
+
+                                    });
+                                    listFollowPolicy.Add(new SelectListItem
+                                    {
+                                        Text = "4",
+                                        Value = "4",
+
+                                    });
+                                    listFollowPolicy.Add(new SelectListItem
+                                    {
+                                        Text = "5",
+                                        Value = "5",
+
+                                    });
+                                    listFollowPolicy.Add(new SelectListItem
+                                    {
+                                        Text = "6",
+                                        Value = "6",
+
+                                    });
+                                    listFollowPolicy.Add(new SelectListItem
+                                    {
+                                        Text = "7",
+                                        Value = "7",
+
+                                    });
+                                }
+                                @Html.DropDownList("FollowPolicy", listFollowPolicy, "Select Policy", new { @class = "form-control select requiredSelect" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="display-block">Online Apoint Allow</label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.OnlineApointAllow, true, new { @id = "InYes" })
+                                        Yes
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.OnlineApointAllow, false, new { @id = "InNo" })
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label> Appointmnt Slot<span class="text-danger">@Html.ValidationMessageFor(model => model.AppointmentSlot, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.AppointmentSlot, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Prefix For Walking Appointment <span class="text-danger"> @Html.ValidationMessageFor(model => model.Prefix, "", new { @class = "text-danger" })</span></label>
+                                @if (Model.Prefix != null && Model.Prefix != "")
+                                {
+                                    @Html.TextBoxFor(model => model.Prefix, new { @class = "form-control", @maxlength = "4", @readonly="readonly", @style = "text-transform:uppercase", @id = "Prefix",  })
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(model => model.Prefix, new { @class = "form-control", @maxlength = "4", @style = "text-transform:uppercase", @id = "Prefix"})
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Doctor Comission Category</label>
+                                @Html.DropDownListFor(model => model.doctor_comission_id, new SelectList(Model.doctor_Comission_Category, "Id", "ComissionName"), "Select Comission Category", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="display-block">Status</label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 1, new { @id = "active" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 0, new { @id = "Inactive" })
+                                        InActive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="m-t-20 text-center">
+                                <button class="btn skin-gradient-btn submit-btn">Save</button>
+                                <a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSDoctor/HMSDoctorContractList"><i class="fa fa-arrow-left"></i> Back To List</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="cardbox" class="mt-2" hidden>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts{
+    <script>
+
+        //$(".Doctors").addClass("subdrop");
+        //$(".Submenu_Doctors").css("display", "block");
+        //$(".Submenu_Doctors").css("display", "block");
+        //$(".HMSDoctorContractList").addClass("active");
+
+
+        function ajaxbegin() {
+
+        }
+
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Update Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Does Not Update Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+
+
+
+    </script>
+}
+

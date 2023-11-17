@@ -1,0 +1,185 @@
+﻿@model HospitalManagement.Models.ProfitCenter
+@{
+    ViewBag.Title = "ProfitCenter";
+}
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-12">
+            <h4 class="page-title"> Profit Center</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddProfitCenter", "Settings", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-4">
+                <div class="form-group">
+                    @Html.TextBoxFor(model => model.center_name, new { @class = "form-control", placeholder = "Center Name" })
+                    @Html.HiddenFor(model => model.id)
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-4">
+                <div class="form-group">
+                    <label class="display-block">Status</label>
+
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label" for="product_active">
+                            @Html.RadioButtonFor(model => model.status, 1, new { @id = "Active" })
+                            Active
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label" for="product_active">
+                            @Html.RadioButtonFor(model => model.status, 0, new { @id = "InActive" })
+                            In Active
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="m-t-20 text-center">
+                    <button class="btn skin-gradient-btn submit-btn" id="update_profit">Add Center </button>
+
+                </div>
+            </div>
+            <div class="bindstatus" hidden>
+                @if (Model.msg == 1)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                }
+                else if (Model.msg == 2)
+                {
+
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+                else if (Model.msg == 3)
+                {
+
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> your <a href="#" class="alert-link">Data</a> Update has been Add successfully.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+                else if (Model.msg == 0)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>Note!</strong> Record Allrady Exists!.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                else if (Model.msg == 4)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>Note!</strong> Item Name Allrady Exists!.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.profitcenterlst != null)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Center Name</th>
+                                @*<th>Purchase Date</th>
+                                    <th>Purchase By</th>
+                                    <th>Amount</th>
+                                    <th>Paid by</th>*@
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.profitcenterlst)
+                            {
+                                <tr id="row_@item.id">
+                                    <td class="collapse">@item.id</td>
+                                    <td>@item.center_name</td>
+                                    @*<td>@item.purchase_date</td>
+                                        <td>@item.purchased_by</td>
+                                        <td>@item.amount</td>
+                                        <td>@item.paid_by</td>*@
+                                    @if (item.status == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.status == 0)
+                                    {
+                                        <td><span class="badge badge-danger">In Active</span></td>
+                                    }
+                                    <td class="text-center">
+                                        <a href="javascript:;" onclick="EditExpense(@item.id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Settings").addClass("subdrop");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".ProfitCenter").addClass("active");
+
+        function SuccessMethod(datahtml) {
+            debugger;
+            //$(".datatable").dataTable({ "destroy": true });
+            $('.bindstatus').removeAttr('hidden');
+            $(".bindstatus").empty();
+            $(".bindstatus").html($(datahtml).find(".bindstatus").html());
+            $(".bindtable").empty();
+            $(".bindtable").html($(datahtml).find(".bindtable").html());
+            $("#update_profit").html("Add Center");
+            $("#center_name").val('');
+            $("#id").val(0);
+        }
+        function EditExpense(val) {
+            debugger;
+            $("#id").val(parseInt($("#row_" + val).find("td:eq(0)").text()));
+            $("#center_name").val($("#row_" + val).find("td:eq(1)").text());
+            if ($("#row_" + val).find("td:eq(2)").text().trim() == "Active") {
+                $('#Active').prop('checked', true);
+
+            }
+            else if ($("#row_" + val).find("td:eq(2)").text().trim() == "Active") {
+                $("#InActive").prop('checked', true)
+            }
+            $("#update_profit").html("Update Center");
+        }
+
+    </script>
+}
+

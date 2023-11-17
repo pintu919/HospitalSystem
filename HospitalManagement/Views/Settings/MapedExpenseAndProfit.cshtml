@@ -1,0 +1,331 @@
+﻿@model HospitalManagement.Models.MappedExpenseAndProfit
+@{
+    ViewBag.Title = "MapedExpenseAndProfit";
+}
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-12">
+            <h4 class="page-title"> Mapped Expense And Profit</h4>
+        </div>
+    </div>
+    <div class="row inv_tab mt-2">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" href="#solid-justified-tab1" data-toggle="tab">Expense Center Mapped</a></li>
+                <li id="tab2click" class="nav-item"><a class="nav-link" href="#solid-justified-tab2" data-toggle="tab">Salary Expense Mapping</a></li>
+                <li id="tab3click" class="nav-item"><a class="nav-link" href="#solid-justified-tab3" data-toggle="tab">Income Mapping</a></li>
+                <li id="tab4click" class="nav-item"><a class="nav-link" href="#solid-justified-tab4" data-toggle="tab">Other Expense</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane show active" id="solid-justified-tab1">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    @Html.DropDownListFor(model => model.expenseid, new SelectList(Model.explst, "id", "item_name"), "Select Expense", new { @class = "form-control select requiredSelect", onchange = "GetProfitCenterData(this)" })
+                                </div>
+                                <div class="col-12 mt-3 bindproexpmap">
+                                </div>
+                                <div class="col-12">
+                                    <div id="cardbox" class="card-box" hidden>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="tab-pane" id="solid-justified-tab2">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    @Html.DropDownListFor(model => model.expenseid, new SelectList(Model.explst, "id", "item_name"), "Select Expense", new { @class = "form-control select requiredSelect", onchange = "GetEmpList(this)" })
+                                </div>
+                                <div class="col-12 bindemp_mapp mt-3">
+                                </div>
+                                <div class="col-12">
+                                    <div id="cardbox1" class="card-box" hidden>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="solid-justified-tab3">
+                    <div class="row ">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-12 bndprofitcenter">
+                                    @if (Model.profitcenterlst != null)
+                                    {
+                                        @Html.DropDownListFor(model => model.profitcenterid, new SelectList(Model.profitcenterlst, "id", "center_name"), "Select Profit Center", new { @class = "form-control select requiredSelect", onchange = "GetServices('services')" })
+                                    }
+                                </div>
+                                <div class="col-12 mt-2 bindincomemap">
+                                </div>
+                                <div class="col-12">
+                                    <div id="cardboxincom" class="card-box" hidden>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="solid-justified-tab4">
+                    <div class="row">
+                        Other Expense
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        //$(".Settings").addClass("subdrop");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".MapedExpenseAndProfit").addClass("active");
+        function GetProfitCenterData(val) {
+            debugger;
+            $("#progress").show();
+            var expid = $(val).find("option:selected").val();
+            if (expid != "") {
+                url = "/Settings/GetProfitCenterData?Expid=" + expid + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json',
+                    async: false
+                }).done(function (jsondata) {
+                    debugger;
+                    $(".bindproexpmap").html(jsondata.GroupGrid);
+                    $("#progress").hide();
+                });
+            }
+            else {
+                $(".bindproexpmap").empty();
+                $("#progress").hide();
+            }
+
+        }
+        function allexpcheck() {
+            $('.All_Checkbox_exp').each(function () {
+                debugger;
+                if ($("#check_uncheck_all_exp").is(':checked')) {
+                    $(this).find('input[type="checkbox"]').prop('checked', true);
+                }
+                else {
+                    $(this).find('input[type="checkbox"]').prop('checked', false);
+                }
+            });
+        }
+        function Checked_Unchecked_exp() {
+            debugger;
+            if ($('.All_Checkbox_exp').find('input[type="checkbox"]').length == $('.All_Checkbox_exp').find('input[type="checkbox"]').filter(':checked').length)
+                $("#check_uncheck_all_exp").prop('checked', true);
+            else
+                $("#check_uncheck_all_exp").prop('checked', false);
+        }
+        function allprocheck() {
+            $('.All_Checkbox_pro').each(function () {
+                debugger;
+                if ($("#check_uncheck_all_pro").is(':checked')) {
+                    $(this).find('input[type="checkbox"]').prop('checked', true);
+                }
+                else {
+                    $(this).find('input[type="checkbox"]').prop('checked', false);
+                }
+            });
+        }
+        function Checked_Unchecked_pro() {
+            debugger;
+            if ($('.All_Checkbox_pro').find('input[type="checkbox"]').length == $('.All_Checkbox_pro').find('input[type="checkbox"]').filter(':checked').length)
+                $("#check_uncheck_all_pro").prop('checked', true);
+            else
+                $("#check_uncheck_all_pro").prop('checked', false);
+        }
+
+        //function Checked_Percent( profitid, expid, row) {
+        //    debugger;
+        //    var percent = $(row).val();
+        //    url = "/Settings/CheckPercentage?profitcenterid=" + profitid + "&expid=" + expid + "&percent=" + percent + "";
+        //    $.ajax({
+        //        url: url,
+        //        datatype: 'json',
+        //        ContentType: 'application/json',
+        //        async: false
+        //    }).done(function (jsondata) {
+        //        debugger;
+        //        $("#IsAction").val(jsondata);
+
+        //        if (jsondata == false) {
+        //            var status = "";
+        //            status = "<div class='alert alert-danger alert-dismissible fade show mb-0 p-3' role='alert'>You must be set overall profit center percentage less or equal 100.<button type='button' class='close' data-dismiss='alert' aria-label='Close'> <span aria-hidden='true'>&times;</span></button></div>";
+        //            $("#hdn_" + profitid).html(status);
+        //        }
+
+        //    });
+        //}
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Record Not Saved!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Select atleast one record") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "You must be set overall expense percentage 100%.") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strong>Info!</strong>:<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+
+        $("#tab3click").click(function () {
+            debugger;
+            $(".bindincomemap").empty();
+            $('.loadingimg').css('display', 'block');
+            url = "/Settings/GetProfitCenter";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bndprofitcenter").empty();
+                $(".bndprofitcenter").html($(datahtml).find(".bndprofitcenter").html());
+                $("#profitcenterid").select2();
+            });
+
+        });
+
+        function GetServices(Type) {
+            debugger;
+            var profitcenterid = $("#profitcenterid").val();
+            if (profitcenterid == null) {
+                $("#profitcenterid").focus();
+                return false;
+            }
+            if (Type == "") {
+                Type = $("#Serviceid").val();
+
+            }
+            if (profitcenterid != "") {
+                url = "/Settings/GetServiceMappedUnMappedData?profitcenterid=" + profitcenterid + "&Type=" + Type + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json',
+                    async: false
+                }).done(function (jsondata) {
+                    debugger;
+                    $(".bindincomemap").html(jsondata.GroupGrid);
+                    $("#Serviceid").val(Type);
+                    $("#progress").hide();
+                    SetSearcha();
+                });
+            }
+            else {
+                $(".bindincomemap").empty();
+                $("#progress").hide();
+            }
+
+        }
+
+        function IncomeSuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                $('#cardboxincom').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Record Not Saved!") {
+                $('#cardboxincom').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Select atleast one record") {
+                $('#cardboxincom').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardboxincom").html(htmlstr);
+        }
+
+        //Employee mapping with Expense
+        function GetEmpList(val) {
+            debugger;
+            $("#progress").show();
+            var expid = $(val).find("option:selected").val();
+            if (expid != "") {
+                url = "/Settings/Get_MappEmpList?Expid=" + expid + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json',
+                    async: false
+                }).done(function (jsondata) {
+                    debugger;
+                    $(".bindemp_mapp").html(jsondata.GroupGrid);
+                    $("#progress").hide();
+                });
+            }
+            else {
+                $(".bindemp_mapp").empty();
+                $("#progress").hide();
+            }
+        }
+        function allempcheck() {
+            $('.All_Checkbox').each(function () {
+                debugger;
+                if ($("#checked_unchecked_all").is(':checked')) {
+                    $(this).find('input[type="checkbox"]').prop('checked', true);
+                }
+                else {
+                    $(this).find('input[type="checkbox"]').prop('checked', false);
+                }
+            });
+        }
+        function Checked_Unchecked() {
+            debugger;
+            if ($('.All_Checkbox').find('input[type="checkbox"]').length == $('.All_Checkbox').find('input[type="checkbox"]').filter(':checked').length)
+                $("#checked_unchecked_all").prop('checked', true);
+            else
+                $("#checked_unchecked_all").prop('checked', false);
+        }
+        function SuccessMethodEmp_Mapp(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Added Successfully!" || data == "Record Successfully UnMapped!") {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Record Not Saved!") {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox1").html(htmlstr);
+        }
+
+        function SetSearcha() {
+            $("#filter").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#example-table > tbody > tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        }
+         //End Employee Mapping With Expense
+
+
+    </script>
+}
+

@@ -1,0 +1,120 @@
+﻿@model IEnumerable<HMS.BizLogic.VitalMaster_Entity>
+@{
+    ViewBag.Title = "VitalParaLists";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Vital</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/VitalPara/AddVitalPara" class="btn skin-gradient-btn btn-sm"><i class="fa fa-building-o" aria-hidden="true"></i> Add Vital +</a>
+        </div>
+    </div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive table-scrolling">
+                    <table class="table table-striped custom-table datatable mb-0" id="vital_lsttable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th hidden>#</th>
+                                <th>Vital Name</th>
+                                <th>Vital Unit</th>
+                                <th>Status</th>
+                                <th class="text-center" data-orderable="false">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr id="row_@item.hos_vital_id">
+                                    <td hidden>@Html.DisplayFor(modelItem => item.hos_vital_id)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.hos_vital_name)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.hos_vital_unit)</td>
+                                    @if (item.Ctrl == 1)
+                                    {
+                                        <td class="status-icon"> <span class="badge badge-success">Active</span> </td>
+                                    }
+                                    @if (item.Ctrl == 0)
+                                    {
+                                        <td class="status-icon"><span class="badge badge-success">Deactive</span></td>
+                                    }
+                                    <td class="text-center">
+                                        <a href="javascript:;" onclick="submit('@item.row')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                        <a href="#" onclick="ConfirmDelete(@item.hos_vital_id)" class="action-icon btn red-gradient-btn"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div id="delete_vital" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to delete this Vital?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteHosVital()" class="btn red-gradient-btn">Delete</button> &nbsp;
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardbox_delete_vital" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hiddenhosvitalcode" />
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#vital_lsttable").dataTable({
+                "order": [[0, "desc"]],
+            });
+        });
+        var ConfirmDelete = function (hosvitalid) {
+            debugger;
+            $("#hiddenhosvitalcode").val(hosvitalid);
+            $("#delete_vital").modal('show');
+        }
+        var DeleteHosVital = function () {
+            debugger;
+            var HosVitalid = $("#hiddenhosvitalcode").val();
+            $.ajax({
+                type: "POST",
+                url: "/VitalPara/HospitalVitalDelete",
+                data: { HosVitalId: HosVitalid },
+                success: function (result) {
+
+                    if (result) {
+                        $("#delete_vital").modal("hide");
+                        $("#row_" + HosVitalid).remove();
+                    }
+                    else {
+                        var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'> System geting Error.</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $('#cardbox_delete_vital').removeAttr('hidden');
+                        $("#cardbox_delete_vital").html(htmlstr);
+                    }
+                }
+            })
+        }
+        function submit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/VitalPara/EditVitalPara', '_self') });
+        }
+    </script>
+}
+
+
+
+

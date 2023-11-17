@@ -1,0 +1,445 @@
+﻿@model HospitalManagement.Models.PatientAdmissionModel
+@{
+    /**/
+
+    ViewBag.Title = "PatientAdmission";
+}
+
+<style>
+    #invSellingCost {
+        pointer-events: none;
+    }
+
+    #PatientCode {
+        pointer-events: none;
+    }
+
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-12">
+            <h4 class="page-title">Patient Admission</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddPatientAdmission", "BillingService", new AjaxOptions { HttpMethod = "POST", OnBegin = "ONbeginEvent", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row appointment-form m-0">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-5">
+                        <div class="input-group mb-3">
+                            <span id="patmsg" class="msg_billing" hidden> (<small class="text-danger">Note: Please enter valid patient !!! </small>)</span>
+                            @Html.TextBoxFor(model => model.PatientName, new { @class = "form-control", placeholder = "Enter keyword related to patient" })
+                            <div id="patdanger" class="input-group-append" hidden><button class="btn  btn-danger" type="submit"><i class="fa fa-close"></i></button></div>
+                            <div id="patsucess" class="input-group-append" hidden><button class="btn  btn-success" type="submit"><i class="fa fa-check"></i></button></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row bind_patientdata">
+                    <div class="col-md-10">
+                        <div class="row align-items-center">
+
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="form-group">
+                                    @Html.TextBoxFor(model => model.PatientCode, new { @class = "form-control", placeholder = "Patient Code", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="form-group">
+                                    @Html.TextBoxFor(model => model.DOB, new { @class = "form-control", placeholder = "Date of Birth", @disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="form-group">
+                                    @Html.TextBoxFor(model => model.FatherName, new { @class = "form-control", placeholder = "Father Name", @disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="form-group">
+                                    @Html.TextBoxFor(model => model.Mobile, new { @class = "form-control", placeholder = "Mobile", @disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="form-group">
+                                    @Html.TextAreaFor(model => model.Address, new { @class = "form-control", placeholder = "address", @rows = "3", @disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="form-group">
+                                    <label class="d-inline-block mr-3"><b>Sex:</b> </label>
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                            @Html.RadioButtonFor(model => model.Gender, "Male", new { @id = "Male", onclick = "return false;" })
+                                            Male
+                                        </label>
+                                    </div>
+                                    <div class="form-check-inline">
+                                        <label class="form-check-label">
+                                            @Html.RadioButtonFor(model => model.Gender, "Female", new { @id = "Female", onclick = "return false;" })
+                                            Female
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="avatar-img center-block billig_img">
+                            @if (Model.photo == "" || Model.photo == null)
+                            {
+                                <img src="~/wwwroot/assets/img/user.jpg" class="img-fluid" alt="">
+                            }
+                            @if (Model.photo != null && Model.photo != "")
+                            {
+                                var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + Model.photo;
+                                <img src="@img" class="img-fluid" alt="">
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-sm-6">
+                <div class="input-group mb-3">
+                    @{
+                        List<SelectListItem> listRoomfacility = new List<SelectListItem>();
+
+                        listRoomfacility.Add(new SelectListItem
+                        {
+                            Text = "Select Room Type",
+                            Value = "Select Room Type",
+                            Selected = true
+
+                        });
+                        listRoomfacility.Add(new SelectListItem
+                        {
+                            Text = "AC Room",
+                            Value = "AC Room",
+                        });
+                        listRoomfacility.Add(new SelectListItem
+                        {
+                            Text = "Non AC Room",
+                            Value = "Non AC Room",
+
+                        });
+                    }
+                    @Html.DropDownList("Roomfacility", listRoomfacility, new { @class = "form-control", @id = "roomfacility", onchange = "Getchange()" })
+                </div>
+            </div>
+            <div class="col-md-6 bndwards">
+                <div class="input-group mb-3">
+                    @Html.DropDownListFor(model => model.ward_id, new SelectList(Model.RoomTypeList, "ward_id", "ward_type"), "Select Ward Type", new { @class = "form-control", onchange = "GetDropdownData('rooms')", @id = "roomtype" })
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group bndrooms">
+                    @Html.DropDownListFor(model => model.room_no, new SelectList(Model.RoomList, "roomtype_id", "room_no"), "Select Room", new { @class = "form-control", onchange = "GetDropdownData('beds')", @id = "roomno" })
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group bndbeds">
+                    @Html.DropDownListFor(model => model.bed_no, new SelectList(Model.BedList, "bed_no", "bed_prefix"), "Select Bed", new { @class = "form-control", @id = "bedno" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.DropDownListFor(model => model.departmentcode, new SelectList(Model.department_list, "department_code", "department_name"), "Select Department", new { @class = "form-control", onchange = "GetReferalDoctor()", @id = "departmentcode" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group bndrefdoctor">
+                    @Html.DropDownListFor(model => model.doctorcode, new SelectList(Model.doctor_list, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control", @id = "doctorcode" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.TextAreaFor(model => model.admissionnote, new { @class = "form-control no-resize overflow-hidden", @cols = "20", @row = "2", height = "100px", placeholder = "Admission Note", })
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.TextAreaFor(model => model.documentinclusion, new { @class = "form-control no-resize overflow-hidden", @cols = "20", @row = "2", height = "100px", placeholder = "Dcoument Inclusion", })
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.TextBoxFor(model => model.gardianName, new { @class = "form-control", placeholder = "Guardian Name", })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.TextBoxFor(model => model.gardianmobile, new { @class = "form-control", placeholder = "Guardian Mobile", })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Comission Agent</label>
+                    @Html.DropDownListFor(model => model.Comission_Agent_Id, new SelectList(Model.Comission_Agent_List, "Comission_Agent_Id", "Commision_Agent"), "Select Comission Agent", new { @class = "form-control" })
+                </div>
+            </div>
+            @*<div class="col-sm-6">
+            <div class="form-group">
+                <label class="display-block">Status</label>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label" for="product_active">
+                        @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "active" })
+                        Active
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label" for="product_inactive">
+                        @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                        InActive
+                    </label>
+                </div>
+            </div>
+        </div>*@
+        </div>
+        <div class="m-t-20 text-center">
+            <button type="submit" class="btn skin-gradient-btn submit-btn">Admit</button>
+            <a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSRooms/HMSPatientAllotment">  <i class="fa fa-arrow-left"></i>Back To List</a>
+        </div>
+        <div id="cardbox" class="mt-3" hidden></div>
+    }
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Billing").addClass("subdrop");
+        //$(".Submenu_Billing").css("display", "block");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".PatientAdmission").addClass("active");
+
+        $("#PatientName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/BillingService/GatePatientadmission',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        debugger;
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            arr.patient_firstname = "No Record Found";
+                            arr.patient_code = "";
+                            data.push(arr);
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                            $("#PatientCode").val("");
+                            $("#PatientName").val("");
+                            $('#patdanger').removeAttr('hidden');
+                            $('#patsucess').attr('hidden', true);
+
+
+                            var url = "";
+                            var type = "Add";
+                            var invoicecode = "";
+                            url = "/BillingService/GetAdmissionPatientdetail?PatientCode=" + $("#PatientCode").val() + "";
+                            $.ajax({
+                                url: url,
+                                datatype: 'json',
+                                ContentType: 'application/json;utf-8'
+                            }).done(function (datahtml) {
+                                $(".bind_patientdata").empty();
+                                $(".bind_patientdata").html($(datahtml).find(".bind_patientdata").html());
+                            });
+
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    $('#patmsg').attr('hidden', true);
+                    $("#PatientCode").val(i.item.patient_code);
+                    $("#PatientName").val(i.item.value);
+                    $('#patsucess').removeAttr('hidden');
+                    $('#patdanger').attr('hidden', true);
+
+                    var url = "";
+                    var type = "Add";
+                    var invoicecode = "";
+                    url = "/BillingService/GetAdmissionPatientdetail?PatientCode=" + $("#PatientCode").val() + "";
+                    $.ajax({
+                        url: url,
+                        datatype: 'json',
+                        ContentType: 'application/json;utf-8'
+                    }).done(function (datahtml) {
+                        $('.loadingimg').css('display', 'none');
+                        $(".bind_patientdata").empty();
+                        $(".bind_patientdata").html($(datahtml).find(".bind_patientdata").html());
+
+                    });
+                }
+            },
+            minLength: 3,
+        }).bind("keyup.autocomplete", function (event) {
+            if (event.keyCode == $.ui.keyCode.BACKSPACE || event.keyCode == $.ui.keyCode.DELETE) {
+                $("#PatientCode").val("");
+                $("#PatientName").val("");
+                $('#patdanger').removeAttr('hidden');
+                $('#patsucess').attr('hidden', true);
+
+                var url = "";
+                var type = "Add";
+                var invoicecode = "";
+                url = "/BillingService/GetAdmissionPatientdetail?PatientCode=" + $("#PatientCode").val() + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $(".bind_patientdata").empty();
+                    $(".bind_patientdata").html($(datahtml).find(".bind_patientdata").html());
+                });
+            };
+        });
+
+        function GetDropdownData(Type) {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            if ($("#roomtype").val() == "") { var roomtype = "0"; }
+            else { var roomtype = $("#roomtype").val(); }
+            var url = "/BillingService/GetRooms?roomtype_id=" + roomtype + "&Type=" + Type + "&roomno=" + $("#roomno").val() + "&roomfacility=" + $("#roomfacility").val() + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                if (Type == "rooms") {
+                    $(".bndrooms").empty();
+                    $(".bndrooms").html($(datahtml).find(".bndrooms").html());
+                }
+                else if (Type == "beds") {
+                    $(".bndbeds").empty();
+                    $(".bndbeds").html($(datahtml).find(".bndbeds").html());
+                }
+
+                $('#loadingmessage').hide();
+            });
+        }
+
+        function GetReferalDoctor() {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            var depcode = $("#departmentcode").val();
+            var url = "/BillingService/GetReferalDoctor?departmentcode=" + depcode +"";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bndrefdoctor").empty();
+                $(".bndrefdoctor").html($(datahtml).find(".bndrefdoctor").html());
+                $('#loadingmessage').hide();
+            });
+        }
+
+        function Getchange() {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            if ($("#roomfacility").val() != "Select Room Type") {
+                var url = "/BillingService/GetwardType?roomfacility=" + $("#roomfacility").val() + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $('.loadingimg').css('display', 'none');
+                    $(".bndwards").empty();
+                    $(".bndwards").html($(datahtml).find(".bndwards").html());
+                    $("#roomtype").val('');
+                    $("#roomno").find('option').remove();
+                    $("#roomno").html('<option>Select Room</option>');
+                    $("#bedno").find('option').remove();
+                    $("#bedno").html('<option>Select bed</option>');
+                    $('#loadingmessage').hide();
+                });
+
+            }
+            else {
+                $('.loadingimg').css('display', 'none');
+                $("#roomtype").val('');
+                $("#roomno").find('option').remove();
+                $("#roomno").html('<option>Select Room</option>');
+                $("#bedno").find('option').remove();
+                $("#bedno").html('<option>Select bed</option>');
+                 $('#loadingmessage').hide();
+            }
+
+
+        }
+
+        function ONbeginEvent() {
+            debugger;
+
+            if ($("#PatientCode").val() == "" || $("#PatientCode").val() == null) {
+                $('#patmsg').removeAttr('hidden');
+                $('#PatientName').focus();
+                return false;
+            }
+            else { $('#patmsg').attr('hidden', true); }
+
+        }
+
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Patient Admited Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong> Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+              
+            }
+            else if (data == "Patient Allrady Admited This Hospital!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Not Saved!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+
+        $.each(jQuery('textarea'), function () {
+            var offset = this.offsetHeight - this.clientHeight;
+            var resizeTextarea = function (el) {
+                $(el).css('height', 'auto').css('height', el.scrollHeight + offset);
+            };
+            $(this).on('keyup input', function () { resizeTextarea(this); });
+        });
+
+    </script>
+}
+
+
+

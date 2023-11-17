@@ -1,0 +1,67 @@
+﻿@model HospitalManagement.Models.TestAndInvestigationModel
+
+@using (Ajax.BeginForm("AddHOSInvestigation_OP", "TestAndInvestigation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethodradio_OP", LoadingElementId = "progress" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div id="radiology_BindInvestigationparaOP">
+        <div id="op_radiologyinv_paralist" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header skin-bg-gradient">
+                        <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Add Investigation Para</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <span style="font-size:13px;">@Model.investigationname</span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                @if (Model.invSubgroupList != null && Model.invSubgroupList.Count() > 0 && Model.invSubgroupList[0].invParaList != null && Model.invSubgroupList[0].invParaList.Count() > 0)
+                                {
+                                    @Html.TextAreaFor(m => m.invSubgroupList[0].invParaList[0].investigationsubgroup_name, new { htmlAttributes = new { @class = "form-control input-lg textarea-editor summernote" } })
+
+                                    @Html.HiddenFor(Model => Model.invSubgroupList[0].invParaList[0].investigationmaster_id)
+                                    @Html.HiddenFor(Model => Model.invSubgroupList[0].invParaList[0].investigationsubgrop_id)
+                                    @Html.HiddenFor(Model => Model.invSubgroupList[0].invParaList[0].investigation_uniqcode)
+                                    @Html.HiddenFor(Model => Model.invoice_code)
+                                    @Html.HiddenFor(Model => Model.service_id)
+                                    @Html.HiddenFor(Model => Model.invtype)
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Doctor Name</label>
+                                    @Html.ValidationMessageFor(model => model.Doctorcode, "", new { @class = "text-danger" })
+                                    @Html.DropDownListFor(model => model.Doctorcode, new SelectList(Model.DoctorContractlist, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select requiredSelect", @id = "Doctor" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Medical Technologist</label>
+                                    @Html.ValidationMessageFor(model => model.EmployeeCode, "", new { @class = "text-danger" })
+                                    @Html.DropDownListFor(model => model.EmployeeCode, new SelectList(Model.Technicianlist, "EmployeeCode", "EmployeeName"), "Select Technician", new { @class = "form-control select requiredSelect" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="">
+                                    <button class="btn green-gradient-btn " type="submit" name="submit"> Add Test</button>
+                                    <a href="#" class="btn red-gradient-btn m-l-15 res-479-m-t-10" data-dismiss="modal">Close</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="cardboxop1" class="mt-3" hidden>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

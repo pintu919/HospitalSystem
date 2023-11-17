@@ -1,0 +1,275 @@
+﻿@model HospitalManagement.Models.PateintCaseStudy
+@{
+    ViewBag.Title = "AddpatientCaseStudy";
+}
+
+
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <h4 class="page-title">Add Patient Case Study</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddCaseStudy", "HMSNurse", new AjaxOptions { HttpMethod = "POST", OnBegin = "ajaxbegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Patient Code </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Patient Code" type="text">*@
+                                @Html.TextBoxFor(model => model.PatientCode, new { @class = "form-control", @placeholder = "Patient Code" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Food Allergies </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Food Allergies" type="text">*@
+                                @Html.TextBoxFor(model => model.FoodAllergies, new { @class = "form-control", @placeholder = "Food Allergies" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Tendency Bleed </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Tendency Bleed" type="text">*@
+                                @Html.TextBoxFor(model => model.TendencyBleed, new { @class = "form-control", @placeholder = "Tendency Bleed" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Heart Disease </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.HeartDisease, new { @class = "form-control", @placeholder = "Heart Disease" })
+                                @*<input class="form-control" placeholder="Heart Disease" type="text">*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>High Blood Pressure </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.HighBloodPressure, new { @class = "form-control", @placeholder = "High Blood Pressure" })
+                                @*<input class="form-control" placeholder="High Blood Pressure" type="text">*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Diabetic </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.Diabetic, new { @class = "form-control", @placeholder = "Diabetic" })
+                                @*<input class="form-control" placeholder="Diabetic" type="text">*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Surgery </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Surgery" type="text">*@
+                                @Html.TextBoxFor(model => model.Surgery, new { @class = "form-control", @placeholder = "Surgery" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Accident </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Accident" type="text">*@
+                                @Html.TextBoxFor(model => model.Accident, new { @class = "form-control", @placeholder = "Accident" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Others </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Others" type="text">*@
+                                @Html.TextBoxFor(model => model.Others, new { @class = "form-control", @placeholder = "Others" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Family Medical History </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Family Medical History" type="text">*@
+                                @Html.TextBoxFor(model => model.FamilyMedicalHistory, new { @class = "form-control", @placeholder = "Family Medical History" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Current Medication </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Current Medication" type="text">*@
+                                @Html.TextBoxFor(model => model.CurrentMedication, new { @class = "form-control", @placeholder = "Current Medication" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Female Pregnancy </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Female Pregnancy" type="text">*@
+                                @Html.TextBoxFor(model => model.FemalePregnancy, new { @class = "form-control", @placeholder = "Female Pregnancy" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Breast Feeding </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.BreastFeeding, new { @class = "form-control", @placeholder = "Breast Feeding" })
+                                @*<input class="form-control" placeholder="Breast Feeding" type="text">*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Health Insurance </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Health Insurance" type="text">*@
+                                @Html.TextBoxFor(model => model.HealthInsurance, new { @class = "form-control", @placeholder = "Health Insurance" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Low Income </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Low Income" type="text">*@
+                                @Html.TextBoxFor(model => model.LowIncom, new { @class = "form-control", @placeholder = "Low Income" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Reference </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+                                @*<input class="form-control" placeholder="Reference" type="text">*@
+                                @Html.TextBoxFor(model => model.Reference, new { @class = "form-control", @placeholder = "Reference" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="display-block">Status</label>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_active">
+                                @Html.RadioButtonFor(model => model.Ctrl, 1, new { @id = "Active" })
+                                Active
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_inactive">
+                                @Html.RadioButtonFor(model => model.Ctrl, 0, new { @id = "Inactive" })
+                                Inactive
+                            </label>
+                        </div>
+                    </div>
+                    <div class="m-t-20 text-center">
+                        <button class="btn btn-primary submit-btn">Create Patient Case Study</button>
+                    </div>
+                    <div id="cardbox" class="card-box" hidden>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+@section scripts{
+    <script type="text/javascript">
+        function ajaxbegin() {
+            debugger;
+        }
+        function SuccessMethod(data) {
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Record Not Saved!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+        }
+
+        </script>
+}

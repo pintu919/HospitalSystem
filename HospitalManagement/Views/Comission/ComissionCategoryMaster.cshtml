@@ -1,0 +1,242 @@
+﻿@model HospitalManagement.Models.ComissionCategoryModel
+@{
+    ViewBag.Title = "ComissionCategoryMaster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-12">
+            <h4 class="page-title">Comission Category </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-12 bind_services">
+            @using (Ajax.BeginForm("Add_UpdateComissionCategory", "Comission", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { @id = "CategoryForm" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.CategoryId, new { @id = "category_id" })
+                <div class="row align-items-center">
+                    <div class="col-md-6 col-lg-5 col-xl-4 col-sm-8">
+                        <div class="form-group">
+                            <label>Comission Category Name</label>
+                            @Html.TextBoxFor(model => model.CategoryName, new { @class = "form-control", @id = "text_categoryname", placeholder = "Enter CategoryName" })
+                            @Html.ValidationMessageFor(m => m.CategoryName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md-4 col-xl-4  col-lg-4 col-sm-4">
+                        <button class="btn btn-sm btn-success mt-2" id="change_button"> Add </button>
+                        <a href="javascript:void(0)" class="ml-2 mt-2 btn btn-sm red-gradient-btn" onclick="CancelBtn()">Cancel</a>
+                    </div>
+                    <div class="col-md-12 mt-2 BindStatus">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h4 class="page-title">Hospital Services</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    @for (int i = 0; i < Model.hos_service.Count; i++)
+                    {
+
+                        <div class="col-md-2 col-lg-2">
+                            <div class="checkbox m-t-10">
+                                @Html.CheckBoxFor(x => x.hos_service[i].ischecked) @Model.hos_service[i].servicename
+                                @Html.HiddenFor(x => x.hos_service[i].Id)
+                                @Html.HiddenFor(x => x.hos_service[i].servicename)
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-lg-3">
+                            <div class="form-group">
+
+                                @if (Model.hos_service[i].servicename != "Investigation")
+                                {
+
+                                    @Html.DropDownListFor(x => x.hos_service[i].comission_type, new List<SelectListItem>
+                                           { new SelectListItem { Text = "Select Commission Type", Value = "", Selected=Model.hos_service[i].comission_type=="" ? true : false},
+                                             new SelectListItem { Text = "Percentage Wise", Value = "Percentage Wise",Selected=Model.hos_service[i].comission_type=="Percentage Wise" ? true : false},
+                                             new SelectListItem { Text = "Amount Wise", Value = "Amount Wise",Selected=Model.hos_service[i].comission_type=="Amount Wise" ? true : false}
+                                           }, new { @class = "form-control" })
+                                }
+                                else
+                                {
+                                    <a class="btn btn-sm btn-success mt-2" href="javascript:void(0)" onclick="AddService(@Model.CategoryId)">Investigation</a>
+                                }
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-lg-3">
+                            <div class="form-group">
+                                @if (Model.hos_service[i].servicename != "Investigation")
+                                {
+                                    @Html.ValidationMessageFor(x => x.hos_service[i].comission, "", new { @class = "text-danger" })
+                                    @Html.TextBoxFor(x => x.hos_service[i].comission, new { @class = "form-control", @type = "number", @min = "0", @max = "100", placeholder = "Comission" })
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-4"></div>
+
+                    }
+                </div>
+
+
+            }
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card-body card-topline-skin box-shadow">
+                <div class="row">
+                    <div class="col-lg-12 bind_categorylist">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("_Agent_Inv_Comission_Services", Model)
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_CommissionMaster").css("display", "block");
+        //$(".ComissionCategoryMaster").addClass("active");
+
+        $(document).ready(function () {
+            GetGroupData();
+        });
+        function SuccessMethod(jsondata) {
+            debugger;
+            if (jsondata.Status == "sucess") {
+                $(".BindStatus").html("<div class='alert alert-success alert-dismissible fade show' role='alert'><span> Category Name is added sucess !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+                CancelBtn();
+            }
+            else if (jsondata.Status == "added") {
+                $(".BindStatus").html("<div class='alert alert-warning alert-dismissible fade show' role='alert'><span> Same Category Name allrady added !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+            }
+            else if (jsondata.Status == "atleastone") {
+                $(".BindStatus").html("<div class='alert alert-warning alert-dismissible fade show' role='alert'><span> Select  atleast one services !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+            }
+            else {
+                $(".BindStatus").html("<div class='alert alert-danger alert-dismissible fade show' role='alert'><span> Error occured. Category Name is not added !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+            }
+            $(".bind_categorylist").html(jsondata.CategoryGrid);
+            /*  $(".BindMappingPart").empty();*/
+        }
+        function GetGroupData() {
+            debugger;
+            $("#progress").show();
+            url = "/Comission/Add_UpdateComissionCategory";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json',
+                async: false
+            }).done(function (jsondata) {
+                debugger;
+                $(".bind_categorylist").html(jsondata.CategoryGrid);
+                /* $(".BindMappingPart").empty();*/
+                $("#progress").hide();
+            });
+        }
+        function EditCategory(CategoryId) {
+            debugger;
+            $("#progress").show();
+            var url = "";
+            url = "/Comission/Get_CategorywiseServices?CategoryId=" + CategoryId + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bind_services").empty();
+                $(".bind_services").html($(datahtml).find(".bind_services").html());
+                $("#progress").hide();
+            });
+            $("#change_button").text("Update");
+        }
+        function CancelBtn() {
+            debugger;
+            $("#CategoryForm").trigger("reset");
+            $("#category_id").val(0);
+            $("#change_button").text("Add");
+        }
+        var ConfirmDelete = function (id) {
+            debugger;
+            if (confirm("Are you sure you want to delete ?")) {
+                $("#progress").show();
+                debugger;
+                $.ajax({
+                    type: "POST",
+                    url: "/Comission/DeleteCategory",
+                    data: { CategoryId: id },
+                    success: function (jsondata) {
+                        debugger;
+                        if (jsondata.Status == "sucess") {
+                            $(".BindStatus").html("<div class='alert alert-success alert-dismissible fade show' role='alert'><span> Category Name delete sucess !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+                        }
+                        else if (jsondata.Status == "notadd") {
+                            $(".BindStatus").html("<div class='alert alert-warning alert-dismissible fade show' role='alert'><span> Please unmapped services realted this group !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+                        }
+                        else {
+                            $(".BindStatus").html("<div class='alert alert-danger alert-dismissible fade show' role='alert'><span> Error occured. Category Name is not deleted !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+                        }
+                        $(".bind_categorylist").html(jsondata.CategoryGrid);
+                        /*  $(".BindMappingPart").empty();*/
+                        $("#progress").hide();
+                    }
+                })
+            }
+            else
+                return false;
+        }
+        function AddService(categoryId) {
+            debugger;
+            $("#progress").show();
+            var url = "";
+            url = "/Comission/Get_AgentCategorywiseInvestigation?CategoryId=" + categoryId + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bind_inv_services").empty();
+                $(".bind_inv_services").html($(datahtml).find(".bind_inv_services").html());
+                $("#progress").hide();
+            });
+            $('#agent_Comission_data').modal('show');
+        }
+
+        //Assign Click event to Plus Image for LabName.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        $("body").on("click", "img[src*='minus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+           //End
+
+        function SuccessMethodagt(datahtml) {
+            debugger;
+            $("#cardboxcol").empty();
+            $("#cardboxcol").html($(datahtml).find("#cardboxcol").html());
+        }
+
+    </script>
+}
+

@@ -1,0 +1,128 @@
+﻿@model HospitalManagement.Models.AddReagent
+@{
+    ViewBag.Title = "AddReagent";
+}
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            @if (Model.reagent_id > 0)
+            {
+                <h4 class="page-title"> Update Reagent</h4>
+            }
+            else
+            {
+                <h4 class="page-title"> Add New Reagent</h4>
+            }
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Reagent/ReagentList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            @using (Ajax.BeginForm("SaveReagent", "Reagent", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.reagent_id)
+                <div class="row employee-form m-0">
+                    <div class="col-md-12 ">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Investigation </label>
+                                    @Html.ValidationMessageFor(model => model.InvestigationId, "", new { @class = "text-danger" })
+                                    @Html.DropDownListFor(model => model.InvestigationId, new SelectList(Model.Inv_Lists, "investigationmaster_id", "investigationmaster_name"), "Select Investigation", new { @class = "form-control select requiredSelect", @id = "hos_investigation" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Reagent Name  @Html.ValidationMessageFor(model => model.reagent_name, "", new { @class = "text-danger" }) </label>
+                                    @Html.TextBoxFor(model => model.reagent_name, new { @class = "form-control requiredSelect" })
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>No of Use Unit <span class="text-danger">@Html.ValidationMessageFor(model => model.uses_unit, "", new { @class = "text-danger" })</span></label>
+                                    @Html.TextBoxFor(model => model.uses_unit, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="checkbox m-t-30">
+                                    @Html.CheckBoxFor(model => model.is_usiesvalidity) Is Uses Validity
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Validity Date</label>
+                                    @Html.TextBoxFor(model => model.validity_date, new { @class = "form-control datetimepicker", @id="validity_date" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Purchase Unit <span class="text-danger">@Html.ValidationMessageFor(model => model.purchase_unit, "", new { @class = "text-danger" })</span></label>
+                                    @Html.TextBoxFor(model => model.purchase_unit, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="text-center">
+                                    <button class="btn skin-gradient-btn submit-btn" name="Submit" value="Create Employee">
+                                        <i class=" fa fa-plus"> </i>
+                                        @if (Model.reagent_id > 0)
+                                        {
+                                            <span> Update</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Add</span>
+                                        }
+                                    </button>
+                                    @*<a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSEmployee/HMSEmployeeList">  <i class="fa fa-arrow-left"></i> Back To List</a>*@
+                                </div>
+                            </div>
+                        </div>
+                        <div id="cardbox" class="mt-3">
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Lab").css("display", "block");
+        //$(".ReagentList").addClass("active");
+
+        $(document).ready(function () {
+            $("#hos_investigation").select2();
+        });
+        function SuccessMethod(data) {
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your " + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardbox").html(htmlstr);
+                return false;
+            }
+            else if (data == "Record Updated Successfully!") {
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your " + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardbox").html(htmlstr);
+                return false;
+            }
+            else if (data == "Record Allrady Exists!") {
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your " + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardbox").html(htmlstr);
+                return false;
+            }
+            else
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Please read the</strong> Comments  <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            $("#cardbox").html(htmlstr);
+        }
+    </script>
+}
+

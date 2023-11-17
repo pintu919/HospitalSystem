@@ -1,0 +1,416 @@
+﻿@model HospitalManagement.Models.LabReceivableModel
+@{
+    ViewBag.Title = "Receivable";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">
+                Invoice Receivable
+            </h4>
+        </div>
+    </div>
+    <div class="row filter-row">
+        <div class="col-12">
+            @using (Ajax.BeginForm("Searchreceivabledata", "Payables", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row align-items-center">
+                    <div class="col-sm-6 col-md-4 col-xl-3">
+                        <div class="form-group form-focus focused">
+                            <label class="focus-label">From</label>
+                            @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating datetimepicker" })
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xl-3">
+                        <div class="form-group form-focus focused">
+                            <label class="focus-label">To</label>
+                            @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating datetimepicker" })
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xl-4">
+                        <div class="mb-3">
+                            @*<label class="mr-3"> Choose Payment Option : </label>*@
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_inactive">
+                                    @Html.RadioButtonFor(model => model.filterby, 1, new { @checked = "true" })
+                                    All
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_active">
+                                    @Html.RadioButtonFor(model => model.filterby, 2)
+                                    IP Invoice
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_inactive">
+                                    @Html.RadioButtonFor(model => model.filterby, 3)
+                                    OPD Invoice
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xl-2">
+                        <button class="btn btn-warning btn-block submit-btn">Search</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @{
+        int i = 0;
+    }
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling">
+                <table id="" class="table mb-0">
+                    <thead>
+
+                        @foreach (var item in Model.MonthReceivablelst)
+                        {
+
+                            var monthnamelst = Model.DateReceivablelst.FindAll(d => d.MonthYear == item.MonthYear).ToList();
+                            if (i == 0)
+                            {
+                                <tr class="table-info">
+                                    <th class="w-40"></th>
+                                    <th>Month & Year</th>
+                                    <th class="w-20">Total</th>
+                                    <th class="w-20">Paid Amount</th>
+                                    <th class="w-20">Balance</th>
+                                </tr>
+                            }
+                            <tr>
+                                <th class="plusicon text-center w-40">
+                                    <img src="~/Image/plus.png" class="plusimg" title="" />
+                                    <div style="display: none" class="table-responsive">
+                                        <table class="table table-bordered mb-0 m-auto">
+                                            @foreach (var m in monthnamelst)
+                                            {
+                                                <tr>
+                                                    <td class="text-center w-40 plusicon">
+                                                        <img src="~/Image/add.png" class="plusimg" style="max-width:16px !important;" title="" />
+                                                        <div style="display: none" class="table-responsive">
+                                                            <table class="table table-bordered mb-0 m-auto">
+                                                                <thead class="thead-light">
+                                                                    <tr>
+                                                                        <th style="width:15%;">InvoiceCode</th>
+                                                                        <th>PatientName</th>
+                                                                        <th style="width:21%;">Total</th>
+                                                                        <th style="width:20%;">Paid Amount</th>
+                                                                        <th style="width:16%;">Balance</th>
+                                                                        <th style="width:40px;"></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                @{var datewiselst = Model.InvoiceReceivablelst.FindAll(d => d.cdate == m.inv_date).ToList();}
+                                                                @foreach (var d in datewiselst)
+                                                                {
+                                                                    <tbody>
+                                                                        <tr class="table-warning">
+                                                                            <td>@d.invoice_code</td>
+                                                                            <td class="">
+                                                                                @d.patient_name
+                                                                            </td>
+                                                                            <td>
+                                                                                @Math.Round(Convert.ToDecimal(d.total), 2)
+
+                                                                            </td>
+                                                                            <td>
+                                                                                @Math.Round(Convert.ToDecimal(d.paid_amount), 2)
+
+                                                                            </td>
+                                                                            <td>
+                                                                                @Math.Round(Convert.ToDecimal(d.balance), 2)
+
+                                                                            </td>
+                                                                            <td> <input class="checkbox_@d.invoice_id" onchange="CheckBoxSet(@d.invoice_id, this)" type="radio" name="check[]" /></td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                }
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                    <td class="">
+                                                        @m.inv_date
+                                                    </td>
+                                                    <td class="w-20">
+                                                        @Math.Round(Convert.ToDecimal(m.total), 2)
+                                                    </td>
+                                                    <td class="w-20">@Math.Round(Convert.ToDecimal(m.paidamount), 2)</td>
+                                                    <td class="w-20"> @Math.Round(Convert.ToDecimal(m.balance), 2)</td>
+                                                </tr>
+                                            }
+                                        </table>
+
+                                    </div>
+                                </th>
+                                <th>@item.MonthYear</th>
+                                <th class="w-20">@Math.Round(Convert.ToDecimal(item.total), 2)</th>
+                                <th class="w-20">@Math.Round(Convert.ToDecimal(item.paidamount), 2)</th>
+                                <th class="w-20">@Math.Round(Convert.ToDecimal(item.balance), 2)</th>
+
+                            </tr>
+
+                            i++;
+                        }
+                    </thead>
+                </table>
+
+                @using (Ajax.BeginForm("SaveInvoiceReceivable", "Payables", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ReceiveSuccessMethod", OnBegin = "OnbeginMethod", LoadingElementId = "progress" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.HiddenFor(model => model.invoice_id, new { @id = "get_ids" })
+                    @Html.HiddenFor(m => m.FromDate, new { @id = "Pay_FromDate" })
+                    @Html.HiddenFor(m => m.ToDate, new { @id = "Pay_ToDate" })
+                    @Html.HiddenFor(m => m.filterby, new { @id = "Pay_filter" })
+                    @Html.HiddenFor(m => m.ChannelId, new { @id = "Pay_ChannelId" })
+                    @Html.HiddenFor(m => m.PaymentTypeId, new { @id = "Pay_PaymentTypeId" })
+                    <input type="hidden" id="checkamount" />
+                    <table class="table table-bordered mt-3">
+                        <tbody>
+                            <tr class="table-info">
+                                <th class="fw-500">Select Payment Type :</th>
+                                <th>
+                                    @if (Model.PaymentType_List != null)
+                                    {
+
+                                        @*<label>Select Head: </label>*@
+                                        @Html.DropDownListFor(model => model.PaymentTypeId, new SelectList(Model.PaymentType_List, "Id", "PaymentType"), "Select Payment Type", new { @onchange = "GetPaymentTypeChannel('')", @class = "form-control select requiredSelect" })
+
+                                    }
+                                </th>
+                                <th class="fw-500">Select Payment Channel :</th>
+                                <th>
+                                    @if (Model.paymentType_Channel_list != null)
+                                    {
+                                        <div class="bindChanneltype">
+                                            @*<label>Select Account: </label>*@
+                                            @Html.DropDownListFor(model => model.ChannelId, new SelectList(Model.paymentType_Channel_list, "Id", "ChannelName"), "Select Payment Channel", new { @onchange = "GetPaymentTypeChannel('setaccount_id')", @class = "form-control floating requiredSelect" })
+                                        </div>
+                                    }
+                                </th>
+                                <th class="fw-500">Total Amount :</th>
+                                <th>
+                                    <div class="form-group mb-0">
+                                        @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control", @id = "SetTotaldisableamount" })
+
+                                    </div>
+                                </th>
+                                <th class="text-center"><button class="btn btn-sm skin-gradient-btn submit-btn">  Pay </button></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+
+
+            </div>
+            <div class="BindStatus col-md-12 mt-2">
+                @if (Model.Status == "sucess")
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span> Selected  service's amount is payed sucess !!</span>
+                        <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
+                            <span aria-hidden='true'>&times;</span>
+                        </button>
+                    </div>
+                }
+                else if (Model.Status == "fail")
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role='alert'>
+                        <span>Error occured. Selected  service's amount is not payed !!</span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden='true'>&times;</span>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        //$(".Payables").addClass("subdrop");
+        //$(".Submenu_Payables").css("display", "block");
+        //$(".Submenu_Payables").css("display", "block");
+        //$(".Receivable").addClass("active");
+
+        $(document).ready(function () {
+            $('#datetimepicker11').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2
+            }).on('changeDate', function (e) {
+                debugger;
+                ToDate();
+                $('.datetimepicker12').val("").datetimepicker('setStartDate', new Date(e.date));
+            });
+            function ToDate() {
+                debugger;
+                $('#datetimepicker12').datetimepicker({
+                    format: "dd/mm/yyyy",
+                    autoclose: true,
+                    minView: 2
+
+                });
+            }
+        });
+
+        function CheckBoxSet(inv_id, row) {
+            debugger;
+            var TotalAMt = 0; var IDs = "";
+            if ($(row).is(":checked")) {
+                debugger;
+                TotalAMt = parseInt($(row).closest('tr').find('td').eq(4).text().trim());
+                IDs = inv_id;
+                $("#get_ids").val(IDs);
+                $("#SetTotaldisableamount").val(TotalAMt);
+                $("#checkamount").val(TotalAMt);
+                var filterval = $("#filterby").prop('checked', true).val();
+                $("#Pay_filter").val(filterval);
+            }
+        }
+        function sucessmethod(data) {
+            debugger;
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $(".datatable").dataTable();
+        }
+        function OnbeginMethod() {
+            debugger;
+            if ($("#get_ids").val() == "" || $("#get_ids").val() == "0") {
+                alert("please check at least one service !!");
+                return false;
+            }
+            if ($("#Pay_PaymentTypeId").val() == "" || $("#Pay_PaymentTypeId").val() == 0) {
+                alert("Please select Payment Type !!");
+                return false;
+            }
+
+            if ($("#Pay_ChannelId").val() == "" || $("#Pay_ChannelId").val() == 0) {
+                alert("Please Select Payment Channel !!");
+                return false;
+            }
+            if ($("#SetTotaldisableamount").val() == 0 || $("#SetTotaldisableamount").val() == 0) {
+                $("#SetTotaldisableamount").focus();
+                return false;
+            }
+            var totalamount = $("#SetTotaldisableamount").val();
+            var checkamount = $("#checkamount").val();
+
+            if (parseFloat(totalamount) > parseFloat(checkamount)) {
+                alert("Not enter grater amount for selected invoice amount !!");
+                return false;
+            }
+
+
+        }
+        function ReceiveSuccessMethod(data) {
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $(".datatable").dataTable();
+            $(".BindStatus").html($(data).find(".BindStatus").html());
+            $("#Pay_FromDate").val($("#FromDate").val());
+            $("#Pay_ToDate").val($("#ToDate").val());
+            $("#get_ids").val("");
+            $("#SetTotaldisableamount").val(0);
+            $("#AccountHeadId").val("");
+            $("#AccountId").val("");
+            $("#checkamount").val(0);
+        }
+
+        //function GetAccountList(typ) {
+        //    debugger;
+        //    var headid = $("#AccountHeadId").val();
+        //    if (typ == "setaccount_id") {
+        //        $("#Pay_AccountId").val($("#accid").val());
+        //        return false
+        //    }
+        //    if (headid == null || headid == "") {
+        //        $("#AccountHeadId").focus();
+        //        $("#accid").html('<option value="">Select Account</option>');
+        //        return false;
+        //    }
+        //    $("#progress").show();
+        //    url = "/Payables/RecivableAccountList?HeadID=" + headid + "";
+        //    $.ajax({
+        //        url: url,
+        //        datatype: 'json',
+        //        ContentType: 'application/json;utf-8'
+        //    }).done(function (datahtml) {
+        //        debugger;
+        //        $(".bind_Accountlst").empty();
+        //        $(".bind_Accountlst").html($(datahtml).find(".bind_Accountlst").html());
+        //        $("#progress").hide();
+        //    });
+        //}
+
+
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            //$(this).closest("tr").next().remove();
+            $(this).closest("tr").next('.del').remove();
+
+        });
+
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='add.png']", function () {
+            $(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/close.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='close.png']", function () {
+            $(this).attr("src", "/Image/add.png");
+            //$(this).closest("tr").next().remove();
+            $(this).closest("tr").next('.del').remove();
+
+        });
+
+        $('th').on('click', function () {
+            $("#DataTables_Table_0").find('.plusicon').find('.plusimg').attr("src", "/Image/plus.png");
+            // DataTables has done a sort
+        });
+
+        function GetPaymentTypeChannel(type) {
+            debugger;
+            var PaymentTypeId = $("#PaymentTypeId").val()
+            if (type == "setaccount_id") {
+                $("#Pay_ChannelId").val($("#ChannelId").val());
+                return false;
+            }
+            if (PaymentTypeId != null && parseInt(PaymentTypeId) > 0) {
+                $("#Pay_PaymentTypeId").val(PaymentTypeId);
+                url = "/Payables/getPaymentTypeChannel?PaymentTypeId=" + PaymentTypeId + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    debugger;
+                    $('.bindChanneltype').removeAttr('hidden');
+                    $(".bindChanneltype").empty();
+                    $(".bindChanneltype").html($(datahtml).find(".bindChanneltype").html());
+                });
+            }
+            else {
+                $("#Pay_PaymentTypeId").val(0);
+                $("#Pay_ChannelId").val(0);
+                $('.bindChanneltype').attr('hidden', true);
+                $("#ChannelId option").remove();
+            }
+        }
+
+    </script>
+}
+
+

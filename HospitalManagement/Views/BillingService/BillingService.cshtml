@@ -1,0 +1,691 @@
+﻿@model HospitalManagement.Models.BillingServiceModel
+@{
+    /**/
+
+    ViewBag.Title = "BillingService";
+}
+<style>
+    #invSellingCost {
+        pointer-events: none;
+    }
+
+    #PatientCode {
+        pointer-events: none;
+    }
+
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-12">
+            <h4 class="page-title"> Add Billing Service</h4>
+        </div>
+    </div>
+    <div class="row appointment-form m-0">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-5">
+                    <div class="input-group mb-3">
+                        <span id="patmsg" class="msg_billing" hidden> (<small class="text-danger">Note: Please enter valid patient !!! </small>)</span>
+                        @Html.TextBoxFor(model => model.PatientName, new { @class = "form-control", placeholder = "Enter keyword related to patient" })
+                        @*@Html.HiddenFor(model => model.PatientCode)*@
+                        <div id="patdanger" class="input-group-append" hidden><button class="btn  btn-danger" type="submit"><i class="fa fa-close"></i></button></div>
+                        <div id="patsucess" class="input-group-append" hidden><button class="btn  btn-success" type="submit"><i class="fa fa-check"></i></button></div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-5 bind_referal">
+                    <div class="form-group">
+                        @Html.TextBoxFor(model => model.ReferalDoctorName, new { @class = "form-control bind_referrelname", placeholder = "Enter Referal Doctor Name" })
+                    </div>
+                </div>
+            </div>
+            <div class="row bind_patientdata">
+                <div class="col-md-10">
+                    <div class="row align-items-center">
+
+                        <div class="col-12 col-sm-12 col-md-6">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.PatientCode, new { @class = "form-control", placeholder = "Patient Code", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.DOB, new { @class = "form-control", placeholder = "Date of Birth", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.FatherName, new { @class = "form-control", placeholder = "Father Name", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.Mobile, new { @class = "form-control", placeholder = "Mobile", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6">
+                            <div class="form-group">
+                                @Html.TextAreaFor(model => model.Address, new { @class = "form-control", placeholder = "address", @rows = "3", @disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6">
+                            <div class="form-group">
+                                <label class="d-inline-block mr-3"><b>Sex:</b> </label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(model => model.Gender, "Male", new { @id = "Male", onclick = "return false;" })
+                                        Male
+                                    </label>
+                                </div>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(model => model.Gender, "Female", new { @id = "Female", onclick = "return false;" })
+                                        Female
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="avatar-img center-block billig_img">
+                        @if (Model.photo == "" || Model.photo == null)
+                        {
+                            <img src="~/wwwroot/assets/img/user.jpg" class="img-fluid" alt="">
+                        }
+                        @if (Model.photo != null && Model.photo != "")
+                        {
+                            var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + Model.photo;
+                            <img src="@img" class="img-fluid" alt="">
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <div id="cardbox" hidden></div>
+    @using (Ajax.BeginForm("AddServices", "BillingService", new AjaxOptions { HttpMethod = "POST", OnBegin = "ONbeginEvent", OnSuccess = "SuccessMethod" }))
+    {
+        @Html.AntiForgeryToken()
+        <form>
+            @Html.HiddenFor(model => model.PatientCode, new { @id = "bnd_patientcode" })
+            @Html.HiddenFor(model => model.ReferalDoctorName, new { @id = "bnd_referalDoctorName" })
+            <div class="row mt-3">
+                <div class="col-lg-5">
+                    <div class="form-group">
+                        <label class="d-inline-block mr-2">Select Service : </label>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_active">
+                                @Html.RadioButtonFor(model => model.ServiceType, "Investigation", new { @id = "Investigation" })
+                                Investigation
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_inactive">
+                                @Html.RadioButtonFor(model => model.ServiceType, "OtherService", new { @id = "OtherService" })
+                                Other Service
+                            </label>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+            <div id="Invwise" class="row" hidden>
+
+                @*<div class="col-md-6">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <label class="focus-label m-b-30">Category :</label>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="form-group">
+                                    @Html.DropDownListFor(model => model.CategoryCode, new SelectList(Model.Investigationgrouplst, "investigationgroup_code", "investigationgroup_name"), "Select Category", new { @class = "form-control select2", onchange = "GetDropdownData()", @id = "Categorycode" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="focus-label">Sub Category</label>
+                        @Html.DropDownListFor(model => model.investingation_id, new SelectList(Model.SubInvgrouplst, "investigationmaster_id", "invstigationmaster_name"), "Select Sub Category", new { @class = "form-control select2", onchange = "Getcost()" })
+                    </div>
+                </div>
+            </div>
+            <div id="other_services" class="row" hidden>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="focus-label">Other Service :</label>
+                        @Html.DropDownListFor(model => model.Service_id, new SelectList(Model.BillingServicelst, "id", "service_name"), "Select Service", new { @class = "form-control select2", onchange = "Getcost()" })
+                    </div>
+                </div>
+            </div>
+            <div id="service_cost" class="row bindcost" hidden>
+                @if (Model.is_realtime == 0)
+                {
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="focus-label">Price</label>
+                            @Html.TextBoxFor(model => model.SellingCost, new { @class = "form-control", @readonly = "readonly", @id = "invSellingCost" })
+                            @Html.HiddenFor(model => model.is_realtime)
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="focus-label">Discount(Amount)</label>
+                            <span id="dismsg" class="msg_billing" hidden>(<small class="text-danger">Note: Discount Amount is to much.Minimum selling Amount is @Model.MinSellingCost </small>)</span>
+                            @Html.TextBoxFor(model => model.Discount, new { @class = "form-control groupOfTexbox dicount_check" })
+                        </div>
+                    </div>
+                }
+                @if (Model.is_realtime == 1)
+                {
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="focus-label">Service Name</label>
+                            <span id="oth_Sname" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Service Name. </small>)</span>
+                            @Html.TextBoxFor(model => Model.ServiceName, new { @class = "form-control" })
+                            @Html.HiddenFor(model => Model.is_realtime)
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="focus-label">Cost</label>
+                            <span id="oth_cost" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Cost. </small>)</span>
+                            @Html.TextBoxFor(model => Model.Cost, new { @class = "form-control groupOfTexbox" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="focus-label">Selling Cost</label>
+                            <span id="oth_Scost" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Selling Cost. </small>)</span>
+                            @Html.TextBoxFor(model => Model.SellingCost, new { @class = "form-control groupOfTexbox" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="focus-label">Remark</label>
+                            @Html.TextAreaFor(model => Model.Remark, new { @class = "form-control" })
+                        </div>
+                    </div>
+                }
+                @Html.HiddenFor(model => model.MinSellingCost)
+                @Html.HiddenFor(model => model.Cost)
+                <div class="col-md-12">
+                    <button id="btnAddservice" class="btn skin-gradient-btn" type="submit" name="submit"><i class="fa fa-plus"></i> Add Service Item</button>
+                </div>
+                <div id="cardboxservice" hidden>
+                </div>
+            </div>
+        </form>
+    }
+    @using (Ajax.BeginForm("AddBillingServiceItemInvoice", "BillingService", new AjaxOptions { HttpMethod = "POST", OnBegin = "begin_Bill_serviceItem()", OnSuccess = "SuccessMethodBilling", LoadingElementId = "progress" }))
+    {
+        <div class="row bindserviceitem mt-3">
+            @{
+                decimal subTotal = 0;
+                decimal discount = 0;
+                decimal totaldiscount = 0;
+            }
+            @Html.HiddenFor(m => m.ReferalDoctorName, new { @id = "referal_dr_Name" })
+            @if (Model.BillingServiceItemlst != null && Model.BillingServiceItemlst.Count > 0)
+            {
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered custom-table" style="border-bottom: 5px solid #dee2e6;" id="example1">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Service Name</th>
+                                    <th>Service Type</th>
+                                    <th>Selling cost</th>
+                                    <th>Discount</th>
+                                    <th data-orderable="false" class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.BillingServiceItemlst.Count; i++)
+                                {
+
+                                    subTotal += Convert.ToDecimal(Model.BillingServiceItemlst[i].selling_price);
+                                    discount = Convert.ToDecimal(Model.BillingServiceItemlst[i].discount);
+                                    totaldiscount += discount;
+                                    <tr id="row_@Model.BillingServiceItemlst[i].id">
+                                        <td>
+                                            @Html.DisplayFor(Model => Model.BillingServiceItemlst[i].service_name)
+                                            @Html.HiddenFor(Model => Model.BillingServiceItemlst[i].patient_code)
+                                            @Html.HiddenFor(Model => Model.BillingServiceItemlst[i].id)
+                                        </td>
+                                        <td>@Html.DisplayFor(Model => Model.BillingServiceItemlst[i].type)</td>
+                                        <td>@Html.DisplayFor(Model => Model.BillingServiceItemlst[i].selling_price)</td>
+                                        <td>@Html.DisplayFor(Model => Model.BillingServiceItemlst[i].discount)</td>
+                                        <td class="text-center">
+                                            <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@Model.BillingServiceItemlst[i].id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-remove"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-4">
+                            <div class="form-group">
+                                @Html.DropDownListFor(model => model.Comission_Agent_Id, new SelectList(Model.Comission_Agent_List, "Comission_Agent_Id", "Commision_Agent"), "Select Comission Agent", new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-2 text-md-right">
+                            <button id="addbillservice" class="btn skin-gradient-btn" type="submit" name="submit">Save</button>
+                        </div>
+                        <div class="col-lg-5 col-md-5 ml-auto">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped custom-table">
+                                    <tbody>
+                                        <tr>
+                                            <td>Total Amount</td>
+                                            <td>@Math.Round(subTotal, 2)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Discount</td>
+                                            <td>@Math.Round(totaldiscount, 2)</td>
+                                        </tr>
+                                        <tr class="table-primary">
+                                            <th>
+                                                Total
+                                            </th>
+                                            <th>
+                                                @Math.Round(subTotal - totaldiscount, 2)
+                                            </th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <!-- Billing Service Item -->
+    }
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Billing").addClass("subdrop");
+        //$(".Submenu_Billing").css("display", "block");
+        //$(".Submenu_OuterPatient").css("display", "block");
+        //$(".BillingService").addClass("active");
+
+        var url = "";
+        $(".select2").select2();
+        $('#Investigation').change(function () {
+            $("#other_services select").val('');
+            $(".select2").select2();
+            $('#Invwise').removeAttr('hidden');
+            $('#other_services').attr('hidden', true);
+            $('#service_cost').attr('hidden', true);
+        });
+        $('#OtherService').change(function () {
+            $("#Invwise select").val('');
+            $(".select2").select2();
+            $('#Invwise').attr('hidden', true);
+            $('#other_services').removeAttr('hidden');
+            $('#service_cost').attr('hidden', true);
+            $("#service_cost").find('input:text,input:file,select,textarea').val('');
+        });
+        //function GetDropdownData() {
+        //    $('.loadingimg').css('display', 'block');
+        //    var catval = "";
+        //    catval = $('#Categorycode').val();
+        //    url = "/BillingService/GetSubInvestigationPara?categorycode=" + catval + " &patientcode=" + $("#bnd_patientcode").val() + "";
+        //    $.ajax({
+        //        url: url,
+        //        datatype: 'json',
+        //        ContentType: 'application/json;utf-8'
+        //    }).done(function (datahtml) {
+        //        $('.loadingimg').css('display', 'none');
+        //        $(".bindtbl").empty();
+        //        $(".bindtbl").html($(datahtml).find(".bindtbl").html());
+        //        $(".select2").select2();
+        //    });
+        //}
+        function Getcost() {
+            debugger;
+            $("#progress").show();
+            var serviceid = 0
+            var type = "";
+            if ($('#Investigation').prop('checked') == true) {
+                //$('#service_cost').removeAttr('hidden');
+                serviceid = $('#investingation_id').val();
+                type = 'investigation';
+            }
+            if ($('#OtherService').prop('checked') == true) {
+                // $('#service_cost').removeAttr('hidden');
+                serviceid = $('#Service_id').val();
+                type = 'services'
+            }
+
+            if (serviceid == '' || serviceid == 0) {
+                $("#progress").hide();
+                $('#service_cost').attr('hidden', true);
+                $("#service_cost").find('input:text,input:file,select,textarea').val('');
+                return;
+            }
+            url = "/BillingService/GetServiceCost?ServiceId=" + serviceid + " &Type=" + type + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bindcost").empty();
+                $(".bindcost").html($(datahtml).find(".bindcost").html());
+                $('#service_cost').removeAttr('hidden');
+                $('.groupOfTexbox').keypress(function (event) {
+                    return isNumber(event, this)
+                });
+                $("#progress").hide();
+            });
+        }
+        //var reparseform = function () {
+        //    $("#bind_referal").removeData("validator");
+        //    $("#bind_referal").removeData("unobtrusiveValidation");
+        //    $.validator.unobtrusive.parse("#bind_referal");
+        //};
+        $("#PatientName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/BillingService/GatePatient',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        debugger;
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            arr.patient_firstname = "No Record Found";
+                            arr.patient_code = "";
+                            data.push(arr);
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                            $("#PatientCode").val("");
+                            $("#PatientName").val("");
+                            $("#bnd_patientcode").val("");
+                            $('#patdanger').removeAttr('hidden');
+                            $('#patsucess').attr('hidden', true);
+
+
+                            var url = "";
+                            var type = "Add";
+                            var invoicecode = "";
+                            url = "/BillingService/GetPatientBillingAddItem?PatientCode=" + $("#bnd_patientcode").val() + " &Type=" + type + " &InvoiceCode=" + invoicecode + "";
+                            $.ajax({
+                                url: url,
+                                datatype: 'json',
+                                ContentType: 'application/json;utf-8'
+                            }).done(function (datahtml) {
+                                debugger;
+                                $(".bindserviceitem").empty();
+                                $(".bindserviceitem").html($(datahtml).find(".bindserviceitem").html());
+                                //$(".bind_referal").empty();
+                                //$(".bind_referal").html($(datahtml).find(".bind_referal").html());
+                                $(".bind_patientdata").empty();
+                                $(".bind_patientdata").html($(datahtml).find(".bind_patientdata").html());
+                                //reparseform();
+                                $(".bind_referrelname").val($(datahtml).find(".bind_referrelname").val());
+                                $("#bnd_referalDoctorName").val($(datahtml).find(".bind_referrelname").val());
+                            });
+
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    $('#patmsg').attr('hidden', true);
+                    $("#PatientCode").val(i.item.patient_code);
+                    $("#bnd_patientcode").val(i.item.patient_code);
+                    $("#PatientName").val(i.item.value);
+                    $('#patsucess').removeAttr('hidden');
+                    $('#patdanger').attr('hidden', true);
+
+                    var url = "";
+                    var type = "Add";
+                    var invoicecode = "";
+                    url = "/BillingService/GetPatientBillingAddItem?PatientCode=" + $("#bnd_patientcode").val() + " &Type=" + type + " &InvoiceCode=" + invoicecode + "";
+                    $.ajax({
+                        url: url,
+                        datatype: 'json',
+                        ContentType: 'application/json;utf-8'
+                    }).done(function (datahtml) {
+                        debugger;
+                        $('.loadingimg').css('display', 'none');
+                        $(".bindserviceitem").empty();
+                        $(".bindserviceitem").html($(datahtml).find(".bindserviceitem").html());
+                        //$(".bind_referal").empty();
+                        //$(".bind_referal").html($(datahtml).find(".bind_referal").html());
+                        $(".bind_patientdata").empty();
+                        $(".bind_patientdata").html($(datahtml).find(".bind_patientdata").html());
+                        //reparseform();
+                        $(".bind_referrelname").val($(datahtml).find(".bind_referrelname").val());
+                        $("#bnd_referalDoctorName").val($(datahtml).find(".bind_referrelname").val());
+                    });
+                }
+            },
+            minLength: 3,
+        }).bind("keyup.autocomplete", function (event) {
+            if (event.keyCode == $.ui.keyCode.BACKSPACE || event.keyCode == $.ui.keyCode.DELETE) {
+                $("#PatientCode").val("");
+                $("#PatientName").val("");
+                $("#bnd_patientcode").val("");
+                $('#patdanger').removeAttr('hidden');
+                $('#patsucess').attr('hidden', true);
+
+                var url = "";
+                var type = "Add";
+                var invoicecode = "";
+                url = "/BillingService/GetPatientBillingAddItem?PatientCode=" + $("#bnd_patientcode").val() + " &Type=" + type + " &InvoiceCode=" + invoicecode + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    debugger;
+                    $(".bindserviceitem").empty();
+                    $(".bindserviceitem").html($(datahtml).find(".bindserviceitem").html());
+                    //$(".bind_referal").empty();
+                    //$(".bind_referal").html($(datahtml).find(".bind_referal").html());
+                    $(".bind_patientdata").empty();
+                    $(".bind_patientdata").html($(datahtml).find(".bind_patientdata").html());
+                    // reparseform();
+
+                    $(".bind_referrelname").val($(datahtml).find(".bind_referrelname").val());
+                    $("#bnd_referalDoctorName").val($(datahtml).find(".bind_referrelname").val());
+                });
+            };
+        });
+        function isNumber(evt, element) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (
+                (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // Check minus and only once.
+                (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // Check dot and only once.
+                (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+        //$(".bind_referrelname").focusout(function () {
+        //    debugger;
+        //    $("#bnd_referalDoctorName").val($(".bind_referrelname").val());
+        //    $("#bnd_referalDoctorName").text($(".bind_referrelname").val());
+        //});
+        $(".bind_referrelname").focusout(function () {
+            debugger;
+            $("#bnd_referalDoctorName").val($(".bind_referrelname").val());
+        });
+
+        function ONbeginEvent() {
+            debugger;
+           // $("#bnd_referalDoctorName").val($(".bind_referrelname").val());
+            if ($("#bnd_patientcode").val() == "" || $("#bnd_patientcode").val() == null) {
+                $('#patmsg').removeAttr('hidden');
+                return false;
+            }
+            if ($("#is_realtime").val() == "1") {
+
+                if ($("#ServiceName").val() == null || $("#ServiceName").val() == "") {
+                    $('#oth_Sname').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $('#oth_Sname').attr('hidden', true);
+                }
+
+                if ($("#Cost").val() == null || $("#Cost").val() == "0.00") {
+                    $('#oth_cost').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $('#oth_cost').attr('hidden', true);
+                }
+
+                if ($("#SellingCost").val() == null || $("#SellingCost").val() == "0.00") {
+                    $('#oth_Scost').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $('#oth_Scost').attr('hidden', true);
+                }
+
+            }
+            var sellingcost = $("#invSellingCost").val();
+            var discount = $("#Discount").val();
+            var mincost = $("#MinSellingCost").val();
+            //var doscountamount = (sellingcost * discount) / 100;
+            if ((sellingcost - discount) < mincost) {
+                $('#dismsg').removeAttr('hidden');
+                return false;
+            }
+            else {
+                $("#progress").show();
+                $('#dismsg').attr('hidden', true);
+                $('#oth_Sname').attr('hidden', true);
+                $('#oth_cost').attr('hidden', true);
+                $('#oth_Scost').attr('hidden', true);
+                $("#btnAddservice").css({ "cursor": "not-allowed", "pointer-events": "none", "opacity": "0.65", "box-shadow": "none" });
+            }
+        }
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                var type = "Add";
+                var invoicecode = "";
+                url = "/BillingService/GetPatientBillingAddItem?PatientCode=" + $("#bnd_patientcode").val() + "&Type=" + type + " &InvoiceCode=" + invoicecode + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $(".bindserviceitem").empty();
+                    $(".bindserviceitem").html($(datahtml).find(".bindserviceitem").html());
+                    $("#progress").hide();
+                });
+            }
+            else if (data == "Record Not Saved!") {
+                $("#progress").hide();
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show mt-3' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Allrady Exists!") {
+                $("#progress").hide();
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show mt-3' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Please enter all require item!!") {
+                $("#progress").hide();
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show mt-3' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#btnAddservice").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+            $("#cardboxservice").html(htmlstr);
+        }
+        function SuccessMethodBilling(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "1") {
+                $('.bindserviceitem').empty();
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Added Successfully. Invoice generating Success !</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "0") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Record Not Saved!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#addbillservice").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+            }
+            else if (data == "2") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Please Fill Data!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#addbillservice").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+            }
+            else {
+                $("#addbillservice").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Error occured!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+        function begin_Bill_serviceItem() {
+            $("#addbillservice").css({ "cursor": "not-allowed", "pointer-events": "none", "opacity": "0.65", "box-shadow": "none" });
+        }
+
+        var ConfirmDelete = function (id) {
+            debugger;
+            $("#progress").show();
+            $.ajax({
+                type: "POST",
+                url: "/BillingService/Delete_Service",
+                data: { id: id },
+                success: function (d) {
+                    debugger;
+                    if (d == "1") {
+                        var type = "Add";
+                        var invoicecode = "";
+                        url = "/BillingService/GetPatientBillingAddItem?PatientCode=" + $("#bnd_patientcode").val() + "&Type=" + type + " &InvoiceCode=" + invoicecode + "";
+                        $.ajax({
+                            url: url,
+                            datatype: 'json',
+                            ContentType: 'application/json;utf-8'
+                        }).done(function (datahtml) {
+                            $(".bindserviceitem").empty();
+                            $(".bindserviceitem").html($(datahtml).find(".bindserviceitem").html());
+                            $("#progress").hide();
+                        });
+                    }
+
+                }
+            })
+        }
+    </script>
+}
+
+

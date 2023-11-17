@@ -1,0 +1,156 @@
+﻿@model List<HospitalManagement.Models.Operation>
+@{
+    ViewBag.Title = "OperationDetails";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="~/wwwroot/assets/img/favicon.ico">
+    <title>OperationDetails</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/style.css">
+</head>
+<body>
+    <div class="content ot-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-title text-primary">Operation Details:</h2>
+                </div>
+            </div>
+            <div class="row only-content">
+                <div class="col-12">
+                    <div id="accordion" class="ot-details-accordion">
+                        @{int i = 0; string ShowClass = "";}
+                        @foreach (var o in Model)
+                        {
+                            if (i == 0) { ShowClass = "show"; i = 1; } else { ShowClass = ""; }
+                            <div class="card">
+                                <a class="card-link collapsed" data-toggle="collapse" href="#collapseOne">
+                                    @o.name_of_operation <small class="text-secondary">( @o.OperationDate , @o.OperationTime )</small>
+                                    <h6 class="mb-0 mr-5 pull-right ml-2 lh_20">Operation done by @o.doctor_name</h6>
+                                </a>
+                                <div id="collapseOne" class="collapse @ShowClass" data-parent="#accordion">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            @if (o.Otdetail != null)
+                                            {
+                                                <div class="col-12 mt-4 detail_box">
+                                                    <h4 class="">OT Details</h4>
+                                                    <hr />
+                                                    <div class="">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Name Of Operation : </h5>
+                                                        <span>@o.Otdetail.name_of_operation</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Indication : </h5>
+                                                        <span>@o.Otdetail.indication</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Surgeon : </h5>
+                                                        <span>@o.Otdetail.Surgeon</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Asst. Surgeon : </h5>
+                                                        <span>@o.Otdetail.Asst_Surgeon</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Findings : </h5>
+                                                        <span>@o.Otdetail.findings</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Procedure : </h5>
+                                                        <span>@o.Otdetail.ot_procedure</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Histopathology : </h5>
+                                                        <span>@o.Otdetail.histology</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Anesthesiologist : </h5>
+                                                        <span>@o.Otdetail.anaesthetist</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Anesthesia Used : </h5>
+                                                        <span>@o.Otdetail.anaesthetic_used</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Units Of Blood Transfusion Required : </h5>
+                                                        <span class="ml-2">@o.Otdetail.UBTR</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Time Of Operation : </h5>
+                                                        <span>@o.Otdetail.ot_from_time</span>
+                                                        <h5 class="d-inline-block mr-2 ml-2">To </h5>
+                                                        <span>@o.Otdetail.ot_to_time</span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <i class="fa fa-dot-circle-o mr-2"></i>
+                                                        <h5 class="d-inline-block mr-2">Date : </h5>
+                                                        <span>@o.Otdetail.ot_date</span>
+                                                        <h5 class="d-inline-block mr-2 ml-2">OT Nurse :</h5>
+                                                        <span>@o.Otdetail.ot_nurse</span>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (o.Services != null)
+                                            {
+                                                <div class="col-12 mt-4">
+                                                    <h4 class="">Services</h4>
+                                                    <hr />
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead class="thead-light">
+                                                                <tr>
+                                                                    <th>Service Name</th>
+                                                                    <th>Selling Cost</th>
+                                                                    <th>Discount</th>
+                                                                    <th>Date</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var s in o.Services)
+                                                                {
+                                                                    <tr>
+                                                                        <td>@s.ServiceName</td>
+                                                                        <td>@s.selling_cost</td>
+                                                                        <td>@s.discount</td>
+                                                                        <td>@s.Date</td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/wwwroot/assets/js/jquery-1.12.4.js?<%=@DateTime.Now.ToString()%>"></script>
+    <script src="~/wwwroot/assets/js/bootstrap.min.js"></script>
+</body>
+</html>
+

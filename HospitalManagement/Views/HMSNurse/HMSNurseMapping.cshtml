@@ -1,0 +1,281 @@
+﻿@model HospitalManagement.Models.NurseModel
+@{
+    /**/
+    ViewBag.Title = "HMSNurseMapping";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Nurse Station</h4>
+        </div>
+    </div>
+    <div class="row patient-form m-0">
+        <div class="col-sm-4 col-md-4 col-lg-4 col-xl-3">
+            <button type="button" class="btn skyblue-gradient-btn btn-block" data-toggle="modal" data-target="#Add_sation"> <i class="fa fa-plus"></i> Add Nurse Station</button><br />
+            <div class="form-group nursedropbind">
+                @{var ActiveStationLst = @Model.Nurselstation.Where(m => m.ctrl == 1).ToList(); }
+                @Html.ValidationMessageFor(model => model.NurseSationId, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(model => model.NurseSationId, new SelectList(ActiveStationLst, "station_id", "nurse_station_name"), "Select Nurse Station", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData()", @id = "hosnurse" })
+            </div>
+        </div>
+        <div class="col-sm-8 col-md-8 col-lg-8 col-xl-6">
+            <h6 class="card-title m-b-20">Department List</h6>
+            <div class="m-b-30" id="bindDepartmentlist">
+                @if (Model.dpartmentlst != null)
+                {
+                    <ul class="list-group">
+                        @for (int i = 0; i < Model.dpartmentlst.Count(); i++)
+                        {
+                            <li class="list-group-item">
+                                @Html.DisplayFor(model => model.dpartmentlst[i].Hos_department_name)
+                                <div class="material-switch float-right">
+                                    <input id="staff_module_@i" value='@Model.dpartmentlst[i].Hos_department_code' checked=@Model.dpartmentlst[i].IsSelected type="checkbox">
+                                    <label for="staff_module_@i" class="badge-success"></label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+            <div class="col-sm-8 col-md-8 col-lg-8 col-xl-9">
+                <button class="btn skin-gradient-btn submit-btn" onclick="SaveRoleAccess()"><i class="fa fa-key"></i> Save Access</button>
+            </div>
+            <div id="cardbox" class="card-box" hidden>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Add_sation" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div id="bindleave" class="modal-content">
+            <div class="modal-header skin-bg-gradient">
+                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Add Nurse Sation</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Ajax.BeginForm("AddNurseStation", "HMSNurse", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label> Station Name <span class="text-danger">*</span> </label>
+                                @Html.TextBoxFor(model => model.NurseSationName, new { @class = "form-control ", @id = "NurseSationName" })
+                                @Html.HiddenFor(m => m.NurseSationId, new { @id = "staid" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="d-block"> Status </label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 1, new { @id = "Activechecked" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 0, new { @id = "InActivechecked" })
+                                        Inactive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="mb-3">
+                                <button type="submit" class="btn green-gradient-btn btn-sm"> Add Nurse Sation</button> &nbsp;&nbsp;
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div id="cardbox1" class="" hidden>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.Nurselstation != null && Model.Nurselstation.Count > 0)
+                    {
+                        <div class="row bindstation">
+                            <div class="col-md-12 ">
+                                <div class="table-responsive table-scrolling">
+                                    <table class="table table-border table-striped custom-table datatable w-100">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th class="collapse">#</th>
+                                                <th>Nurse Station Name</th>
+                                                <th>Status</th>
+                                                <th class="text-right" data-orderable="false">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.Nurselstation)
+                                            {
+                                                <tr id="row_@item.station_id">
+                                                    <td class="collapse"> @item.station_id</td>
+                                                    <td>@Html.DisplayFor(modelItem => item.nurse_station_name)</td>
+                                                    @if (item.ctrl == 1)
+                                                    {
+                                                        <td><span class="badge badge-success">Active</span></td>
+                                                    }
+                                                    @if (item.ctrl == 0)
+                                                    {
+                                                        <td><span class="badge badge-danger">Inactive</span></td>
+                                                    }
+                                                    <td class="text-right">
+                                                        <a href="#" onclick="EditStation(@item.station_id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.station_id)"><i class="fa fa-trash"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" id="message" value=@Model.Nurselstation[0].message />
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".HMSNurseMapping").addClass("active");
+
+        function SuccessMethod(data) {
+            $(".nursedropbind").empty();
+            $(".bindstation").empty();
+            $(".bindstation").html($(data).find(".bindstation").html());
+            $(".nursedropbind").html($(data).find(".nursedropbind").html());
+            var htmlstr = "";
+            if ($("#message").val() == "same") {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Alrady Exists !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if ($("#message").val() == "update") {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'> Record Update Success !! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if ($("#message").val() == "notupdate") {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Not Updated !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (parseInt($("#message").val()) > 0) {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Added Success !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (parseInt($("#message").val()) == 0) {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Unable to Record Save !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#hosnurse").val("");
+            $("#staid").val(0);
+            $("#NurseSationName").val("");
+            $("#cardbox1").empty();
+            $("#cardbox1").html(htmlstr);
+        }
+        function SaveRoleAccess() {
+            $('.loadingimg').css('display', 'block');
+            var list = [];
+            if ($("#hosnurse").val() == '') {
+                alert("Please select Nurse");
+                $('.loadingimg').css('display', 'none');
+                return false;
+            }
+            $('.list-group-item').each(function () {
+                debugger;
+                var record = {};
+                if ($(this).find('input')[0].checked == true) {
+                    record.StationId = $("#hosnurse").val();
+                    record.Hos_department_code = $(this).find('input').val();
+                    list.push(record);
+                }
+            });
+            if (list.length == 0) {
+                var obj = {};
+                obj.StationId = $("#hosnurse").val();
+                obj.Hos_department_code = '';
+                list.push(obj);
+            }
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: '/HMSNurse/RoleAssign',
+                data: '{Data:' + JSON.stringify(list) + '}',
+                success: function (data) {
+                    if (data == "1") {
+                        $('#cardbox').removeAttr('hidden');
+                        htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + "Role Assign Sucess!!" + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+                    }
+                    else if (data == "0") {
+                        $('#cardbox').removeAttr('hidden');
+                        htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + "Role is not Assign!!" + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+                    }
+                    $("#cardbox").html(htmlstr);
+                    $('.loadingimg').css('display', 'none');
+                },
+                failure: function (response) {
+                    $('.loadingimg').css('display', 'none');
+                    Alert(response);
+                }
+            });
+        }
+        function GetDropdownData() {
+            $('.loadingimg').css('display', 'block');
+            if ($("#hosnurse").val() != '') {
+                var stationid = $("#hosnurse").val();
+            }
+            else {
+                alert('please select Nurse !!!');
+                $('.loadingimg').css('display', 'none');
+                return;
+            }
+            url = "/HMSNurse/GetDataAccess?sationid=" + stationid + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $("#bindDepartmentlist").empty();
+                $("#bindDepartmentlist").html($(datahtml).find("#bindDepartmentlist").html());
+            });
+        }
+        function EditStation(val) {
+            debugger;
+            $("#staid").val(parseInt($("#row_" + val).find("td:eq(0)").text()));
+            $("#NurseSationName").val($("#row_" + val).find("td:eq(1)").text())
+            if ($("#row_" + val).find("td:eq(2)").text().trim() == "Active") {
+                $("#Activechecked").prop('checked', true);
+            }
+            else {
+                $("#InActivechecked").prop('checked', true)
+            }
+        }
+        var ConfirmDelete = function (stationid) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/HMSNurse/DeleteNurseStation",
+                data: { StationId: stationid },
+                success: function (result) {
+                    if (result == true) {
+                        $("#row_" + stationid).remove();
+                    }
+                }
+            })
+        }
+    </script>
+}
+
+
+

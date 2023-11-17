@@ -1,0 +1,157 @@
+﻿@model HospitalManagement.Models.Set_Invoice
+@{
+    ViewBag.Title = "SettlementInvoiceList";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">InvoiceList For Settlement</h4>
+        </div>
+    </div>
+    <div class="row inv_tab mt-2">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" href="#OPDTab" data-toggle="tab">OPD Invoice</a></li>
+                <li id="tab2click" onclick="GetIpInvoice()" class="nav-item"><a class="nav-link" href="#IPTab" data-toggle="tab">IP Invoice</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane show active" id="OPDTab">
+                    <div class="row">
+                        @if (Model.Type == "OPDInvoice")
+                        {
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-border table-striped custom-table dataTable mb-0" id="inv_lsttable">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Invoice No</th>
+                                                <th hidden>Invoice Id</th>
+                                                <th>Patient Name</th>
+                                                <th>Date</th>
+                                                <th>Total</th>
+                                                <th>Discount</th>
+                                                <th>Final</th>
+                                                <th>Paid</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.InvoiceList != null && Model.InvoiceList.Count > 0)
+                                            {
+                                                foreach (var item in Model.InvoiceList.Select((x, i) => new { Data = x, Index = i + 1 }))
+                                                {
+                                                    <tr>
+                                                        <td>@item.Index</td>
+                                                        <td><a href="~/Invoice/InvoiceView/@item.Data.uniqrow" target="_blank">@item.Data.invoice_code</a></td>
+                                                        <td hidden>@item.Data.invoice_id</td>
+                                                        <td>
+                                                            <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.Data.patuniqrow" target="_blank">@item.Data.patient_name </a><span>@item.Data.patient_code</span> </h2>
+                                                        </td>
+                                                        <td>@item.Data.cdate</td>
+                                                        <td> @Math.Round(Convert.ToDecimal(item.Data.total_amount), 2) </td>
+                                                        <td> @Math.Round(Convert.ToDecimal(item.Data.discount_amount), 2) </td>
+                                                        <td> @Math.Round(Convert.ToDecimal(item.Data.total), 2) </td>
+                                                        <td>@Math.Round(Convert.ToDecimal(item.Data.paid_amount), 2)</td>
+                                                        <td>
+                                                            <a href="~/Report/SettlementInvoiceView?enc=@item.Data.uniqrow" title="View Invoice" class="action-icon btn skyblue-gradient-btn" target="_blank"><i class="fa fa-eye"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="tab-pane" id="IPTab">
+                    <div class="row bindtable_Ip">
+                        @if (Model.Type == "IPInvoice")
+                        {
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-border table-striped custom-table dataTable mb-0" id="ipinv_lsttable">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Invoice No</th>
+                                                <th hidden>Invoice Id</th>
+                                                <th>Patient Name</th>
+                                                <th>Date</th>
+                                                <th>Total</th>
+                                                <th>Discount</th>
+                                                <th>Final</th>
+                                                <th>Paid</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.InvoiceList != null && Model.InvoiceList.Count > 0)
+                                            {
+                                                foreach (var item in Model.InvoiceList.Select((x, i) => new { Data = x, Index = i + 1 }))
+                                                {
+                                                    <tr>
+                                                        <td>@item.Index</td>
+                                                        <td><a href="~/Invoice/IPInvoiceView/@item.Data.uniqrow" target="_blank">@item.Data.invoice_code</a></td>
+                                                        <td hidden>@item.Data.invoice_id</td>
+                                                        <td>
+                                                            <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.Data.patuniqrow" target="_blank">@item.Data.patient_name </a><span>@item.Data.patient_code</span> </h2>
+                                                        </td>
+                                                        <td>@item.Data.cdate</td>
+                                                        <td> @Math.Round(Convert.ToDecimal(item.Data.total_amount), 2) </td>
+                                                        <td> @Math.Round(Convert.ToDecimal(item.Data.discount_amount), 2) </td>
+                                                        <td> @Math.Round(Convert.ToDecimal(item.Data.total), 2) </td>
+                                                        <td>@Math.Round(Convert.ToDecimal(item.Data.paid_amount), 2)</td>
+                                                        <td>
+                                                            <a href="~/Report/SettlementIpInvoiceView?enc=@item.Data.uniqrow" title="View Invoice" class="action-icon btn skyblue-gradient-btn" target="_blank"><i class="fa fa-eye"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_AccountData").css("display", "block");
+        //$(".SettlementInvoiceList").addClass("active");
+
+        $(document).ready(function () {
+            $("#inv_lsttable").dataTable({
+                "order": [[2, "desc"]],
+            });
+        });
+        function GetIpInvoice() {
+            debugger;
+            $("#progress").show();
+            url = "/Report/SettlementIpInvoiceList";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bindtable_Ip").empty();
+                $(".bindtable_Ip").html($(datahtml).find(".bindtable_Ip").html());
+                $("#ipinv_lsttable").dataTable({
+                    "order": [[2, "desc"]],
+                });
+                $("#progress").hide();
+            });
+        }
+    </script>
+}

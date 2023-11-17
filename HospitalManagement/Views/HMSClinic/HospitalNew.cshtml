@@ -1,0 +1,244 @@
+﻿@model HospitalManagement.Models.HosNewsData
+@{
+    ViewBag.Title = "HospitalNew";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.css" rel="stylesheet">
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Hospital News</h4>
+        </div>
+    </div>
+
+    @using (Ajax.BeginForm("AddHosNews", "HMSClinic", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>News Title </label>
+                                @Html.ValidationMessageFor(model => model.news_title, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.news_title, new { @class = "form-control" })
+                                @Html.HiddenFor(model => model.id)
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>News Date</label>
+                                @Html.ValidationMessageFor(model => model.news_Date, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.news_Date, new { @class = "form-control datetimepicker", autocomplete = "off" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            @Html.TextBoxFor(model => model.news_img, new { @class = "form-control", name = "postedFile", @id = "imageUploadForm", onchange = "readURL(this);", @type = "file" })
+                            @Html.ValidationMessageFor(model => model.news_img, "", new { @class = "text-danger" })
+                            <span class="form-text text-muted">Recommended image size is 1200px x 800px</span>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="img-thumbnail">
+                                @if (Model.news_img == "" || Model.news_img == null)
+                                {
+                                    <img id="blah" alt="your image" src="~/wwwroot/assets/img/logo-dark.png" width="250" height="75">
+                                }
+                                else
+                                {
+                                    var img = System.Configuration.ConfigurationManager.AppSettings["gethosimgUrl"] + Model.news_img;
+                                    <img id="blah" alt="your image" src="@img">
+                                    @Html.HiddenFor(model => model.news_img)
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="">
+                                New Content Body:
+                                @Html.ValidationMessageFor(model => model.news_content, "", new { @class = "text-danger" })
+                                @Html.TextAreaFor(model => model.news_content, new { @class = "form-control " })
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 text-center m-t-20">
+                            <button type="Submit" class="btn skin-gradient-btn submit-btn">Save</button>
+                        </div>
+                    </div>
+                    <div id="cardbox_status" class="card-box">
+                        @{
+                            if (Model.msg != null)
+                            {
+                                if (Model.msg.StatusId == "1")
+                                {
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <strong>Success!</strong> Your <a href="#" class="alert-link">action</a> has been successful.
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                }
+                                else if (Model.msg.StatusId == "0")
+                                {
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                }
+                                else if (Model.msg.StatusId == "2")
+                                {
+                                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                        <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                }
+                                else if (Model.msg.StatusId == "3")
+                                {
+                                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                        <strong>Note!</strong>  You can not delete this service.
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    }
+
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.hos_news_data != null)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>News Title</th>
+                                <th>News Date</th>
+                                <th>News Img</th>
+
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.hos_news_data)
+                            {
+                                <tr id="row_@item.id">
+                                    <td class="collapse">@item.id</td>
+                                    <td>@item.news_title</td>
+                                    <td>@item.news_Date</td>
+                                    <td>
+                                        @if (item.news_img == "" || item.news_img == null)
+                                        {
+                                            <img id="blah" alt="your image" src="~/wwwroot/assets/img/logo-dark.png" width="250" height="75">
+                                        }
+                                        else
+                                        {
+                                            var img = System.Configuration.ConfigurationManager.AppSettings["gethosimgUrl"] + item.news_img;
+                                            <img id="blah" alt="your image" src="@img" width="250" height="75">
+
+                                        }
+                                    </td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="badge badge-danger">Dactive</span></td>
+                                    }
+                                    <td class="text-center">
+                                        @*<a href="javascript:;" onclick="EditService(@item.id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>*@
+                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.js"></script>
+    <script type="text/javascript">
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".HospitalNew").addClass("active");
+
+        $(document).ready(function () {
+            $('#news_content').summernote(
+                {
+                    height: 520,                 // set editor height
+                    minHeight: null,             // set minimum height of editor
+                    maxHeight: null,             // set maximum height of editor
+                    focus: true
+                });
+            
+            $('#news_Date').datetimepicker({
+                dateFormat: "dd/mm/yy",
+            });
+        });
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result)
+                        .width(250)
+                        .height(75);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function SuccessMethod(datahtml) {
+            debugger;
+            $(".bindtable").empty();
+            $("#cardbox_status").empty();
+            $(".bindtable").html($(datahtml).find(".bindtable").html());
+            $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+            $(".custom-table").dataTable();
+            $("#id").val(0);
+            $("#news_title").val("");
+            $("#news_Date").val("");
+            $("#news_content").val("");
+        }
+
+        var ConfirmDelete = function (id) {
+            $("#progress").show();
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/HMSClinic/DeleteNews",
+                data: { id: id },
+                success: function (datahtml) {
+                    debugger;
+                    $(".bindtable").empty();
+                    $("#cardbox_status").empty();
+                    $(".bindtable").html($(datahtml).find(".bindtable").html());
+                    $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+                    $(".custom-table").dataTable();
+                    $("#progress").hide();
+                }
+            })
+        }
+
+    </script>
+}

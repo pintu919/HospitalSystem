@@ -1,0 +1,143 @@
+﻿@model HospitalManagement.Models.TestAndInvestigationModel
+@{
+    ViewBag.Title = "HosBottleValidityType";
+}
+    <div class="content">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="page-title">Hospital Bottle Validity Type</h4>
+            </div>
+        </div>
+        <div class="row bindtable">
+            <div class="col-md-12">
+                <div class="table-responsive table-scrolling p-t-30">
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Patient Name</th>
+                                <th>Age</th>
+                                <th>Department</th>
+                                <th>Doctor Name</th>
+                                <th>Appointment</th>
+                                <th>status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RegisterAppointmentlst != null && Model.RegisterAppointmentlst.Count > 0)
+                            {
+                                foreach (var item in Model.RegisterAppointmentlst)
+                                {
+                                    int i = 0;
+                                    <tr>
+                                        <td>
+                                            <img src="~/Image/plus.png" />
+                                            <div style="display: none" class="table-responsive table-scrolling p-t-30">
+                                                <table cellpadding="0" cellspacing="0" style=" width: 80%;" class=" table table-border table-striped custom-table  ChildGrid">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Investigation code</th>
+                                                            <th>Investigation Name</th>
+                                                            <th>Action</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    @{
+                                                        <tbody>
+                                                            @if (Model.investigationPriceList != null && Model.investigationPriceList.Count > 0)
+                                                            {
+                                                                var inv_price = Model.investigationPriceList.FindAll(A => A.appoinment_code == item.appointment_code).ToList();
+                                                                if (inv_price.Count > 0)
+                                                                {
+                                                                    foreach (var price in inv_price)
+                                                                    {
+                                                                        <tr class="table-light">
+                                                                            <td>@price.investigation_investigationid</td>
+                                                                            <td>@price.investigationmaster_name</td>
+                                                                            @if (price.price == 0)
+                                                                            {
+                                                                                <td> <span class="custom-badge status-red"> Not available here</span></td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td id=@price.appoinment_code@i>
+                                                                                    @if (price.isapprove == 0)
+                                                                                    {
+                                                                                        @Ajax.ActionLink("Add Investigation value", "AddInvestigationPara", "TestAndInvestigation",
+                                                                                                   new { Investigationid = price.investigationmaster_id, Appointmentcode = price.appoinment_code },
+                                                                                                   new AjaxOptions
+                                                                                                   {
+                                                                                                       HttpMethod = "POST",
+                                                                                                       InsertionMode = InsertionMode.Replace,
+                                                                                                       UpdateTargetId = "BindInvestigationpara",
+                                                                                                       OnSuccess = "showModal()",
+                                                                                                       LoadingElementId = "progress"
+                                                                                                   },
+                                                                                                       new { @class = "btn skyblue-gradient-btn fa fa-plus" })
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <span class="custom-badge status-blue"> Approved By Doctor</span>
+                                                                                    }
+                                                                                </td>
+                                                                                <td>
+                                                                                    @if (price.isapprove == 0)
+                                                                                    {<b><i class="fa fa-circle text-warning"></i>Pending</b> }
+                                                                                    else
+                                                                                    {<b><i class="fa fa-circle text-success"></i>Sucess</b>}
+                                                                                </td>
+                                                                            }
+                                                                        </tr>
+                                                                        i++;
+                                                                    }
+                                                                }
+                                                                else if (inv_price.Count == 0 || inv_price == null)
+                                                                {
+                                                                    <tr><td colspan="3" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td></tr>
+                                                                }
+                                                            }
+                                                            else if (Model.investigationPriceList == null || Model.investigationPriceList.Count == 0)
+                                                            {
+                                                                <tr><td colspan="3" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td></tr>
+                                                            }
+                                                        </tbody>
+                                                    }
+                                                </table>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                                if (item.patient_profile != "" && item.patient_profile != null)
+                                                {
+                                                    PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.patient_profile;
+                                                }
+                                            }
+                                            <img class="avatar" src="@PatProfile" alt="User Image">
+                                            <h2>@item.patient_name <span>@item.patient_code</span></h2>
+                                        </td>
+                                        <td><h2>@item.gender <span class="text-primary">@item.patient_age</span></h2></td>
+                                        <td><span class="d-block text-primary">@item.department_name</span></td>
+                                        <td>@item.doctor_name</td>
+                                        <td>@item.appointment_date <span class="d-block text-primary">@item.appointment_time</span></td>
+                                        <td>
+                                            @if (item.isapprove == 1)
+                                            {<b><i class="fa fa-circle text-success"></i>Sucess</b>}
+                                            else
+                                            {<b><i class="fa fa-circle text-warning"></i>Pending</b>}
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else if (Model.RegisterAppointmentlst == null || Model.RegisterAppointmentlst.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="8" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>

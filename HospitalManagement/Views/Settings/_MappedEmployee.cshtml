@@ -1,0 +1,38 @@
+﻿@model HospitalManagement.Models.MappedExpenseAndProfit
+@if (Model.emp_mapp_lists != null)
+{
+    using (Ajax.BeginForm("MappedEmployeeExp", "Settings", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethodEmp_Mapp", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.expenseid, new { @id = "expid" })
+        <div class="table-responsive">
+            <table class="table table-bordered datatable mb-0">
+                <thead class="table-info">
+                    <tr>
+                        <th class="w-15"><input type="checkbox" id="checked_unchecked_all" onclick="allempcheck()" style="margin-right:5px;" />All</th>
+                        <th class="collapse">#</th>
+                        <th>EmployeeName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{int j = 1;}
+                    @for (int i = 0; i < Model.emp_mapp_lists.Count; i++)
+                    {
+                        <tr id="row_@j" class="All_Checkbox">
+                            @Html.HiddenFor(Model => Model.emp_mapp_lists[i].employee_code)
+                            <td class="table-warning">@Html.CheckBoxFor(Model => Model.emp_mapp_lists[i].IsSelected, new { @onchange= "Checked_Unchecked()" })</td>
+                            <td class="collapse">@j</td>
+                            <td>@Model.emp_mapp_lists[i].EmployeeName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-12">
+            <div class="m-t-20 text-center">
+                <button class="btn skin-gradient-btn submit-btn" name="submit">Save</button>
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,663 @@
+﻿@using HospitalManagement.Helper
+@model HospitalManagement.Models.InPatient
+@{
+    ViewBag.Title = "InPatientList";
+}
+<style>
+    .imgnone {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .ui-autocomplete {
+        max-height: 150px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+
+    .medicine-brand {
+        display: inline-block;
+        margin-bottom: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: #15558d;
+    }
+
+    .formation {
+        display: inline-block;
+        font-size: 16px;
+        color: #888;
+        padding-left: 15px;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="page-title"> In Patient List</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("FilterInpatient", "InPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethodfilter", OnBegin = "INOnBegin", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus select-focus">
+                    <label class="focus-label">Status</label>
+                    @{
+                        List<SelectListItem> listItemstatus = new List<SelectListItem>();
+                        listItemstatus.Add(new SelectListItem
+                        {
+                            Text = "All",
+                            Value = "All",
+                            Selected = true
+                        });
+                        listItemstatus.Add(new SelectListItem
+                        {
+                            Text = "Released",
+                            Value = "Is Release"
+                        });
+                        listItemstatus.Add(new SelectListItem
+                        {
+                            Text = "Admited",
+                            Value = "Admited"
+                        });
+                    }
+                    @Html.DropDownList("status", listItemstatus, new { @class = "form-control floating" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">From</label>
+                    @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating datetimepicker" })
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">To</label>
+                    @Html.TextBoxFor(model => model.Todate, new { @class = "form-control floating datetimepicker" })
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <button class="btn skin-gradient-btn btn-block submit-btn">Search</button>
+            </div>
+        </div>
+    }
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                <table class="table table-border custom-table mb-0" id="inpat_lsttable">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Patient Name</th>
+                            <th hidden>appointment_datetime</th>
+                            <th>Doctor Name</th>
+                            <th>Age</th>
+                            <th>InDate</th>
+                            <th>Room</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{int k = 0; }
+                        @foreach (var item in Model.InPatientlist)
+                        {
+                            {
+                                ViewBag.k = k;
+                            }
+                            <tr id="@item.UniqRow" class="vital-tabs">
+
+                                <td class="plusicon text-center">
+                                    @if (item.isrelease == false)
+                                    {<img src="~/Image/plus.png" /> }
+                                    else
+                                    { <img class="imgnone" src="~/Image/plus.png" />}
+
+                                    <div style="display: none" class="table-responsive">
+                                        @Html.Partial("_InPatientStatus", Model)
+                                    </div>
+                                </td>
+                                <td>
+                                    @{
+                                        var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                        if (item.Profile != "" && item.Profile != null)
+                                        { PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.Profile; }
+                                    }
+                                    <img class="avatar" src="@PatProfile" alt="User Image"><h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.PatientName </a><span class="d-block"> @item.PatientCode</span><span class="d-block text-secondary">@item.Mobile</span> </h2>
+                                </td>
+                                <td hidden>@Html.DisplayFor(model => item.appointment_datetime)</td>
+                                <td> <h2> @item.DoctorName <span class="text-secondary">@item.DepartmentName</span></h2> </td>
+                                <td><h2>@item.Gender <span class="text-secondary">@item.Age</span></h2></td>
+                                <td>
+                                    <h2>
+                                        <span class="badge badge-light-success d-inline-block">IN</span> @item.InDate   <span class="text-secondary d-block">@item.AppoinmentCode</span>
+                                        @if (item.ReleaseDate != "")
+                                        {<span class="badge badge-light-danger d-inline-block">Out</span> @item.ReleaseDate}
+                                    </h2>
+                                </td>
+                                <td> <h2><span class="text-primary">@item.ward_type</span> Room No: @item.room_no  <span class="d-block text-secondary">Bed No: @item.bed_no</span></h2></td>
+                                <td>
+                                    @if (item.isrelease == true)
+                                    {
+                                        <span class="badge badge-success">Released</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">Admited</span>
+                                    }
+                                    @if (item.IsAlert == 1 && item.isrelease == false)
+                                    {
+                                        <img src="~/wwwroot/assets/img/aler_img.gif" height="45" width="45" alt="User Image">
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.isrelease == false)
+                                    {
+                                        <div class="table-action">
+                                            @Ajax.RawActionLink(string.Format("<i class='fa fa-print m-0'></i>"), "Print_Patient_Admission", "InPatient",
+                                                    new { ApptCode = item.AppoinmentCode },
+                                                    new AjaxOptions()
+                                                    {
+                                                        HttpMethod = "POST",
+                                                        OnSuccess = "PrintElem",
+                                                        LoadingElementId = "progress"
+                                                    }, new { @class = "btn blue-gradient-btn btn-xs-md", title = "Print Patient Admission" }
+                                                  )
+
+                                            @if (item.otstatus == 0)
+                                            {
+                                                <div id="ot_@item.UniqRow" class="d-inline-block">
+                                                    @Ajax.RawActionLink(string.Format("<i class='fa fa-forward m-0'></i> OT"), "Patient_Transfer_OT", "InPatient",
+                                                                             new { uniqrow = item.UniqRow },
+                                                                             new AjaxOptions()
+                                                                             {
+                                                                                 HttpMethod = "POST",
+                                                                                 OnSuccess = "showModalOT()",
+                                                                                 LoadingElementId = "progress",
+                                                                                 UpdateTargetId = "bind_ip_ot"
+                                                                             }, new { @class = "btn btn-warning btn-xs-md", title = "Patient Transfer OT" }
+                                                                           )
+                                                </div>
+                                            }
+
+
+                                            else
+                                            {
+                                                <span class="badge badge-light-warning">OT Added</span>
+                                            }
+                                            @if (item.otcomplete > 0)
+                                            {
+                                                <a href="~/InPatient/OperationDetails/@item.AppoinmentCode" target="_blank" data-toggle='tooltip' title="View Operation Details" class="btn btn-sm skyblue-gradient-btn">
+                                                    OT Details
+                                                </a>
+
+                                                @*@Ajax.RawActionLink("OT Complete(" + item.otcomplete + ")", "OperationDetails", "InPatient",
+                                                      new { ApptCode = item.AppoinmentCode },
+                                                      new AjaxOptions()
+                                                      {
+                                                          HttpMethod = "POST",
+                                                          OnSuccess = "PrintElem",
+                                                          LoadingElementId = "progress",
+                                                      }, new { @class = "btn blue-gradient-btn btn-xs-md", title = "Completed OT Detail" }
+                                                    )*@
+                                            }
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="dropdown dropdown-action d-inline-block discharg_dropdown">
+                                            <a href="#" class="btn orange-gradient-btn btn-xs-md dropdown-toggle" data-toggle="dropdown" title="Print Discharge Summary" aria-expanded="false"><i class="fa fa-print  m-0"></i></a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                @Ajax.ActionLink("With Header", "Print_Discharge_Summary", "InPatient", new { ApptCode = item.AppoinmentCode, Type = "WithHeader" },
+                                               new AjaxOptions()
+                                               {
+                                                   HttpMethod = "POST",
+                                                   OnSuccess = "PrintElem",
+                                                   LoadingElementId = "progress"
+                                               }, new { @class = "dropdown-item", title = "Print Discharge Summary" }
+                                             )
+
+                                                @Ajax.ActionLink("Without Header", "Print_Discharge_Summary", "InPatient",
+                                               new { ApptCode = item.AppoinmentCode, Type = "WithoutHeader" },
+                                               new AjaxOptions()
+                                               {
+                                                   HttpMethod = "POST",
+                                                   OnSuccess = "PrintElem",
+                                                   LoadingElementId = "progress"
+                                               }, new { @class = "dropdown-item", title = "Print Discharge Summary" }
+                                             )
+                                            </div>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                            k++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="bind_ip_investigation">
+    @Html.Partial("_InvestigationPopUp", Model)
+</div>
+<div id="bind_ip_ot">
+    @Html.Partial("_InPatientOTPopUp", Model)
+</div>
+<div id="bind_ip_services">
+    @Html.Partial("_ServicesPopUp", Model)
+</div>
+<div>
+    @Html.Partial("_ExistingInvestigationPopUp", Model)
+</div>
+@Html.Partial("_InvestigationCancel_Reason", Model)
+<input id="apt_code" hidden />
+<input id="inv_added_cls" hidden />
+@section scripts{
+    <script src="~/wwwroot/assets/js/date-eu.js"></script>
+    <script type="text/javascript">
+        //$(".InPatient").addClass("subdrop");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".InPatientList").addClass("active");
+
+        var url = "";
+        $(document).ready(function () {
+            $('#status').val('Admited');
+            $('#inpat_lsttable').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+            });
+        });
+        var id = "";
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+            $('.loadingimg').css('display', 'block');
+            id = $(this).closest('tr').attr('id');
+            url = "/InPatient/GetInvandMed?uniqrow=" + id + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".Invdata-" + id).empty();
+                $(".Invdata-" + id).html($(datahtml).find(".Invdata-" + id).html());
+                $(".Invdatabtn-" + id).empty();
+                $(".Invdatabtn-" + id).html($(datahtml).find(".Invdatabtn-" + id).html());
+                $(".Meddata-" + id).empty();
+                $(".Meddata-" + id).html($(datahtml).find(".Meddata-" + id).html());
+                $(".vitaldata-" + id).empty();
+                $(".vitaldata-" + id).html($(datahtml).find(".vitaldata-" + id).html());
+                $(".vitaldata-" + id).find("#hiddencode").val(id);
+                $(".suggestiondata-" + id).empty();
+                $(".suggestiondata-" + id).html($(datahtml).find(".suggestiondata-" + id).html());
+                $(".suggestiondata-" + id).find("#hiddenuniqrow").val(id);
+            });
+            var inx = $("ul.nav-tabs li a.active").attr("data_id");//get current active tab
+            var co = $("ul.nav-tabs li a.active").attr('id');
+            $('.nav-tabs a[data_id="' + inx + '"]').removeClass('active');
+            $('.tab-content div[id="' + co + '"]').removeClass('show');
+            $('.tab-content div[id="' + co + '"]').removeClass('active');
+
+            $('.nav-tabs a[id="home-' + id + '"]').addClass('active');
+            $('.tab-content div[id="home-' + id + '"]').addClass('show');
+            $('.tab-content div[id="home-' + id + '"]').addClass('active');
+            //var index = $(".active").attr("data_id");//get current active tab
+            //$('.nav-tabs a[data_id="' + index + '"]').tab('show');
+            $('#myTab li a').click(function () {
+                var index = $(this).attr('data_id');
+                var contant = $(this).attr('id');
+                var index1 = $("ul.nav-tabs li a.active").attr("data_id");//get current active tab
+                var contant1 = $("ul.nav-tabs li a.active").attr('id');
+                $('.nav-tabs a[data_id="' + index1 + '"]').removeClass('active');
+                $('.nav-tabs a[data_id="' + index + '"]').addClass('active');
+                $('.nav-tabs a[data_id="' + index + '"]').tab('show');
+                $('.tab-content div[id="' + contant1 + '"]').removeClass('show');
+                $('.tab-content div[id="' + contant1 + '"]').removeClass('active');
+                $('.tab-content div[id="' + contant + '"]').addClass('show');
+                $('.tab-content div[id="' + contant + '"]').addClass('active');
+            });
+            $('.table tbody').on('click', '.yzr', function () {
+                debugger;
+                var htmlstr = "";
+                var a = $(this).closest("tr").find("input").val();
+                var b = $(this).closest("tr").find("select").find("option:selected").val();
+                if (b == "") {
+                    $(".Meddata-" + id).find("#cardboxmed").removeAttr('hidden');
+                    htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong> <span id='statusmsg'>Please Select Status </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    $(".Meddata-" + id).find("#cardboxmed").html(htmlstr);
+                    return false;
+                }
+                var c = $(this).closest("tr").find("#item_medicinetiming").val();
+                if (c == "") {
+                    $(".Meddata-" + id).find("#cardboxmed").removeAttr('hidden');
+                    htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong> <span id='statusmsg'>Please Enter Timing </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    $(".Meddata-" + id).find("#cardboxmed").html(htmlstr);
+                    return false;
+                }
+                var status = $(this).closest("tr").find("select").find("option:selected").text();
+                $.ajax({
+                    type: "POST",
+                    url: "/InPatient/InserMedStatus",
+                    data: '{med_id:"' + a + '", status: "' + b + '", timing: "' + c + '" }',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "html",
+                    success: function (datahtml) {
+                        if (datahtml == "1") {
+                            $(".Meddata-" + id).find("#cardboxmed").removeAttr('hidden');
+                            htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>Medicine " + status + " Successfully!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        }
+                        else if (datahtml == "0") {
+                            $(".Meddata-" + id).find("#cardboxmed").removeAttr('hidden');
+                            htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Record Not Saved!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        }
+                        $(".Meddata-" + id).find("#cardboxmed").html(htmlstr);
+                    }
+                });
+            });
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            //$(this).closest("tr").next().remove();
+            $(this).closest("tr").next('.del').remove();
+        });
+        $('th').on('click', function () {
+            $("#DataTables_Table_0").find('.plusicon').find('.plusimg').attr("src", "/Image/plus.png");
+            // DataTables has done a sort
+        });
+        function VitalSuccessMethod(data) {
+            debugger;
+            $(".vitallistbind-" + id).empty();
+            $(".vitallistbind-" + id).html($(data).find(".vitallistbind-" + id).html());
+            $(".vitalmsg-" + id).empty();
+            $(".vitalmsg-" + id).html($(data).find(".vitalmsg-" + id).html());
+        }
+        function SugSuccessMethod(data) {
+            $(".doclistbind-" + id).empty();
+            $(".doclistbind-" + id).html($(data).find(".doclistbind-" + id).html());
+            $(".sugestdoctorbind-" + id).empty();
+            $(".sugestdoctorbind-" + id).html($(data).find(".sugestdoctorbind-" + id).html());
+            $(".sugmsg-" + id).empty();
+            $(".sugmsg-" + id).html($(data).find(".sugmsg-" + id).html());
+        }
+        function SugOnbigin(id) {
+            if ($("#sug_" + id + "").val() == "") {
+                return false;
+            }
+        }
+        function SucessMethod(id) {
+            $("." + id + "").html("");
+            $("." + id + "").html(" <span class='custom-badge status-blue'> Added</span > ");
+        }
+        function PrintElem(data) {
+            window.open(data, "_blank");
+        }
+        function sucessmethodfilter(data) {
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $('#inpat_lsttable').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+            });
+        }
+        function showModal() {
+            debugger;
+            $(".select2").select2();
+            //$("#Investigation_uniqrow").val(id);
+            $('#new_add_invs').modal('show');
+        }
+        function showModalOT() {
+            debugger;
+            $(".select2").select2();
+            //$("#Investigation_uniqrow").val(id);
+            $('#OT_transfer').modal('show');
+        }
+        function showModalServices() {
+            debugger;
+            $(".select2").select2();
+            //$("#Investigation_uniqrow").val(id);
+            $('#new_add_services').modal('show');
+        }
+
+        $(function () {
+            datepicker()
+        });
+        function datepicker() {
+            $('.pp').datetimepicker({
+                format: 'LT'
+            });
+        }
+        function InvestigationSuccess(datahtml) {
+            debugger;
+            var status = $(datahtml).find("#hiddeninvestigation").val()
+            if (status == "0") {
+                $(".bindinvestigationlst").empty();
+                $(".bindinvestigationlst").html($(datahtml).find(".bindinvestigationlst").html());
+                $('#new_existing_invs').modal('show');
+            }
+            else {
+
+                $(".Invdata-" + id).empty();
+                $(".Invdata-" + id).html($(datahtml).find(".Invdata-" + id).html());
+                $('#WarningMsg').attr('hidden', true);
+                $('#SuccessMsg').removeAttr('hidden');
+                $('#new_existing_invs').modal('hide');
+            }
+        }
+        function InvestigationBegin() {
+            debugger;
+            if ($("#Investigation_investigationmaster_id").val() == "" || $("#Investigation_investigationmaster_id").val() == null) {
+                $('#SuccessMsg').attr('hidden', true);
+                $('#WarningMsg').removeAttr('hidden');
+                return false;
+            }
+        }
+        function OTOnBegin() {
+            debugger;
+
+            if ($("#OTTransfer_operation_date").val() == "" || $("#OTTransfer_operation_date").val() == null) {
+                $('#cardboxOT').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>Please Enter Operation Date !!! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxOT").html(htmlstr);
+                return false;
+            }
+            if ($("#OTTransfer_operation_time").val() == "" || $("#OTTransfer_operation_time").val() == null) {
+                $('#cardboxOT').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>Please Enter Operation Time !!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxOT").html(htmlstr);
+                return false;
+            }
+            //if ($("#OTTransfer_operation_type").val() == "" || $("#OTTransfer_operation_type").val() == null) {
+            //    $('#cardboxOT').removeAttr('hidden');
+            //    htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>Please Enter Operation Type !!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            //    $("#cardboxOT").html(htmlstr);
+            //    return false;
+            //}
+            if ($("#OTTransfer_doctor_code").val() == "" || $("#OTTransfer_doctor_code").val() == null) {
+                $('#cardboxOT').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'>Please Select Doctor !!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxOT").html(htmlstr);
+                return false;
+            }
+            $("#ottransfer").css({ "cursor": "not-allowed", "pointer-events": "none", "opacity": "0.65", "box-shadow": "none" });
+
+        }
+        function OTSuccess(data) {
+            debugger;
+            if (data != "0") {
+                $('#cardboxOT').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'>  <span id='statusmsg'> Patient transfer OT sucessfully !!! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxOT").html(htmlstr);
+                $("#ot_" + data).html("<span class='custom-badge status-green'>OT Added</span>");
+                $("#ottransfer").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+            }
+        }
+        function INOnBegin() {
+            debugger;
+            if ($('#status').val() == 'All' || $('#status').val() == 'Is Release') {
+                if ($('#FromDate').val() == "") {
+                    $('#FromDate').focus();
+                    return false;
+                }
+                else if ($('#Todate').val() == "") {
+                    $('#Todate').focus();
+                    return false;
+                }
+            }
+        }
+        function showModalServices() {
+            debugger;
+            $(".select2").select2();
+            //$("#Investigation_uniqrow").val(id);
+            $('#new_add_services').modal('show');
+        }
+        function Getcost() {
+            debugger;
+            $("#progress").show();
+            var serviceid = 0
+            serviceid = $('#IPservices_Service_id').val();
+            if (serviceid == '' || serviceid == 0) {
+                $("#progress").hide();
+                $('#service_cost').attr('hidden', true);
+                $("#service_cost").find('input:text,input:file,select,textarea').val('');
+                return;
+            }
+            url = "/InPatient/GetServiceCost?ServiceId=" + serviceid + " &Type=" + 'services' + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bindcostservice").empty();
+                $(".bindcostservice").html($(datahtml).find(".bindcostservice").html());
+                $('#service_cost').removeAttr('hidden');
+                $('.groupOfTexbox').keypress(function (event) {
+                    return isNumber(event, this)
+                });
+                $("#progress").hide();
+            });
+        }
+        function IPServiceSuccess(data) {
+            debugger;
+            $(".bindipservicelst").empty();
+            $(".bindipservicelst").html($(data).find(".bindipservicelst").html());
+            $(".bindstatusmsg").empty();
+            $(".bindstatusmsg").html($(data).find(".bindstatusmsg").html());
+        }
+        function IPServiceBegin() {
+            debugger;
+            if ($("#IPservices_is_realtime").val() == "1") {
+                if ($("#IPservices_ServiceName").val() == null || $("#IPservices_ServiceName").val() == "") {
+                    $('#oth_Sname').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $('#oth_Sname').attr('hidden', true);
+                }
+                if ($("#IPservices_Cost").val() == null || $("#IPservices_Cost").val() == "0.00") {
+                    $('#oth_cost').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $('#oth_cost').attr('hidden', true);
+                }
+                if ($("#IPservices_SellingCost").val() == null || $("#IPservices_SellingCost").val() == "0.00") {
+                    $('#oth_Scost').removeAttr('hidden');
+                    return false;
+                }
+                else {
+                    $('#oth_Scost').attr('hidden', true);
+                }
+            }
+            var sellingcost = $("#IPservices_SellingCost").val();
+            var discount = $("#IPservices_Discount").val();
+            var mincost = $("#IPservices_MinSellingCost").val();
+            //var doscountamount = (sellingcost * discount) / 100;
+            if ((sellingcost - discount) < mincost) {
+                $('#dismsg').removeAttr('hidden');
+                return false;
+            }
+            else {
+                $("#progress").show();
+                $('#dismsg').attr('hidden', true);
+                $('#oth_Sname').attr('hidden', true);
+                $('#oth_cost').attr('hidden', true);
+                $('#oth_Scost').attr('hidden', true);
+            }
+        }
+        function CancelshowModal(appointcode,addedid) {
+            debugger;
+            $("#apt_code").val(appointcode);
+            $("#inv_added_cls").val(addedid);
+            $('#delete_investigation_Modal').modal('show');
+        }
+
+        function CancelSuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "1") {
+                var added = $("#inv_added_cls").val();
+                var Code = $("#apt_code").val();
+                $("." + Code).html("");
+                $("." + Code + "").html("<span class='custom-badge status-red'> Canceled</span>");
+                $("." + added + "").html("<span class='custom-badge status-red'> Canceled</span>");
+                $('#delete_investigation_Modal').modal('hide');
+            }
+            else if (data == "3")
+            {
+                $('#cardboxcancelinv').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Message!</strong><span id='statusmsg'> This investigation Collection is done so you can't able to cancle!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "0") {
+                $('#cardboxcancelinv').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Record Not Saved!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardboxcancelinv").html(htmlstr);
+
+        }
+        function drp_vital_onchange(drpobject, p) {
+            debugger;
+            if (drpobject.value != "0")
+                $(".del").find("#VitalUnit_" + p).text(drpobject.value.split("$")[1]);
+            else {
+                $(".del").find("#VitalUnit_" + p).text("");
+                $(".del").find("#VitalValue_" + p).val("");
+            }
+        }
+        function GetVitalUnit(p) {
+            debugger;
+            var vitalid = $(".del").find("#vital_" + p).val();
+
+            //if (type == "") {
+            //    $(".del").find(".bindasstt_name-" + p).removeAttr('hidden');
+            //    $(".del").find(".AsstSurgeonName_" + p).val('');
+            //}
+            //else {
+            //    $(".del").find(".bindasstt_name-" + p).attr('hidden', true);
+            //    $(".del").find(".AsstSurgeonName_" + p).val('');
+            //}
+        }
+    </script>
+}
+

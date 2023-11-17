@@ -1,0 +1,847 @@
+﻿@model HospitalManagement.Models.HMSPatientModel
+@{
+    ViewBag.Title = "HMSPatientList";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 150px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+
+    .medicine-brand {
+        display: inline-block;
+        margin-bottom: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: #15558d;
+    }
+
+    .formation {
+        display: inline-block;
+        font-size: 16px;
+        color: #888;
+        padding-left: 15px;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Patients List</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20 res-575-mb-15">
+            <a href="~/HMSPatient/AddHMSPatient" class="btn  skin-gradient-btn btn-sm"><i class="fa fa-wheelchair"></i>Add Patient +</a>
+        </div>
+    </div>
+    <div class="row filter-row">
+        <div class="col-sm-6 col-md-3">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Day</label>
+                <select class="select floating" id="Days" onchange="GetDropdownDatafilter()">
+                    <option>Today</option>
+                    <option>Weekly</option>
+                    <option>Custom</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpfrom">
+            <div class="form-group form-focus">
+                <label class="focus-label">From Date</label>
+                <input id="datetimepicker11" class="form-control datetimepicker floating" autocomplete="off">
+                <i class="fa fa-calendar"></i>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpto">
+            <div class="form-group form-focus">
+                <label class="focus-label">To Date</label>
+                <input id="datetimepicker12" class="form-control datetimepicker floating" autocomplete="off">
+                <i class="fa fa-calendar"></i>
+            </div>
+
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpbtn">
+            <div class="form-group form-focus">
+                <button onclick="search()" class="btn btn-warning btn-block submit-btn">Search</button>
+            </div>
+
+        </div>
+    </div>
+    @*Patient Search Added By Dhaval*@
+    <div id="accordion">
+        <div class="card">
+            <a class="card-link collapsed" data-toggle="collapse" href="#collapseOne">
+                Other Filter For Patient Search
+            </a>
+            <div id="collapseOne" class="collapse" data-parent="#accordion">
+                <div class="card-body">
+                    @if (Model.PatientSearch != null)
+                    {
+                        using (Ajax.BeginForm("HMSPatientList_SearchOtherFilter", "HMSPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod_PatientFilter", LoadingElementId = "progress" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="row align-items-center">
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.MobileNo, new { @class = "form-control", placeholder = "Enter Mobile" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.Email, new { @class = "form-control", placeholder = "Enter Email" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.PatientName, new { @class = "form-control", placeholder = "Enter PatientName" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.PatientCode, new { @class = "form-control", placeholder = "Enter PatientCode" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.PatientBirthYear, new { @class = "form-control", @type = "number", @min = "1800", @max = "9999", placeholder = "Enter Patient BirthYear" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.PatientFatherName, new { @class = "form-control", placeholder = "Enter Patient FatherName" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="m-b-20">
+                                        <button class="btn skin-gradient-btn" type="submit" name="Submit" style="padding:10px; font-size:15px;"> <i class="fa fa-search"></i> </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @*Dhsval end*@
+    <div class="row bindtable mt-3">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling">
+                <table class="table table-striped custom-table datatable mb-0">
+                    <thead>
+                        <tr>
+
+                            <th>Name</th>
+                            <th hidden>id</th>
+                            <th>Create Date</th>
+                            <th>DOB / Age</th>
+                            <th>Gender</th>
+                            <th>Phone / Email</th>
+                            @*<th>Gender</th>*@
+                            @*<th>Address</th>*@
+                            @*<th>Phone</th>*@
+                            @*<th>Email</th>*@
+                            <th data-orderable="false">Status</th>
+                            @*<th data-orderable="false">History</th>*@
+                            <th data-orderable="false" class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.visitpatientlist != null)
+                        {
+                            foreach (var item in Model.visitpatientlist)
+                            {
+                                <tr>
+                                    @*<td class="plusicon text-center">
+                                            <img src="~/Image/plus.png" class="plusimg" title="Patient All Details" />
+                                            <div style=" display: none" class="table-responsive">
+                                                <table cellpadding="0" cellspacing="0" class="table table-bordered custom-table">
+                                                    <tr>
+                                                        @if (Model != null)
+                                                        {
+                                                            var Pat_list = Model.visitpatientlist.Where(A => A.patient_code == item.patient_code).ToList();
+                                                            foreach (var list in Pat_list)
+                                                            {
+                                                                <td colspan="2" class="patients-img text-center">
+                                                                    @if (list.photo == "" || list.photo == null)
+                                                                    {
+                                                                        <img width="100" height="100" src="~/wwwroot/assets/img/user.jpg" class="m-r-10" alt="">
+                                                                    }
+                                                                    @if (item.photo != null && item.photo != "")
+                                                                    {
+                                                                        var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.photo;
+                                                                        <img width="100" height="100" src="@img" class="m-r-10" alt="">
+                                                                    }
+                                                                </td>
+                                                                <td colspan="999">
+                                                                    <table cellpadding="0" cellspacing="0" class="table table-bordered table-striped custom-table">
+                                                                        <thead class="thead-light">
+                                                                            <tr class="more-details">
+                                                                                <th colspan="3"><i class="fa fa-id-card text-success pull-right"></i><b>Patient All Details:</b></th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td><b class="text-primary">Patient Code: </b>@list.patient_code</td>
+                                                                                <td><b class="text-primary">DOB: </b>@list.dateofbirth</td>
+                                                                                <td><b class="text-primary">Email: </b>@list.email</td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td><b class="text-primary">Father Name: </b>@list.patient_fathername</td>
+                                                                                <td><b class="text-primary">NID/BirthRegNo. </b>@list.nid_birthregno</td>
+                                                                                <td><b class="text-primary">Marital Status: </b>@list.marital_status</td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td><b class="text-primary">Create Date: </b>@list.create_date</td>
+                                                                                <td colspan="2"><b class="text-primary">Address: </b>@list.present_address</td>
+
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            }
+                                                        }
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </td>*@
+                                    <td class="patients-img">
+                                        @if (item.photo == "" || item.photo == null)
+                                        {
+                                            <img width="28" height="28" src="~/wwwroot/assets/img/user.jpg" class="m-r-10" alt="">
+                                            @*@(item.patient_firstname + " " + item.patient_lastname)*@
+                                        }
+                                        @if (item.photo != null && item.photo != "")
+                                        {
+                                            var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.photo;
+                                            <img width="28" height="28" src="@img" class="m-r-10" alt="">
+                                            @*@(item.patient_firstname + " " + item.patient_lastname)*@
+                                        }
+                                        <h2>
+                                            <a href="~/HMSPatient/VisitedPatientProfile/@item.uniqrow" target="_blank">@(item.patient_firstname + " " + item.patient_lastname)</a>
+                                            <span class="text-secondary">@item.patient_code</span>
+                                            @*<span class="text-secondary">@item.phone</span>*@
+                                        </h2>
+                                    </td>
+                                    <td hidden>@Html.DisplayFor(modelItem => item.patient_id)</td>
+                                    <td><h2>@Html.DisplayFor(modelItem => item.create_date)<span class="text-secondary">NID/BirthRegNo : @Html.DisplayFor(modelItem => item.nid_birthregno)</span></h2></td>
+                                    <td><h2>@Html.DisplayFor(modelItem => item.dateofbirth)<span class="text-secondary">@Html.DisplayFor(modelItem => item.age)</span></h2></td>
+                                    <td><h2>@Html.DisplayFor(modelItem => item.gender) <span class="text-secondary">@Html.DisplayFor(modelItem => item.marital_status)</span></h2></td>
+                                    @*<td>@Html.DisplayFor(modelItem => item.gender)</td>*@
+                                    <td><h2>@Html.DisplayFor(modelItem => item.phone)<span class="text-secondary">@Html.DisplayFor(modelItem => item.email)</span></h2></td>
+                                    @*<td>@Html.DisplayFor(modelItem => item.email)</td>*@
+                                    @if (item.Ctrl == 1)
+                                    {
+                                        <td class="status-icon"><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.Ctrl == 0)
+                                    {
+                                        <td class="status-icon"><span class="badge badge-danger">Deactive</span></td>
+                                    }
+                                    @*<td>
+                                            @if (item.ishistory == 1)
+                                            {
+                                                <button class="action-icon btn blue-gradient-btn" href="#" title="Add Case History" onclick='return false' disabled><i class="fa fa-history"></i></button>
+                                            }
+                                            else
+                                            {
+                                                <a class="action-icon btn blue-gradient-btn" href="#" title="Add Case History" onclick="OpenVitalModal('@item.patient_code')"><i class="fa fa-history"></i></a>
+                                            }
+                                        </td>*@
+                                    <td class="text-right">
+                                        @if (item.ishistory == 1)
+                                        {
+                                            <button class="action-icon btn blue-gradient-btn" href="#" title="Add Case History" data-toggle="tooltip" onclick='return false' disabled><i class="fa fa-history"></i></button>
+                                        }
+                                        else
+                                        {
+                                            <a class="action-icon btn blue-gradient-btn" href="#" title="Add Case History" data-toggle="tooltip" onclick="OpenVitalModal('@item.patient_code')"><i class="fa fa-history"></i></a>
+                                        }
+                                        <a href="javascript:;" onclick="submit('@item.uniqrow')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                        @*<a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete('@item.patient_code')" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>*@
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="delete_patient" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to delete this Patient?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteHosPatient()" class="btn red-gradient-btn">Delete</button> &nbsp;
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Vital_model" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class=" modal-dialog modal-xl modal-dialog-centered">
+        <div id="bindSalary" class="modal-content">
+            <div class="content">
+                <div class="modal-header skin-bg-gradient">
+                    <h4 class="modal-title" style="color: #fff;" id="myModalLabel">Add Patient Case History</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="bd-example" data-example-id="">
+                                <div id="accordion" role="tablist" aria-multiselectable="true">
+                                    @using (Ajax.BeginForm("AddPatientStatus", "HMSPatient", new AjaxOptions { HttpMethod = "POST", OnBegin = "ajaxbegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                        <div class="card1">
+                                            <div class="card1-header" role="tab" id="headingOne">
+                                                <div class="mb-0">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
+                                                        Surgery And Deases
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            @Html.HiddenFor(model => model.PatientCode, new { @class = "form-control", @placeholder = "Patient Code", @readonly = "readonly", @id = "PatientCode" })
+                                            <div id="collapseOne" class="collapse" role="tabpanel" aria-labelledby="headingOne" aria-expanded="false" style="">
+                                                <div class="card1-block">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="card-box1">
+                                                                <ul class="nav nav-tabs nav-tabs-solid nav-justified">
+                                                                    <li class="nav-item"><a class="nav-link active" href="#solid-justified-tab1" data-toggle="tab">Surgery</a></li>
+                                                                    <li class="nav-item"><a class="nav-link" href="#solid-justified-tab2" data-toggle="tab">Deases</a></li>
+                                                                </ul>
+                                                                <div class="tab-content">
+                                                                    <div class="tab-pane show active" id="solid-justified-tab1">
+                                                                        <div class="row align-items-center">
+                                                                            <div class="col-sm-3">
+                                                                                <div class="form-group form-focus select-focus">
+                                                                                    <label class="focus-label">Surgery</label>
+                                                                                    @if (Model.PatientStatusData.SurgeryList != null)
+                                                                                    {
+                                                                                        @Html.DropDownListFor(Model => Model.PatientStatusData.SurgeryData.StatusSurgeryNameId, new SelectList(Model.PatientStatusData.SurgeryList, "status_name_id", "status_name"), "Select Surgery", new { @class = "form-control floating", @id = "surgery" })
+                                                                                    }
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-3">
+                                                                                <div class="form-group form-focus select-focus surgerybnd">
+                                                                                    <label class="focus-label">Organs</label>
+                                                                                    @Html.TextBoxFor(Model => Model.PatientStatusData.SurgeryData.sur_organ_name, new { @class = "form-control" })
+                                                                                    @*@Html.DropDownListFor(Model => Model.PatientStatusData.SurgeryData.SurgeryOrgansId, new SelectList(Model.PatientStatusData.OrgansList, "status_organ_id", "status_organ_name"), "Select Organs", new { @class = "form-control floating" })*@
+
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-2">
+                                                                                <div class="form-group form-focus">
+                                                                                    <label class="focus-label">Date</label>
+                                                                                    @Html.TextBoxFor(Model => Model.PatientStatusData.SurgeryData.Surgeryfromdate, new { @class = "form-control datetimepicker floating" })
+                                                                                    @*<input type="text" class="form-control datetimepicker floating">*@
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-3">
+                                                                                <div class="form-group form-focus">
+                                                                                    <label class="focus-label">Remarks</label>
+                                                                                    @Html.TextAreaFor(Model => Model.PatientStatusData.SurgeryData.Surgeryremarks, new { @class = "form-control floating" })
+                                                                                    @*<textarea type="text" class="form-control floating"></textarea>*@
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-sm-1">
+                                                                                <div class="form-group">
+                                                                                    <button class="btn green-gradient-btn btn-sm" type="submit" name="Submit" value="surgery">Add</button>
+                                                                                    @*<button class="btn btn-primary" name="Submit" value="add surgery">Add</button>*@
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-12">
+                                                                                <div class="alert alert-success alert-dismissible fade show text-center ins" role="alert" hidden>
+                                                                                    <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+
+                                                                                <div class="alert alert-info alert-dismissible fade show text-center ext" role="alert" hidden>
+                                                                                    <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row bindvitalsurgery">
+                                                                            @if (Model.PatientStatusData.SurgeryData.vitalsurgerylst != null && Model.PatientStatusData.SurgeryData.vitalsurgerylst.Count > 0)
+                                                                            {
+                                                                                <div class="col-md-12">
+                                                                                    <div class="table-responsive">
+                                                                                        <table class="table table-bordered table-striped custom-table datatable mb-0">
+                                                                                            <thead class="thead-light">
+                                                                                                <tr>
+                                                                                                    @*<th data-orderable="false">#</th>*@
+                                                                                                    <th>Surgery Name</th>
+                                                                                                    <th>Organs</th>
+                                                                                                    <th>Date</th>
+                                                                                                    <th>Remarks</th>
+                                                                                                    <th>Status</th>
+                                                                                                    <th data-orderable="false">Action</th>
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                                @foreach (var item in Model.PatientStatusData.SurgeryData.vitalsurgerylst)
+                                                                                                {
+                                                                                                    <tr id="row_@item.id">
+                                                                                                        @*<td>@Html.DisplayFor(modelItem => item.vital_id)</td>*@
+                                                                                                        <td>@Html.DisplayFor(modelItem => item.status_name)</td>
+                                                                                                        <td>@Html.DisplayFor(modelItem => item.organ_name)</td>
+                                                                                                        <td>@Html.DisplayFor(modelItem => item.status_date)</td>
+                                                                                                        <td>
+                                                                                                            @Html.DisplayFor(modelItem => item.remarks)
+                                                                                                            @Html.HiddenFor(modelItem => item.message, new { @class = "surgery_msg" })
+                                                                                                        </td>
+                                                                                                        @if (item.Ctrl == 1)
+                                                                                                        {
+                                                                                                            <td class="status-icon"><i class="fa fa-check text-success"></i></td>
+                                                                                                        }
+                                                                                                        @if (item.Ctrl == 0)
+                                                                                                        {
+                                                                                                            <td class="status-icon"><i class="fa fa-check text-danger"></i></td>
+                                                                                                        }
+                                                                                                        <td>
+
+                                                                                                            <a href="#" onclick="ConfirmDelete(@item.id)"><img src="~/wwwroot/assets/img/trash-o.png" class="rounded-circle m-r-5" alt="" width="25" height="25" /></a>
+                                                                                                        </td>
+
+                                                                                                    </tr>
+                                                                                                }
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                        @*<input type="hidden" id="message" value=@Model.Nurselstation[0].message />*@
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="tab-pane" id="solid-justified-tab2">
+                                                                        <div class="row align-items-center">
+                                                                            <div class="col-sm-3">
+                                                                                <div class="form-group form-focus select-focus">
+                                                                                    <label class="focus-label">Disease</label>
+                                                                                    @if (Model.PatientStatusData.DiseaseList != null)
+                                                                                    {
+                                                                                        @Html.DropDownListFor(model => model.PatientStatusData.DiseaseData.StatusDiseaseNameId, new SelectList(Model.PatientStatusData.DiseaseList, "status_name_id", "status_name"), "Select Disease", new { @class = "form-control  floating", @id = "disease" })
+                                                                                    }
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-3">
+                                                                                <div class="form-group form-focus select-focus diseasebnd">
+                                                                                    <label class="focus-label">Organs</label>
+                                                                                    @Html.TextBoxFor(Model => Model.PatientStatusData.DiseaseData.des_organ_name, new { @class = "form-control" })
+
+                                                                                    @*@if (Model.PatientStatusData.OrgansList != null)
+                                                                                        {
+                                                                                            @Html.DropDownListFor(model => model.PatientStatusData.DiseaseData.DiseaseOrgansId, new SelectList(Model.PatientStatusData.OrgansList, "status_organ_id", "status_organ_name"), "Select Organs", new { @class = "form-control  floating" })
+                                                                                        }*@
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-2">
+                                                                                <div class="form-group form-focus">
+                                                                                    <label class="focus-label">Date</label>
+                                                                                    @Html.TextBoxFor(Model => Model.PatientStatusData.DiseaseData.Diseasefromdate, new { @class = "form-control datetimepicker floating" })
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-3">
+                                                                                <div class="form-group form-focus">
+                                                                                    <label class="focus-label">Remarks</label>
+                                                                                    @Html.TextAreaFor(Model => Model.PatientStatusData.DiseaseData.Diseaseremarks, new { @class = "form-control floating" })
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-1">
+                                                                                <div class="form-group">
+                                                                                    <button class="btn green-gradient-btn btn-sm" type="submit" name="Submit" value="disease">Add</button>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-12">
+                                                                                <div class="alert alert-success alert-dismissible fade show text-center insdes" role="alert" hidden>
+                                                                                    <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+
+                                                                                <div class="alert alert-info alert-dismissible fade show text-center extdes" role="alert" hidden>
+                                                                                    <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row bindvitaldisease">
+                                                                            @if (Model.PatientStatusData.DiseaseData.vitaldiseaselst != null && Model.PatientStatusData.DiseaseData.vitaldiseaselst.Count > 0)
+                                                                            {
+                                                                                <div class="col-md-12">
+                                                                                    <div class="table-responsive">
+                                                                                        <table class="table table-border table-striped custom-table datatable mb-0">
+                                                                                            <thead>
+                                                                                                <tr>
+                                                                                                    @*<th data-orderable="false">#</th>*@
+                                                                                                    <th>Surgery Name</th>
+                                                                                                    <th>Organs</th>
+                                                                                                    <th>Date</th>
+                                                                                                    <th>Remarks</th>
+                                                                                                    <th>Status</th>
+                                                                                                    <th data-orderable="false">Action</th>
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                                @foreach (var item in Model.PatientStatusData.DiseaseData.vitaldiseaselst)
+                                                                                                {
+                                                                                                    <tr id="row_@item.id">
+                                                                                                        @*<td>@Html.DisplayFor(modelItem => item.vital_id)</td>*@
+                                                                                                        <td>@Html.DisplayFor(modelItem => item.status_name)</td>
+                                                                                                        <td>@Html.DisplayFor(modelItem => item.organ_name)</td>
+                                                                                                        <td>@Html.DisplayFor(modelItem => item.status_date)</td>
+                                                                                                        <td>
+                                                                                                            @Html.DisplayFor(modelItem => item.remarks)
+                                                                                                            @Html.HiddenFor(modelItem => item.message, new { @class = "deases_msg" })
+                                                                                                        </td>
+                                                                                                        @if (item.Ctrl == 1)
+                                                                                                        {
+                                                                                                            <td class="status-icon"><i class="fa fa-check text-success"></i></td>
+                                                                                                        }
+                                                                                                        @if (item.Ctrl == 0)
+                                                                                                        {
+                                                                                                            <td class="status-icon"><i class="fa fa-check text-danger"></i></td>
+                                                                                                        }
+                                                                                                        <td>
+
+                                                                                                            <a href="#" onclick="ConfirmDelete(@item.id)"><img src="~/wwwroot/assets/img/trash-o.png" class="rounded-circle m-r-5" alt="" width="25" height="25" /></a>
+                                                                                                        </td>
+
+                                                                                                    </tr>
+                                                                                                }
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                        @*<input type="hidden" id="message" value=@Model.Nurselstation[0].message />*@
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card1">
+                                            <div class="card1-header" role="tab" id="headingThree">
+                                                <div class="mb-0">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree" class="collapsed">
+                                                        Chronic Medicine
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <div id="collapseThree" class="collapse" role="tabpanel" aria-labelledby="headingThree" aria-expanded="false" style="">
+                                                <div class="card1-block">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-sm-3">
+                                                            <div class="form-group form-focus select-focus">
+                                                                <label class="focus-label">Formula</label>
+                                                                @if (Model.PatientStatusData.Chronic_Formulation_List != null)
+                                                                {
+                                                                    @Html.DropDownListFor(model => model.PatientStatusData.ChronicMedicineData.formulation_code, new SelectList(Model.PatientStatusData.Chronic_Formulation_List, "formulation_code", "title"), "Select Formula", new { @class = "form-control  floating" })
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                @*<label>Medicine Name</label>
+                                                                    @Html.TextBoxFor(Model => Model.PatientStatusData.ChronicMedicineData.ChronicMedicine_Name, new { @class = "form-control" })*@
+                                                                @Html.TextBoxFor(model => model.PatientStatusData.ChronicMedicineData.ChronicMedicine_Name, new { @class = "form-control", placeholder = "Enter medicine name" })
+                                                                @Html.HiddenFor(Model => Model.PatientStatusData.ChronicMedicineData.Mapping_id, new { @id = "MappingId" })
+                                                                @Html.HiddenFor(Model => Model.PatientStatusData.ChronicMedicineData.brand_code, new { @id = "brand_code" })
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-3">
+                                                            <div class="form-group form-focus select-focus">
+                                                                <label class="focus-label">Frequence</label>
+                                                                @if (Model.PatientStatusData.Freq_List != null)
+                                                                {
+                                                                    @Html.DropDownListFor(model => model.PatientStatusData.ChronicMedicineData.Frequence, new SelectList(Model.PatientStatusData.Freq_List, "Value", "Text"), "Select Frequency", new { @class = "form-control floating" })
+                                                                }
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-3">
+                                                            <div class="form-group form-focus">
+                                                                <label class="focus-label">Date</label>
+                                                                @Html.TextBoxFor(Model => Model.PatientStatusData.ChronicMedicineData.Med_StartDate, new { @class = "form-control datetimepicker  floating" })
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group form-focus">
+                                                                <label class="focus-label">Remarks</label>
+                                                                @Html.TextAreaFor(Model => Model.PatientStatusData.ChronicMedicineData.Remarks, new { @class = "form-control floating" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-2">
+                                                            <div class="form-group">
+                                                                <button class="btn green-gradient-btn btn-sm" type="submit" name="Submit" value="chronic">Add</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row bindchronicvital">
+                                                        @if (Model.PatientStatusData.ChronicMedicineData.vitalchroniclst != null && Model.PatientStatusData.ChronicMedicineData.vitalchroniclst.Count > 0)
+                                                        {
+                                                            <div class="col-md-12">
+                                                                <div class="table-responsive">
+                                                                    <table id="chronic_table" class="table table-border table-striped custom-table datatable mb-0">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                @*<th data-orderable="false">#</th>*@
+                                                                                <th> MedicineName </th>
+                                                                                <th> Frequency </th>
+                                                                                <th> Med. StartDate </th>
+                                                                                <th> Remark </th>
+                                                                                <th>Status</th>
+                                                                                <th data-orderable="false">Action</th>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach (var item in Model.PatientStatusData.ChronicMedicineData.vitalchroniclst)
+                                                                            {
+                                                                                <tr id="row_@item.id">
+                                                                                    <td>
+                                                                                        <input type="hidden" value="@item.mapping_id" />
+                                                                                        <h5 class="medicine-brand">@item.Brand_Name </h5> <span class="formation">@item.formulation</span><p>@item.drug_generic_name &nbsp;&nbsp;&nbsp;(@item.strength)</p>
+                                                                                    </td>
+                                                                                    <td><input type="hidden" value="@item.brand_code" />@Html.DisplayFor(modelItem => item.frequency)</td>
+                                                                                    <td>@Html.DisplayFor(modelItem => item.medicine_startdate)</td>
+                                                                                    <td>@Html.DisplayFor(modelItem => item.remark)</td>
+
+                                                                                    @if (item.ctrl == 1)
+                                                                                    {
+                                                                                        <td class="status-icon"><i class="fa fa-check text-success"></i></td>
+                                                                                    }
+                                                                                    @if (item.ctrl == 0)
+                                                                                    {
+                                                                                        <td class="status-icon text-danger"><b>Stop by Doctor</b></td>
+                                                                                    }
+                                                                                    <td>
+
+                                                                                        <a href="#" onclick="ConfirmDeletechronic(@item.id)"><img src="~/wwwroot/assets/img/trash-o.png" class="rounded-circle m-r-5" alt="" width="25" height="25" /></a>
+                                                                                    </td>
+
+                                                                                </tr>
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                    @*<input type="hidden" id="message" value=@Model.Nurselstation[0].message />*@
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card1">
+                                            <div class="card1-header" role="tab" id="headingFour">
+                                                <div class="mb-0">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour" class="collapsed">
+                                                        Other Details
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <div id="collapseFour" class="collapse" role="tabpanel" aria-labelledby="headingFour" aria-expanded="false" style="">
+                                                <div class="card1-block">
+
+                                                    <div class="row bindothervital">
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Allergy Medicine Name</label>
+                                                                @Html.TextBoxFor(Model => Model.PatientStatusData.Other_Med.AlergyMedicine, new { @class = "form-control" })
+                                                                <input type="hidden" class="other_msg" value="@Model.PatientStatusData.Other_Med.Msg" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Warning</label>
+                                                                @Html.TextBoxFor(Model => Model.PatientStatusData.Other_Med.warning, new { @class = "form-control" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>others</label>
+                                                                @Html.TextBoxFor(Model => Model.PatientStatusData.Other_Med.Other, new { @class = "form-control" })
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-2">
+                                                            <div class="form-group">
+                                                                <button class="btn green-gradient-btn btn-sm" type="submit" name="Submit" value="other">Add</button>
+
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-sm-12">
+                                                            <div class="alert alert-success alert-dismissible fade show text-center insother" role="alert" hidden>
+                                                                <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+
+                                                            <div class="alert alert-info alert-dismissible fade show text-center extother" role="alert" hidden>
+                                                                <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been updated successfully.
+                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card1">
+                                            <div class="card1-header" role="tab" id="headingFive">
+                                                <div class="mb-0">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive" class="collapsed">
+                                                        Fmaily History
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <div id="collapseFive" class="collapse" role="tabpanel" aria-labelledby="headingFive" aria-expanded="false" style="">
+                                                <div class="card1-block">
+
+                                                    <div class="row">
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Father Medical History</label>
+                                                                @Html.TextAreaFor(Model => Model.PatientStatusData.family_history.father_Medical_history, new { @class = "form-control", @row = "5" })
+                                                                <input type="hidden" class="other_msg" value="@Model.PatientStatusData.Other_Med.Msg" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Mother Medical History</label>
+                                                                @Html.TextAreaFor(Model => Model.PatientStatusData.family_history.mother_medical_history, new { @class = "form-control", @row = "5" })
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <div class="form-group">
+                                                                <label>History Date</label>
+                                                                @Html.TextBoxFor(Model => Model.PatientStatusData.family_history.history_date, new { @class = "form-control datetimepicker" })
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-1">
+                                                            <div class="form-group">
+                                                                <button class="btn green-gradient-btn btn-sm" type="submit" name="Submit" value="familyhistory">Add</button>
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <div class="row bindfamilyhistory">
+                                                                @if (Model.PatientStatusData.family_history.familyhistorylst != null && Model.PatientStatusData.family_history.familyhistorylst.Count > 0)
+                                                                {
+                                                                    <div class="col-md-12">
+                                                                        <div class="table-responsive">
+                                                                            <table id="chronic_table" class="table table-border table-striped custom-table datatable mb-0">
+                                                                                <thead>
+                                                                                    <tr>
+
+                                                                                        <th> Father Medical History </th>
+                                                                                        <th> Mother Medical History </th>
+                                                                                        <th> History Date </th>
+
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    @foreach (var item in Model.PatientStatusData.family_history.familyhistorylst)
+                                                                                    {
+                                                                                        <tr id="row_@item.id">
+                                                                                            <td>
+                                                                                                <input type="hidden" value="@item.id" />
+                                                                                                @Html.DisplayFor(modelItem => item.father_medical_history)
+                                                                                            </td>
+                                                                                            <td>@Html.DisplayFor(modelItem => item.mother_medical_history)</td>
+                                                                                            <td>@Html.DisplayFor(modelItem => item.history_date)</td>
+
+
+                                                                                        </tr>
+                                                                                    }
+                                                                                </tbody>
+                                                                            </table>
+
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    @Html.HiddenFor(model => model.PatientStatusData.Type, new { @class = "vital_type" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hiddenpatcode" />
+
+@section scripts{
+    <script src="~/Scripts/Patient/PatientList.js"></script>
+    <script type="text/javascript">
+
+        //$(".Patients").addClass("subdrop");
+        //$(".Submenu_Patients").css("display", "block");
+        //$(".Submenu_Patients").css("display", "block");
+        //$(".HMSPatientList").addClass("active");
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}
+
+

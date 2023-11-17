@@ -1,0 +1,254 @@
+﻿@model HospitalManagement.Models.HRSetting
+@{
+    ViewBag.Title = "ClinicHRSetting";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Salary Settings</h4>
+        </div>
+    </div>
+
+    @using (Html.BeginForm("AddClinicHRSetting", "HMSClinic", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="form-group">
+                                <label>Basic (%)</label>
+                                @Html.ValidationMessageFor(model => model.clinc_hr_basic, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.clinc_hr_basic, new { @type = "number", @class = "form-control", @id = "clinc_hr_basic", @onchange = "onchangeevent('basic')" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="form-group">
+                                <label>HRA (%)</label>
+                                @Html.ValidationMessageFor(model => model.clinc_hr_hra, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.clinc_hr_hra, new { @type = "number", @class = "form-control", @id = "clinc_hr_hra", @onchange = "onchangeevent('hra')" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="form-group">
+                                <label>Medical (%)</label>
+                                @Html.ValidationMessageFor(model => model.clinic_hr_medical, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.clinic_hr_medical, new { @type = "number", @class = "form-control", @id = "clinic_hr_medical", @onchange = "onchangeevent('medical')" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="form-group">
+                                <label>Convey Allowance (%)</label>
+                                @Html.ValidationMessageFor(model => model.clinic_hr_conveyallowance, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.clinic_hr_conveyallowance, new { @type = "number", @class = "form-control", @id = "clinic_hr_conveyallowance", @onchange = "onchangeevent('convey')" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="form-group">
+                                <label>Other Allowance (%)</label>
+                                @Html.ValidationMessageFor(model => model.clinic_hr_otherallowance, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.clinic_hr_otherallowance, new { @type = "number", @class = "form-control", @id = "clinic_hr_otherallowance", @onchange = "onchangeevent('other')" })
+                            </div>
+                        </div>
+                    </div>
+                    @*<h3 class="page-sub-title">Provident Fund Settings</h3>*@
+                    <div class="row" hidden>
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="form-group">
+                                <label> Basic (%)</label>
+                                @Html.ValidationMessageFor(model => model.clinic_hr_basicpf, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.clinic_hr_basicpf, new { @type = "number", @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="form-group">
+                                <label>Maximum of basic (%)</label>
+                                @Html.ValidationMessageFor(model => model.clinic_hr_maxbasicpf, "", new { @class = "text-danger requiredSelect" })
+                                @Html.TextBoxFor(model => model.clinic_hr_maxbasicpf, new { @type = "number", @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    @*<h3 class="page-sub-title">ESI Settings</h3>*@
+                    @*<div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Employee Share (%)</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Organization Share (%)</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                            </div>
+                        </div>*@
+                    <div class="row">
+                        <div class="col-sm-12 text-center m-t-20">
+                            <button type="Submit" class="btn skin-gradient-btn submit-btn">Save</button>
+                        </div>
+                    </div>
+
+
+                    @if ((string)TempData["message"] == "Record Added Successfully!")
+                    {
+                        <div class="card-box">
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    else if ((string)TempData["message"] == "Record Update Successfully!")
+                    {
+                        <div class="card-box">
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Update successfully.
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    else if ((string)TempData["message"] == "Record Allrady Exists!")
+                    {
+                        <div class="card-box">
+                            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    else if ((string)TempData["message"] == "Complete 100 % salary Setting")
+                    {
+                        <div class="card-box">
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> Complete 100% salary setting!.
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    else if ((string)TempData["message"] != null)
+                    {
+                        @TempData["message"].ToString()
+
+                    }
+
+
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".ClinicHRSetting").addClass("active");
+
+        function onchangeevent(a) {
+            debugger;
+            var chb = parseFloat($('#clinc_hr_basic').val());
+            var chh = parseFloat($('#clinc_hr_hra').val());
+            var chm = parseFloat($('#clinic_hr_medical').val());
+            var chc = parseFloat($('#clinic_hr_conveyallowance').val());
+            var cho = parseFloat($('#clinic_hr_otherallowance').val());
+            var total = chb + chh + chm + chc + cho;
+            if (a == 'basic') {
+                if (total > 100) {
+                    alert("complete 100 % HR Setting")
+                    $('#clinc_hr_basic').val(0);
+                    return false;
+                }
+            }
+            if (a == 'hra') {
+                if (total > 100) {
+                    alert("complete 100 % HR Setting")
+                    $('#clinc_hr_hra').val(0);
+                    return false;
+                }
+            }
+            if (a == 'medical') {
+                if (total > 100) {
+                    alert("complete 100 % HR Setting")
+                    $('#clinic_hr_medical').val(0);
+                    return false;
+                }
+            }
+            if (a == 'convey') {
+                if (total > 100) {
+                    alert("complete 100 % HR Setting")
+                    $('#clinic_hr_conveyallowance').val(0);
+                    return false;
+                }
+            }
+            if (a == 'other') {
+                if (total > 100) {
+                    alert("complete 100 % HR Setting")
+                    $('#clinic_hr_otherallowance').val(0);
+                }
+            }
+
+            //var total = chb + chh + chm + chc + cho;
+            //if (total > 100) {
+            //    alert("please complete 100 % HR Setting")
+            //    return false;
+            //}
+
+        }
+
+        function SuccessMethod(data) {
+            debugger;
+            $(".bindtable").html($(data).find(".bindtable").html());
+            var htmlstr = "";
+            if ($("#message").val() == "same") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Alrady Exists !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            else if ($("#message").val() == "update") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'> Record Update Success !! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            else if ($("#message").val() == "notupdate") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Not Updated !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            else if (parseInt($("#message").val()) > 0) {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Added Success !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            else if (parseInt($("#message").val()) == 0) {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Unable to Record Save !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            $("#wardtype").val('');
+            $("#roomfacility").val('');
+            $('#noofrooms').tagsinput('removeAll');
+            $("#noofbeds").val('');
+            $("#perdayamount").val('');
+            $("#facility").val('');
+            $("#active").prop('checked', true);
+
+            $("#cardbox").empty();
+            $("#cardbox").html(htmlstr);
+        }
+
+    </script>
+}
+
+

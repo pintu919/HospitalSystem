@@ -1,0 +1,300 @@
+﻿@model HospitalManagement.Models.VisitedPatientHistory
+@{
+    ViewBag.Title = "VisitedPatientHistory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Visited Patient History</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("FindVisitedHistory", "HMSPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod_visitedhistory", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-sm-6 col-md-3 col-xl-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">From Date</label>
+                    @Html.TextBoxFor(model => model.fromdate, new { @id = "datetimepicker1", @class = "form-control datetimepicker  floating", @autocomplete = "off" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3  col-xl-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">To Date</label>
+                    @Html.TextBoxFor(model => model.todate, new { @id = "datetimepicker2", @class = "form-control datetimepicker  floating", @autocomplete = "off" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3 col-xl-1">
+                <button class="btn skin-bg-gradient btn-block submit-btn"><i class="fa fa-search"></i></button>
+            </div>
+        </div>
+    }
+
+    <div class="row inv_tab mt-2">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs" id="Ul_all_tabs">
+                <li class="nav-item"><a class="nav-link active" href="#solid-justified-tab1" data-toggle="tab">Direct Billing (@Model.totaldirectbilling)</a></li>
+                <li onclick="tab2click()" class="nav-item"><a class="nav-link" href="#solid-justified-tab2" data-toggle="tab">In Patient (@Model.totalippatient)</a></li>
+                <li onclick="tab3click()" class="nav-item"><a class="nav-link" href="#solid-justified-tab3" data-toggle="tab">OPD Patient (@Model.totalopdpatient)</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane show active" id="solid-justified-tab1">
+                    <div class="row bindtabledirectbilling mt-3">
+                        <div class="col-md-12">
+                            <div class="table-responsive table-scrolling">
+                                <table class="table table-border table-striped custom-table tbldirectbiiling mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Create Date</th>
+                                            <th hidden>id</th>
+                                            <th>DOB / Age</th>
+                                            <th>Gender</th>
+                                            <th>Phone / Email</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.directilling_lst)
+                                        {
+                                            <tr id="row_@item.patient_code">
+                                                <td class="patients-img">
+                                                    @if (item.photo == "" || item.photo == null)
+                                                    {
+                                                        <img width="28" height="28" src="~/wwwroot/assets/img/user.jpg" class="m-r-10" alt="">
+                                                    }
+
+                                                    @if (item.photo != null && item.photo != "")
+                                                    {
+                                                        var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.photo;
+                                                        <img width="28" height="28" src="@img" class="m-r-10" alt="">
+                                                    }
+                                                    <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.uniqrow" target="_blank">@(item.patient_firstname + " " + item.patient_lastname)</a><span class="text-secondary">@item.patient_code</span></h2>
+                                                </td>
+
+                                                <td><h2>@Html.DisplayFor(modelItem => item.create_date)<span class="text-secondary">NID/BirthRegNo : @Html.DisplayFor(modelItem => item.nid_birthregno)</span></h2></td>
+                                                <td hidden>@Html.DisplayFor(modelItem => item.patient_id)</td>
+                                                <td><h2>@Html.DisplayFor(modelItem => item.dateofbirth)<span class="text-secondary">@Html.DisplayFor(modelItem => item.age)</span></h2></td>
+                                                <td><h2>@Html.DisplayFor(modelItem => item.gender) <span class="text-secondary">@Html.DisplayFor(modelItem => item.marital_status)</span></h2></td>
+                                                @*<td>@Html.DisplayFor(modelItem => item.gender)</td>*@
+                                                <td><h2>@Html.DisplayFor(modelItem => item.phone)<span class="text-secondary">@Html.DisplayFor(modelItem => item.email)</span></h2></td>
+
+                                                @if (item.Ctrl == 1)
+                                                {
+                                                    <td class="status-icon">
+                                                        <span class="badge badge-success">Active</span>
+                                                    </td>
+                                                }
+                                                @if (item.Ctrl == 0)
+                                                {
+                                                    <td class="status-icon">
+                                                        <span class="badge badge-danger">Deactive</span>
+                                                    </td>
+                                                }
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="solid-justified-tab2">
+
+                    <div class="row bindtableippatient mt-3">
+                        <div class="col-md-12">
+                            <div class="table-responsive table-scrolling">
+                                <table class="table table-border table-striped custom-table tblip  mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Create Date</th>
+                                            <th hidden>id</th>
+                                            <th>DOB / Age</th>
+                                            <th>Gender</th>
+                                            <th>Phone / Email</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.ip_patient_lst)
+                                        {
+                                            <tr id="row_@item.patient_code">
+                                                <td class="patients-img">
+                                                    @if (item.photo == "" || item.photo == null)
+                                                    {
+                                                        <img width="28" height="28" src="~/wwwroot/assets/img/user.jpg" class="m-r-10" alt="">
+                                                    }
+
+                                                    @if (item.photo != null && item.photo != "")
+                                                    {
+                                                        var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.photo;
+                                                        <img width="28" height="28" src="@img" class="m-r-10" alt="">
+                                                    }
+                                                    <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.uniqrow" target="_blank">@(item.patient_firstname + " " + item.patient_lastname)</a><span class="text-secondary">@item.patient_code</span></h2>
+                                                </td>
+
+                                                <td><h2>@Html.DisplayFor(modelItem => item.create_date)<span class="text-secondary">NID/BirthRegNo : @Html.DisplayFor(modelItem => item.nid_birthregno)</span></h2></td>
+                                                <td hidden>@Html.DisplayFor(modelItem => item.patient_id)</td>
+                                                <td><h2>@Html.DisplayFor(modelItem => item.dateofbirth)<span class="text-secondary">@Html.DisplayFor(modelItem => item.age)</span></h2></td>
+                                                <td><h2>@Html.DisplayFor(modelItem => item.gender) <span class="text-secondary">@Html.DisplayFor(modelItem => item.marital_status)</span></h2></td>
+                                                @*<td>@Html.DisplayFor(modelItem => item.gender)</td>*@
+                                                <td><h2>@Html.DisplayFor(modelItem => item.phone)<span class="text-secondary">@Html.DisplayFor(modelItem => item.email)</span></h2></td>
+
+                                                @if (item.Ctrl == 1)
+                                                {
+                                                    <td class="status-icon">
+                                                        <span class="badge badge-success">Active</span>
+                                                    </td>
+                                                }
+                                                @if (item.Ctrl == 0)
+                                                {
+                                                    <td class="status-icon">
+                                                        <span class="badge badge-danger">Deactive</span>
+                                                    </td>
+                                                }
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="tab-pane" id="solid-justified-tab3">
+
+                    <div class="row bindtableopdpatient mt-3">
+                        <div class="col-md-12">
+                            <div class="table-responsive table-scrolling">
+                                <table class="table table-border table-striped custom-table tblopd  mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Create Date</th>
+                                            <th hidden>id</th>
+                                            <th>DOB / Age</th>
+                                            <th>Gender</th>
+                                            <th>Phone / Email</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.opd_patient_lst)
+                                        {
+                                            <tr id="row_@item.patient_code">
+                                                <td class="patients-img">
+                                                    @if (item.photo == "" || item.photo == null)
+                                                    {
+                                                        <img width="28" height="28" src="~/wwwroot/assets/img/user.jpg" class="m-r-10" alt="">
+                                                    }
+
+                                                    @if (item.photo != null && item.photo != "")
+                                                    {
+                                                        var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.photo;
+                                                        <img width="28" height="28" src="@img" class="m-r-10" alt="">
+                                                    }
+                                                    <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.uniqrow" target="_blank">@(item.patient_firstname + " " + item.patient_lastname)</a><span class="text-secondary">@item.patient_code</span></h2>
+                                                </td>
+
+                                                <td><h2>@Html.DisplayFor(modelItem => item.create_date)<span class="text-secondary">NID/BirthRegNo : @Html.DisplayFor(modelItem => item.nid_birthregno)</span></h2></td>
+                                                <td hidden>@Html.DisplayFor(modelItem => item.patient_id)</td>
+                                                <td><h2>@Html.DisplayFor(modelItem => item.dateofbirth)<span class="text-secondary">@Html.DisplayFor(modelItem => item.age)</span></h2></td>
+                                                <td><h2>@Html.DisplayFor(modelItem => item.gender) <span class="text-secondary">@Html.DisplayFor(modelItem => item.marital_status)</span></h2></td>
+                                                @*<td>@Html.DisplayFor(modelItem => item.gender)</td>*@
+                                                <td><h2>@Html.DisplayFor(modelItem => item.phone)<span class="text-secondary">@Html.DisplayFor(modelItem => item.email)</span></h2></td>
+
+                                                @if (item.Ctrl == 1)
+                                                {
+                                                    <td class="status-icon">
+                                                        <span class="badge badge-success">Active</span>
+                                                    </td>
+                                                }
+                                                @if (item.Ctrl == 0)
+                                                {
+                                                    <td class="status-icon">
+                                                        <span class="badge badge-danger">Deactive</span>
+                                                    </td>
+                                                }
+
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $(".tbldirectbiiling").dataTable();
+        });
+
+        function SuccessMethod_visitedhistory(datahtml) {
+            debugger;
+            $(".bindtabledirectbilling").empty();
+            $(".bindtabledirectbilling").html($(datahtml).find(".bindtabledirectbilling").html());
+            $("#Ul_all_tabs").html($(datahtml).find("#Ul_all_tabs").html());
+            $(".tbldirectbiiling").dataTable();
+
+            //Remove Tab Selection and Active First tab
+            $("#solid-justified-tab2").removeClass("active show");
+            $("#solid-justified-tab3").removeClass("active show");
+            $("#solid-justified-tab1").addClass("active show");
+            //End
+        }
+
+        function tab2click() {
+            $('.loadingimg').css('display', 'block');
+            var fromdate = $("#datetimepicker1").val();
+            var todate = $("#datetimepicker2").val();
+            url = "/HMSPatient/Filter_visitedpatienthistory?fromdate=" + fromdate + " &todate=" + todate + " &type=ip";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bindtableippatient").empty();
+                $(".bindtableippatient").html($(datahtml).find(".bindtableippatient").html());
+                $(".tblip").dataTable({
+
+                });
+            });
+        }
+
+        function tab3click() {
+
+            $('.loadingimg').css('display', 'block');
+            var fromdate = $("#datetimepicker1").val();
+            var todate = $("#datetimepicker2").val();
+            url = "/HMSPatient/Filter_visitedpatienthistory?fromdate=" + fromdate + " &todate=" + todate + " &type=opd";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bindtableopdpatient").empty();
+                $(".bindtableopdpatient").html($(datahtml).find(".bindtableopdpatient").html());
+                $(".tblopd").dataTable({
+
+                });
+            });
+        }
+    </script>
+}
+
+

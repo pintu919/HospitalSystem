@@ -1,0 +1,253 @@
+﻿@model HospitalManagement.Models.DoctorModel
+@{
+    ViewBag.Title = "AddHMSDoctor";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Add Doctor</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddHosiptalDoctor", "HMSDoctor", new AjaxOptions { HttpMethod = "POST", OnBegin = "ajaxbegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row employee-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Full Name <span class="text-danger">@Html.ValidationMessageFor(model => model.DoctorName, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.DoctorName, new { @class = "form-control", @placeholder = "Enter full name" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Title/Designation <span class="text-danger">@Html.ValidationMessageFor(model => model.DoctorDesignation, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.DoctorDesignation, new { @class = "form-control", @placeholder = "(e.g.Professor/Consultant with hospital name)" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Specialty <span class="text-danger">@Html.ValidationMessageFor(model => model.SpecialityCode, "", new { @class = "text-danger" })</span></label>
+                                @Html.DropDownListFor(model => model.SpecialityCode, new SelectList(Model.SpecializeLst, "specialize_code", "specialization"), "Select Speciality", new { @class = "form-control select requiredSelect" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Department <span class="text-danger">@Html.ValidationMessageFor(model => model.DoctorDepartmentCode, "", new { @class = "text-danger" })</span></label>
+                                @Html.DropDownListFor(model => model.DoctorDepartmentCode, new SelectList(Model.DeptLst, "department_code", "department_name"), "Select Department", new { @class = "form-control select requiredSelect" })
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="form-group">
+                                        <label>Country <span class="text-danger">@Html.ValidationMessageFor(model => model.CountryCode, "", new { @class = "text-danger" })</span></label>
+                                        @Html.DropDownListFor(model => model.CountryCode, new SelectList(Model.CountryLst, "country_code", "country_name"), "Select Country", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData('state')", @id = "country" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="form-group statebnd">
+                                        <label>State/Province <span class="text-danger">@Html.ValidationMessageFor(model => model.statecode, "", new { @class = "text-danger" })</span></label>
+                                        @Html.DropDownListFor(model => model.statecode, new SelectList(Model.StateLst, "state_code", "statename"), "Select State", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData('district')", @id = "state" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="form-group districtbnd">
+                                        <label>District <span class="text-danger">@Html.ValidationMessageFor(model => model.districtcode, "", new { @class = "text-danger" })</span></label>
+                                        @Html.DropDownListFor(model => model.districtcode, new SelectList(Model.DistrictLst, "district_code", "district"), "Select District", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData('city')", @id = "district" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="form-group citybnd">
+                                        <label>City <span class="text-danger">@Html.ValidationMessageFor(model => model.CityCode, "", new { @class = "text-danger" })</span></label>
+                                        @Html.DropDownListFor(model => model.CityCode, new SelectList(Model.CityLst, "city_code", "cityname"), "Select City", new { @class = "form-control select requiredSelect", @id = "city" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                    <div class="form-group">
+                                        <label>BMDC Reg. No <span class="text-danger">@Html.ValidationMessageFor(model => model.DoctrorbmdcRegno, "", new { @class = "text-danger" })</span></label>
+                                        @Html.TextBoxFor(model => model.DoctrorbmdcRegno, new { @class = "form-control", @placeholder = "(BMDC Registration No.)" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                    <div class="form-group">
+                                        <label></label>
+                                        <div class="profile-upload">
+                                            <div class="upload-img">
+                                                <img id="blah" alt="your image" src="/wwwroot/assets/img/user.jpg">
+                                            </div>
+                                            <div class="upload-input">
+                                                @Html.TextBoxFor(model => model.DoctorImage, new { @class = "form-control", name = "postedFile", @id = "imageUploadForm", onchange = "readURL(this);", @type = "file" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group gender-select">
+                                <label class="gen-label">Gender: @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })</label>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(model => model.Gender, "Male", new { @id = "Male" })
+                                        Male
+                                    </label>
+                                </div>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(model => model.Gender, "Female", new { @id = "Female" })
+                                        Female
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Mobile Number <span class="text-danger">@Html.ValidationMessageFor(model => model.DoctorMobile, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.DoctorMobile, new { @class = "form-control", @placeholder = "(Phone number)" })
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Phone No</label>
+                                @Html.TextBoxFor(model => model.WorkPhone, new { @class = "form-control", @placeholder = "(Work phone number)" })
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Email Address <span class="text-danger">@Html.ValidationMessageFor(model => model.WorkEmail, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.WorkEmail, new { @class = "form-control", @placeholder = "(Email Address)" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Description (Professional Statement)</label>
+                                @Html.TextAreaFor(model => model.DescriptionProfessionalStatement, new { @class = "form-control", @rows = "2", @placeholder = "(Detail of the specialities,experiences and expertise as to appear on the profile)" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Degree & other specification</label>
+                                @Html.TextAreaFor(model => model.DegreeotherSpecification, new { @class = "form-control", @rows = "2", @placeholder = "(Detail of the degree,istitute and other specification as to appear on the profile)" })
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-12">
+                            <div class="text-center">
+                                <button class="btn skin-gradient-btn submit-btn">Add Doctor</button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12">
+                            <div class="form-group" id="BindHtmlMessage">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+@section scripts{
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script type="text/javascript">
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".AddHMSDoctor").addClass("active");
+        $(document).ready(function () {
+            $("#country").select2();
+        });
+        function GetDropdownData(Type) {
+            $('.loadingimg').css('display', 'block');
+            var url = "";
+            if (Type == "state")
+                url = "/HMSPatient/GetDatabyCode?code=" + $("#country").val() + "&Type=" + Type + "";
+            else if (Type == "district")
+                url = "/HMSPatient/GetDatabyCode?code=" + $("#state").val() + "&Type=" + Type + "";
+            else if (Type == "city")
+                url = "/HMSPatient/GetDatabyCode?code=" + $("#district").val() + "&Type=" + Type + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                if (Type == "state") {
+                    $(".statebnd").empty();
+                    $(".statebnd").html($(datahtml).find(".statebnd").html());
+                    $("#state").select2();
+                }
+                else if (Type == "district") {
+                    $(".districtbnd").empty();
+                    $(".districtbnd").html($(datahtml).find(".districtbnd").html());
+                    $("#district").select2();
+                }
+                else if (Type == "city") {
+                    $(".citybnd").empty();
+                    $(".citybnd").html($(datahtml).find(".citybnd").html());
+                    $("#city").select2();
+                }
+                $('#loadingmessage').hide();
+            });
+        }
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result)
+                        .width(50)
+                        .height(50);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function ajaxbegin() {
+           /* $('.loadingimg').css('display', 'block');*/
+            var file = $("#imageUploadForm").get(0).files;
+            var data = new FormData;
+            data.append("ImageFile", file[0]);
+        }
+        function SuccessMethod(Message) {
+            var strhtml = "";
+            if (Message[0] == "1") {
+                strhtml = "<div class='alert alert-success alert-dismissible fade show' role='alert'>" +
+                    "<strong>Success!</strong>" + Message[1] +
+                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    "</div>";
+            }
+            else if (Message[0] == "0") {
+                strhtml = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>" +
+                    "<strong>Error!</strong>" + Message[1] +
+                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    "</div>";
+            }
+            else if (Message[0] == "2") {
+                strhtml = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>" +
+                    "<strong>Warning!</strong>" + Message[1] +
+                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    "</div>";
+            }
+            $('.loadingimg').css('display', 'none');
+            $("#BindHtmlMessage").html(strhtml);
+        }
+
+
+    </script>
+}
+

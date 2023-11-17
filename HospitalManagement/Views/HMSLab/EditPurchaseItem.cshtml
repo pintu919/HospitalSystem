@@ -1,0 +1,171 @@
+﻿@model List<HospitalManagement.Models.MainPurchase>
+@{
+    ViewBag.Title = "EditPurchaseItem";
+}
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Edit Hospital Purchase Item</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/HMSLab/HosPurchaseItemInvoiceList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    <div class="employee-form m-0 row">
+        @using (Ajax.BeginForm("AddHosPurchase", "HMSLab", new AjaxOptions { HttpMethod = "POST", LoadingElementId = "ajxloader", OnSuccess = "Sucessmethod" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <!-- Experience -->
+
+            @*<h4 class="card-title">Add Hospital Purchase Item</h4>*@
+            <div class="experience-info">
+                @if (Model[0].purchaseItem.Count > 0 || Model[0].purchaseItem != null)
+                {
+                    //int j = 0;
+                    for (int i = 0; i < Model[0].purchaseItem.Count; i++)
+                    {
+                        <div class="row form-row experience-cont">
+                            <div class="col-12 col-md-10 col-lg-12">
+                                <div class="row form-row align-items-center">
+                                    <div class="col-12 col-md-6 col-lg-2">
+                                        <div class="form-group">
+                                            <label>Regent Item</label>
+
+                                            @{
+                                                List<SelectListItem> lst = new List<SelectListItem>();
+
+                                                foreach (var sup in Model[0].purchaseItem[i].Reg_List)
+                                                {
+                                                    lst.Add(new SelectListItem { Text = sup.Text, Value = Convert.ToString(sup.Value), Selected = Model[0].purchaseItem[i].ReagentId == Convert.ToInt32(sup.Value) ? true : false });
+                                                }
+                                            }
+                                            @*@Html.DropDownList(" model[0]." + model[0].purchaseItem[i].ReagentId + "", lst, new { @class = "form-control required", @onchange = "callChangefunc1(this.value)" })*@
+
+
+                                            @Html.DropDownListFor(model => model[0].purchaseItem[i].ReagentId, lst, "Select Regent", new { @class = "form-control  requiredSelect", @id = "regent" })
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6 col-lg-1">
+                                        <div class="form-group">
+                                            <label>Qty</label>
+
+                                            @Html.TextBoxFor(model => model[0].purchaseItem[i].Qty, new { @class = "form-control", type = "number", min = "1", autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6 col-lg-2">
+                                        <div class="form-group">
+                                            <label>Product Expiry</label>
+                                            @Html.TextBoxFor(model => model[0].purchaseItem[i].ProductExpiry, new { @class = "form-control datetimepicker required", autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6 col-lg-2">
+                                        <div class="form-group">
+                                            <label>Quantity Per Unit</label>
+                                            @Html.TextBoxFor(model => model[0].purchaseItem[i].QtyPerUnit, new { @class = "form-control", type = "number", min = "1", autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6 col-lg-2">
+                                        <div class="form-group">
+                                            <label>Amount</label>
+                                            @Html.TextBoxFor(model => model[0].purchaseItem[i].Amount, new { @class = "form-control", type = "number", min = "1", autocomplete = "off" })
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6 col-lg-2">
+                                        <div class="form-group">
+                                            <label>Validity Days</label>
+                                            @Html.TextBoxFor(model => model[0].purchaseItem[i].ValidityDays, new { @class = "form-control", type = "number", min = "1", autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                    @if (Model[0].purchaseItem.Count > 1)
+                                    {
+                                        <div class="col-12 col-md-2 col-lg-1">
+                                            <label class="d-sm-none d-none">&nbsp;</label>
+                                            <a href="#" class="btn btn-danger trash">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    //foreach (var item in Model[0].purchaseItem)
+                    //{
+
+                    //}
+                    //j++;
+                }
+            </div>
+            <div class="add-more">
+                <a href="javascript:void(0);" class="add-experience"><i class="fa fa-plus-circle"></i> Add More</a>
+            </div>
+                <div class="row form-row mt-10">
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="form-group">
+                            <label>Supplier</label>
+                            @Html.TextBoxFor(model => model[0].supplier, new { @class = "form-control", type = "text", autocomplete = "off" })
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="form-group">
+                            <label>Invoice RefNo</label>
+                            @Html.TextBoxFor(model => model[0].InvoiceRefNo, new { @class = "form-control", autocomplete = "off" })
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <div class="form-group">
+                            <label>Purchase Date</label>
+                            @Html.TextBoxFor(model => model[0].PurchaseDate, new { @class = "form-control datetimepicker", autocomplete = "off" })
+                            @Html.HiddenFor(model => model[0].PICode)
+                        </div>
+                    </div>
+                </div>
+            <!-- /Experience -->
+            <div class="submit-section submit-btn-bottom">
+                <button type="submit" class="btn skin-gradient-btn">
+                    <span id="ajxloader" style="display:none;">
+                        <i class="fa fa-refresh fa-spin"></i>
+                    </span>Update
+                </button>
+            </div>
+            <div class="submit-section submit-btn-bottom" id="StatusHtmlMessage"></div>
+        }
+    </div>
+</div>
+@section scripts{
+    <script src="~/wwwroot/assets/js/profile-settings.js"></script>
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".HosPurchaseItemInvoiceList").addClass("active");
+
+        function Sucessmethod(data) {
+            var strhtml = "";
+            if (data == "1") {
+                strhtml = "<div class='alert alert-success alert-dismissible fade show' role='alert'>" +
+                    "<strong>Success!</strong> Purchase Item  Updated Sucessfully !!" +
+                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    "</div>";
+            }
+            else if (data == "0") {
+                strhtml = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>" +
+                    "<strong>Error!</strong> An Error Occured !!"
+                "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    "</div>";
+            }
+            $("#StatusHtmlMessage").html(strhtml);
+        }
+
+    </script>
+}
+
+

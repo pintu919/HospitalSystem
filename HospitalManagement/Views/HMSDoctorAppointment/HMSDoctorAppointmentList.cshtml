@@ -1,0 +1,337 @@
+﻿@model HospitalManagement.Models.AppointmentModel
+@{
+    ViewBag.Title = "HMSDoctorAppointmentList";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Appointments</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/HMSDoctorAppointment/AddHMSDoctorAppointment" class="btn skin-gradient-btn btn-sm"><i class="fa fa-calendar-plus-o"></i>Add Appointment +</a>
+        </div>
+    </div>
+    <div class="row filter-row">
+        <div class="col-sm-6 col-md-3">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Day</label>
+                <select class="select floating" id="Days" onchange="GetDropdownData()">
+                    @*<option>All Days</option>*@
+                    <option>Today</option>
+                    <option>Weekly</option>
+                    <option>Custom</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpfrom">
+            <div class="form-group form-focus">
+                <label class="focus-label">Custom Date</label>
+                <input id="datetimepicker11" class="form-control floating" autocomplete="off" readonly>
+                <i class="fa fa-calendar"></i>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpto">
+            <div class="form-group form-focus">
+                <label class="focus-label">Custom Date</label>
+                <input id="datetimepicker12" onchange="GetDropdownData()" class="form-control floating" autocomplete="off" readonly>
+                <i class="fa fa-calendar"></i>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Doctor</label>
+                @Html.ValidationMessageFor(model => model.RegPatAppointment.HosDocCode, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(model => model.RegPatAppointment.HosDocCode, new SelectList(Model.DoctorList, "doctor_code", "doctor_name"), "All Doctors", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData()", @id = "hosDoctor" })
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Appointment</label>
+                <select class="select floating" id="Appointment" onchange="GetDropdownData()">
+                    <option>All</option>
+                    <option>Online</option>
+                    <option>Offline</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                <table class="table table-border table-striped custom-table mb-0" id="example1">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Age</th>
+                            <th hidden>Appointment Datetime</th>
+                            <th>Doctor Name</th>
+                            @*<th>Department</th>*@
+                            <th>Appointment</th>
+                            <th>Status</th>
+                            <th>Register</th>
+                            <th data-orderable="false">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Doctorappointlist)
+                        {
+                            <tr id="row_@item.appointment_id" class="table-light">
+                                <td>
+                                    @{
+                                        var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                        if (item.patient_profile != "" && item.patient_profile != null)
+                                        { PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.patient_profile; }
+                                    }
+                                    @*<img class="avatar" src="@PatProfile" alt="User Image"><h2>@item.patient_name <span class="d-block text-primary"><small> @item.patient_code </small></span></h2>*@
+
+                                    <img class="avatar" src="@PatProfile" alt="User Image"><h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.patient_name </a><span class="d-block text-secondary"> @item.patient_code </span> </h2>
+
+                                </td>
+                                <td>@item.gender <span class="d-block text-secondary"> <small> @item.patient_age </small></span></td>
+                                <td hidden>@Html.DisplayFor(model => item.appointment_datetime)</td>
+                                <td><h2>@item.doctor_name  <span class="d-block text-secondary"> @item.department_name (@item.hos_doccode) </span></h2></td>
+                                @*<td><span class="d-block text-primary">@item.department_name</span></td>*@
+                                <td>
+                                    <h2>
+                                        @item.appointment_date @item.appointment_time
+                                        <span class="d-block text-secondary">  @item.appointment_code </span>
+                                        @if (@item.is_appointment == true)
+                                        {
+                                            <span class="d-block text-success">Online</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="d-block text-danger">Offline</span>
+                                        }
+
+                                    </h2>
+                                </td>
+                                @if (item.ctrl == 1)
+                                {
+                                    <td> <span class="badge badge-success">Active</span></td>
+                                }
+                                @if (item.ctrl == 0)
+                                {
+                                    <td> <span class="badge badge-danger">Inactive</span></td>
+                                }
+                                @if (item.ctrl == 2)
+                                {
+                                    <td><span class="badge badge-primary">Register</span></td>
+                                }
+                                <td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        if (Convert.ToDateTime(item.appointment_date) <= DateTime.Now)
+                                        {
+                                            <a href="#" onclick="ConfirmRegister(@item.appointment_id)" title="Register Active Appointment" class="btn btn-warning action-icon"><i class="fa fa-registered m-r-5"></i></a>
+                                        }
+                                        else
+                                        {
+                                            <button href="#" class="btn btn-warning action-icon" disabled><i class="fa fa-registered"></i></button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <button href="#" class="btn btn-warning action-icon" disabled><i class="fa fa-registered"></i></button>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <a href="javascript:;" onclick="submit('@item.uniqrow')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                    }
+                                    else
+                                    {
+                                        <button href="#" title="Edit" class="action-icon btn skyblue-gradient-btn" disabled> <i class="fa fa-pencil"></i> </button>
+                                    }
+                                    <a href="#" onclick="ConfirmDelete(@item.appointment_id)" title="Remove" class="action-icon btn red-gradient-btn"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="delete_appointment" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to delete this Appointment?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteAppointment()" class="btn red-gradient-btn">Delete</button> &nbsp;
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Register_appointment" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to Register this Appointment?</h4>
+                <div class="m-t-20">
+                    <button id="singleclick" type="submit" onclick="RegisterAppointment()" class="btn red-gradient-btn">Register</button> &nbsp;
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hiddenappointmentid" />
+
+@section scripts{
+    <script src="http://cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js"></script>
+    <script type="text/javascript">
+
+        //$(".Appointment").addClass("subdrop");
+        //$(".Submenu_Appointment").css("display", "block");
+        //$(".Submenu_Appointment").css("display", "block");
+        //$(".HMSDoctorAppointmentList").addClass("active");
+
+        $(document).ready(function () {
+            $('#datetimepicker11').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2
+            }).on('changeDate', function (e) {
+                debugger;
+                ToDate();
+                $('.datetimepicker12').val("").datetimepicker('setStartDate', new Date(e.date));
+            });
+            function ToDate() {
+                debugger;
+                $('#datetimepicker12').datetimepicker({
+                    format: "dd/mm/yyyy",
+                    autoclose: true,
+                    minView: 2
+                });
+            }
+
+            $('#example1').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+            });
+
+        });
+        var ConfirmDelete = function (appointmentid) {
+            $("#hiddenappointmentid").val(appointmentid);
+            $("#delete_appointment").modal('show');
+        }
+        var DeleteAppointment = function () {
+            var Appointmentid = $("#hiddenappointmentid").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSDoctorAppointment/DeleteAppointment",
+                data: { AppointmentId: Appointmentid },
+                success: function (result) {
+                    $("#delete_appointment").modal("hide");
+                    $("#row_" + Appointmentid).remove();
+                }
+            })
+        }
+        var ConfirmRegister = function (appointmentid) {
+            $("#hiddenappointmentid").val(appointmentid);
+            $("#Register_appointment").modal('show');
+        }
+        var RegisterAppointment = function () {
+            $("#singleclick").css({ "cursor": "not-allowed", "pointer-events": "none", "opacity": "0.65", "box-shadow": "none" });
+            var Appointmentid = $("#hiddenappointmentid").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSDoctorAppointment/RegisterAppointment",
+                data: { AppointmentId: Appointmentid },
+                success: function (result) {
+                    $("#Register_appointment").modal("hide");
+                    $("#row_" + Appointmentid).remove();
+                }
+            })
+
+        }
+        function GetDropdownData() {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            var day = $("#Days").val() == 'Select Day' ? 'Select Day' : $("#Days").val();
+            var firstDay = new Date();
+            var lastDay = new Date();
+            if ($('#Days').val() == 'Today') {
+                firstDay = new Date().toDateString();
+                lastDay = new Date().toDateString();
+            }
+            if ($('#Days').val() == 'Weekly') {
+                var curr = new Date; // get current date
+                var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+                var last = first + 6; // last day is the first day + 6
+                firstDay = new Date(curr.setDate(first)).toUTCString();
+                lastDay = new Date(curr.setDate(last)).toUTCString();
+            }
+            if ($('#Days').val() == 'Custom') {
+                $('#colpfrom').removeClass('collapse');
+                $('#colpto').removeClass('collapse');
+
+                if ($('#datetimepicker11').val() != null && $('#datetimepicker11').val() != "") {
+                    var from = $("#datetimepicker11").val().split("/")
+                    var f = new Date(from[2], from[1] - 1, from[0])
+                    firstDay = f.toDateString();
+                }
+                if ($('#datetimepicker12').val() != null && $('#datetimepicker12').val() != "") {
+                    var to = $("#datetimepicker12").val().split("/")
+                    var t = new Date(to[2], to[1] - 1, to[0])
+                    lastDay = t.toDateString();
+                }
+            }
+            else {
+                $('#colpfrom').addClass('collapse');
+                $('#colpto').addClass('collapse');
+
+            }
+            var hosdoccode = "";
+            if ($('#hosDoctor').val() != null && $('#hosDoctor').val() != "") {
+                hosdoccode = $('#hosDoctor').val();
+            }
+            var Appointment = "";
+            if ($('#Appointment').val() != null && $('#Appointment').val() != "") {
+                Appointment = $('#Appointment').val();
+            }
+            url = "/HMSDoctorAppointment/GetfilterAppointment?fromdate=" + firstDay + " &todate=" + lastDay + " &hosdoccode=" + hosdoccode + " &appointment=" + Appointment + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bindtable").empty();
+                $(".bindtable").html($(datahtml).find(".bindtable").html());
+                $('#example1').DataTable({
+                    "paging": true,
+                    "order": [[2, "desc"]],
+                    "scrollCollapse": true,
+                    "searching": true,
+                    "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                    "bInfo": true
+                });
+                //$(".datatable").dataTable();
+                //SetDataTableFillter();
+            });
+        }
+        function submit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/HMSDoctorAppointment/EditHMSDoctorAppointment', '_self') });
+        }
+    </script>
+}
+

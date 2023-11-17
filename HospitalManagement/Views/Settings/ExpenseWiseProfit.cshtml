@@ -1,0 +1,94 @@
+﻿@model HospitalManagement.Models.ExpenseWiseProfitData
+@{
+    ViewBag.Title = "ExpenseWiseProfit";
+}
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-12">
+            <h4 class="page-title"> Expense Wise Profit</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="row">
+                <div class="col-12">
+                    @Html.DropDownListFor(model => model.expenseid, new SelectList(Model.explst, "id", "item_name"), "Select Expense", new { @class = "form-control select requiredSelect", onchange = "GetExpensewiseProfit(this)" })
+                </div>
+                <div class="col-12 mt-3 bindproexpmap">
+                </div>
+                <div class="col-12">
+                    <div id="cardbox" class="card-box" hidden>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.exp_wise_profit != null && Model.exp_wise_profit.Count > 0)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Profit Center</th>
+                                <th>Total Profit</th>
+                                <th>Profit Percent</th>
+                                <th>Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.exp_wise_profit)
+                            {
+                                <tr id="row_@item.profit_center_id">
+                                    <td class="collapse">@item.profit_center_id</td>
+                                    <td>@item.center_name</td>
+                                    <td>@item.Profit</td>
+                                    <td>@item.profit_percent</td>
+                                    <td>@item.total_profit</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        //$(".Settings").addClass("subdrop");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".Submenu_Settings").css("display", "block");
+        //$(".ExpenseWiseProfit").addClass("active");
+        function GetExpensewiseProfit(val) {
+            debugger;
+            $("#progress").show();
+            var expid = $(val).find("option:selected").val();
+            if (expid != "") {
+                url = "/Settings/GetExpensewiseProfit?Expid=" + expid + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json',
+                    async: false
+                }).done(function (datahtml) {
+                    debugger;
+                    $(".bindtable").empty();
+                    $(".bindtable").html($(datahtml).find(".bindtable").html());
+                    $("#progress").hide();
+                });
+            }
+            else {
+                $(".bindtable").empty();
+                $("#progress").hide();
+            }
+
+        }
+    </script>
+}

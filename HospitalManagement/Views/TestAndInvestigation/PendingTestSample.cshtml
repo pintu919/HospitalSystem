@@ -1,0 +1,257 @@
+﻿@model HospitalManagement.Models.TestAndInvestigationModel
+@{
+    ViewBag.Title = "PendingTestSample";
+}
+<style>
+
+    img {
+        display: inline;
+        visibility: visible;
+    }
+</style>
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Investigation Pending Sample</h4>
+        </div>
+    </div>
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                <table class="table table-border table-striped custom-table datatable mb-0">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            @*<th>Appointment Id</th>*@
+                            <th>Patient Name</th>
+                            <th>Age</th>
+                            <th>Department</th>
+                            <th>Doctor Name</th>
+                            <th>Appointment</th>
+                            <th>Doctor Visted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RegisterAppointmentlst != null && Model.RegisterAppointmentlst.Count > 0)
+                        {
+                            foreach (var item in Model.RegisterAppointmentlst)
+                            {
+                                int i = 0;
+                                <tr>
+                                    <td class="plusicon text-center">
+                                        <img src="~/Image/plus.png" />
+                                        <div style="        display: none" class="table-responsive">
+                                            <table cellpadding="0" cellspacing="0" style="width:70%;" class=" table table-striped custom-table ChildGrid">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Investigation Id</th>
+                                                        <th>Investigation Name</th>
+                                                        <th></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                @{
+
+                                                    <tbody>
+                                                        @if (Model.investigationPriceList != null && Model.investigationPriceList.Count > 0)
+                                                        {
+                                                            var inv_price = Model.investigationPriceList.FindAll(A => A.appoinment_code == item.appointment_code).ToList();
+                                                            if (inv_price.Count > 0)
+                                                            {
+                                                                foreach (var price in inv_price)
+                                                                {
+                                                                    <tr class="table-light">
+                                                                        <td>@price.investigationmaster_id</td>
+                                                                        <td>@price.investigationmaster_name</td>
+                                                                        @if (price.price == 0)
+                                                                        {
+                                                                            <td>
+                                                                                <span class="custom-badge status-red">
+                                                                                    Not available here
+                                                                                </span>
+                                                                            </td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            if (price.pending_sample == 1)
+                                                                            {
+
+                                                                                <td>
+                                                                                    <div class="table-action">
+                                                                                        <span class="custom-badge status-blue">
+                                                                                            Sample Taken
+                                                                                        </span>&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                                        @Ajax.ActionLink(" Print", "Print_Barcode", "TestAndInvestigation",
+                                                                                              new { ApptCode = price.appoinment_code, invid = price.investigationmaster_id },
+                                                                                              new AjaxOptions()
+                                                                                              {
+                                                                                                  HttpMethod = "POST",
+                                                                                                  UpdateTargetId = "bindtable",
+                                                                                                  OnSuccess = "PrintElem",
+                                                                                                  LoadingElementId = "progress"
+                                                                                              }, new { @class = "btn btn-sm btn-info res-block-btn fa fa-print", title = "Print Barcode" }
+                                                                                            )
+                                                                                    </div>
+                                                                                    @*<span>
+                                                                                            <button type="submit" onclick="printbarcode(@price.investigationmaster_id,'@price.appoinment_code')" class="btn btn-sm skyblue-gradient-btn">Print Barcode</button>
+                                                                                        </span>*@
+
+                                                                                </td>
+
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td id=@price.appoinment_code@i>
+                                                                                    @Ajax.ActionLink("Add Sample", "AddSample", "TestAndInvestigation",
+                                                                               new { Investigationid = price.investigationmaster_id, Appointmentcode = price.appoinment_code },
+                                                                               new AjaxOptions
+                                                                               {
+                                                                                   HttpMethod = "POST",
+                                                                                   InsertionMode = InsertionMode.Replace,
+                                                                                   UpdateTargetId = "BindInvestigationpara",
+                                                                                   OnSuccess = " $(this).remove(),SucessMethod('" + price.appoinment_code + i + "','" + price.appoinment_code + "','" + price.investigationmaster_id + "')",
+                                                                                   LoadingElementId = "progress"
+                                                                               },
+                                                                                   new { @class = "btn btn-sm skyblue-gradient-btn" })
+                                                                                </td>
+                                                                            }
+                                                                        }
+                                                                    </tr>
+                                                                    i++;
+                                                                }
+                                                            }
+                                                            else if (inv_price.Count == 0 || inv_price == null)
+                                                            {
+                                                                <tr>
+                                                                    <td colspan="3" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                                                                </tr>
+                                                            }
+                                                        }
+                                                        else if (Model.investigationPriceList == null || Model.investigationPriceList.Count == 0)
+                                                        {
+                                                            <tr>
+                                                                <td colspan="3" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+
+                                                }
+                                            </table>
+                                        </div>
+                                    </td>
+                                    @*<td>@item.appointment_code</td>*@
+                                    <td>
+                                        @{
+                                            var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                            if (item.patient_profile != "" && item.patient_profile != null)
+                                            {
+                                                PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.patient_profile;
+                                            }
+                                        }
+                                        <img class="avatar" src="@PatProfile" alt="User Image">
+                                        <h2>@item.patient_name <span>@item.patient_code</span></h2>
+                                    </td>
+                                    <td><h2>@item.gender <span class="text-primary">@item.patient_age</span></h2></td>
+                                    <td><span class="d-block text-primary">@item.department_name</span></td>
+                                    <td>@item.doctor_name</td>
+                                    <td>@item.appointment_date <span class="d-block text-primary">@item.appointment_time</span></td>
+                                    <td>
+                                        @if (item.IsVisited == 0)
+                                        {
+                                            <b><i class="fa fa-circle text-danger"></i>Pending</b>
+                                        }
+                                        @if (item.IsVisited == 1)
+                                        {
+                                            <b><i class="fa fa-circle text-success"></i>Complited</b>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else if (Model.RegisterAppointmentlst == null || Model.RegisterAppointmentlst.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="8" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        function showModal() {
+            debugger;
+            $('#delete_employee').modal('show');
+        }
+
+        function PrintElem(StringHtml) {
+            var mywindow = window.open('', '', 'height=' + $(window).height() + ',width=' + $(window).width() + '');
+            mywindow.document.write(StringHtml);
+            mywindow.document.close(); // necessary for IE >= 10
+            mywindow.focus(); // necessary for IE >= 10*/
+            mywindow.print();
+        }
+
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Record Not Saved!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Select atleast one record") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+
+            $("#cardbox").html(htmlstr);
+        }
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr><td></td><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next().remove();
+        });
+        function SucessMethod(id, appointmentcode, investigationmasterid) {
+            debugger;
+            $("#" + id + "").remove();
+            $("#" + id + "").html("<span class='custom-badge status-blue'>Sample Taken</span>&nbsp; &nbsp; &nbsp; &nbsp; <span><button type='submit' onclick=printbarcode('" + appointmentcode + "','" + investigationmasterid + "') class='btn btn-sm btn-info res-block-btn'><i class='fa fa-print'></i>Print</button></span>");
+        }
+
+        var printbarcode = function (appcode, invid) {
+            debugger;
+            var url = "";
+            url = "/TestAndInvestigation/Print_Barcode?ApptCode=" + appcode + "&invid=" + invid + "";
+            $.ajax({
+                url: url,
+                type: "POST",
+                datatype: 'json',
+                async: false,
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                PrintElem(datahtml);
+            });
+        }
+    </script>
+}
+
+

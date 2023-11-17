@@ -1,0 +1,74 @@
+﻿@model HospitalManagement.Models.MainNurseModel
+<div id="OPD_OT_transfer" class="modal fade" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class=" modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="color:#fff;">Add OT Transfer </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (Model.OPDOTTransfer != null && Model.OPDOTTransfer != null)
+                {
+                    if (Model.OPDOTTransfer.OPDDoctor_lst.Count > 0)
+                    {
+                        using (Ajax.BeginForm("Add_OPD_OTTransfer", "HMSNurse", new AjaxOptions { HttpMethod = "POST", OnSuccess = "OTSuccess", OnBegin = "OTOnBegin", LoadingElementId = "progress" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => Model.OPDOTTransfer.appointment_code)
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Operation Date</label>
+                                        @Html.TextBoxFor(model => Model.OPDOTTransfer.operation_date, new { @class = "form-control", @type = "date" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Operation Time</label>
+
+                                        @Html.TextBoxFor(model => Model.OPDOTTransfer.operation_time, new { @class = "form-control", @type = "time" })
+
+                                    </div>
+                                </div>
+                                @*<div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Operation Type</label>
+
+                                            @Html.TextBoxFor(model => Model.OTTransfer.operation_type, new { @class = "form-control" })
+
+                                        </div>
+                                    </div>*@
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Doctor</label>
+
+                                        <div class="form-group">
+
+                                            @Html.DropDownListFor(model => model.OPDOTTransfer.doctor_code, new SelectList(Model.OPDOTTransfer.OPDDoctor_lst, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select2" })
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-center">
+                                    <button class="btn skin-gradient-btn btn-sm submit-btn" name="submit" id="ottransfer">Add</button>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+
+                <div class="row">
+                    <div class="col-12">
+                        <div id="cardboxOT" class="m-t-20" hidden>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

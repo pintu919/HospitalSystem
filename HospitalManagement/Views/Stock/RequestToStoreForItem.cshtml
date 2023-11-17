@@ -1,0 +1,151 @@
+﻿@model HospitalManagement.Models.RequestToStoreModel
+@{
+    ViewBag.Title = "RequestToStoreForItem";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Request to Store for Item</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            @using (Ajax.BeginForm("AddRequestForStore", "Stock", new AjaxOptions { HttpMethod = "POST", OnBegin = "OnBeginMethod", OnSuccess = "Sucessmethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="row employee-form m-0">
+                    <div class="col-md-12 ">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Select Department </label>
+                                    @Html.ValidationMessageFor(model => model.DepartmentCode, "", new { @class = "text-danger" })
+                                    @Html.DropDownListFor(model => model.DepartmentCode, new SelectList(Model.DepartmentList, "Value", "Text"), "Choose...", new { @class = "form-control  js-source-states" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Item Name :</label>
+                                    @Html.TextAreaFor(model => model.ItemName, new { @class = "form-control no-resize overflow-hidden Item_Name", type = "text", @autocomplete = "off", @id = "Item_Name", @placeholder = "Item Name", @required = "required", @rows = "1" })
+                                    @Html.HiddenFor(model => model.ItemID, new { @id = "ItemID", @class = "autocomplete_hidden_value" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Require Quenty : :</label>
+                                    @Html.TextBoxFor(model => model.RequireQty, new { @class = "form-control", type = "number", @required = "required", autocomplete = "off" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Purpose of Use :</label>
+                                    @Html.TextAreaFor(model => model.PurposeOfuse, new { @class = "form-control", autocomplete = "off" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Allrady Uses Item Damage Reason :</label>
+                                    @Html.TextAreaFor(model => model.DamageReason, new { @class = "form-control", autocomplete = "off" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="text-center">
+                                    <button id="btnpurchase" type="submit" class="btn btn-xs btn-primary"> Submit </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-md-12 purmsg_req" hidden> </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".js-source-states").select2({
+                dropdownPosition: 'below'
+            });
+        });
+        $("#Item_Name").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Stock/SearchStockItem',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { prefix: request.term },
+                    success: function (data) {
+                        debugger;
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+                                return { label: item.ItemName, value: item.ItemName, Item_Id: item.ItemId };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            arr.ItemName = "No Record Found";
+                            arr.ItemId = "";
+                            data.push(arr);
+                            response($.map(data, function (item) {
+                                return { label: item.ItemName, value: item.ItemName, Item_Id: item.ItemId };
+                            }))
+                            $("#ItemID").val("");
+                            $("#Item_Name").val("");
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    $("#ItemID").val(i.item.Item_Id);
+                    $("#Item_Name").val(i.item.label);
+                }
+            },
+            minLength: 2,
+        })
+        function Sucessmethod(data) {
+            if (data[0] == "0") {
+                var htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span>" + data[1] + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $('.purmsg_req').removeAttr('hidden');
+                $(".purmsg_req").html(htmlstr);               
+            }
+            else if (data[0] == "1") {
+                var htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span>" + data[1] + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $('.purmsg_req').removeAttr('hidden');
+                $(".purmsg_req").html(htmlstr);
+            }
+            $("#btnpurchase").removeAttr('disabled');
+            //else if (data == "2") {
+            //    var htmlstr = "<div class='alert alert-primary alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span>Enter qty greater than 0.</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            //    $('.purmsg_req').removeAttr('hidden');
+            //    $(".purmsg_req").html(htmlstr);
+            //    $("#btnpurchase").removeAttr('disabled');
+            //}
+        }
+        function OnBeginMethod() {
+            $("#btnpurchase").attr('disabled', true);
+        }
+    </script>
+}
+

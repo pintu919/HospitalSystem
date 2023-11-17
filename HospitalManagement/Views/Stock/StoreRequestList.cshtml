@@ -1,0 +1,268 @@
+﻿@model List<HospitalManagement.Models.StoreRequestLists>
+@{
+    ViewBag.Title = "StoreRequestList";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-sm-12 col-lg-12">
+            <div class="rh-card">
+                <div class="rh-card-header d-flex justify-content-between">
+                    <h5>Store Request Lists</h5>
+                </div>
+                <div class="row filter-row">
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-group form-focus select-focus">
+                            <label class="focus-label">Qty Status</label>
+                            <select class="form-control" id="Qty_Status">
+                                <option value="all">All</option>
+                                <option value="available">Available</option>
+                                <option value="unavailable"> UnAvailable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-group form-focus select-focus">
+                            <label class="focus-label">Allocation Status</label>
+                            <select class="form-control" id="Allocation_Status">
+                                <option value="all">All</option>
+                                <option value="approve">Approve</option>
+                                <option value="pending"> Pending</option>
+                                <option value="rejected"> Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-2">
+                        <button class="btn skin-gradient-btn btn-block submit-btn" onclick="SearchTable()">Search</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive table-scrolling p-t-30">
+                            <table id="bind_table_data" class="table table-border table-striped custom-table  mb-0">
+                                <thead>
+                                    <tr>
+                                        <th data-orderable="false"></th>
+                                        <th>ItemName</th>
+                                        <th>Category</th>
+                                        <th>Qty Status</th>
+                                        <th>Available Qty</th>
+                                        <th>Require Qty</th>
+                                        <th>Allocated Qty</th>
+                                        <th data-orderable="false">Allocation Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                @if (Model != null)
+                                {
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td class="plusicon text-center">
+                                                    <img src="~/Image/plus.png" class="plusimg" title="Employee All Details" />
+                                                    <div style="display: none" class="table-responsive">
+                                                        <table cellpadding="0" cellspacing="0" class="table custom-table">
+                                                            <tr>
+
+                                                                <td colspan="999">
+                                                                    <table cellpadding="0" cellspacing="0" class="table table-bordered table-striped custom-table">
+                                                                        <thead class="thead-light">
+                                                                            <tr class="more-details">
+                                                                                <th colspan="2" class=""><i class="fa fa-id-card text-success pull-right"></i><b>Request Details:</b></th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td><b class="text-primary mr-2">Requested Department :</b>@item.Hos_department_name</td>
+                                                                                <td><b class="text-primary mr-2">Item Details : </b>@item.details</td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td><b class="text-primary mr-2">Purpose of Use : </b>@item.purpose_of_use</td>
+                                                                                <td><b class="text-primary mr-2">Allrady Used Item Damage Reason : </b>@item.allrady_use_damage_reason</td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                                <td>@Html.DisplayFor(modelItem => item.item_name)</td>
+                                                <td>@Html.DisplayFor(modelItem => item.category_name)</td>
+                                                @if (item.QtyStatus == "Available")
+                                                {
+                                                    <td class="text-center status-icon"><span class="badge badge-success">@item.QtyStatus</span></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center status-icon"><span class="badge badge-danger">@item.QtyStatus</span></td>
+                                                }
+                                                <td class="text-center">@Html.DisplayFor(modelItem => item.AvailableQty)</td>
+                                                <td class="text-center">@Html.DisplayFor(modelItem => item.require_qty)</td>
+                                                <td class="text-center">@Html.DisplayFor(modelItem => item.AllocatedQty)</td>
+                                                @if (item.status == "Pending")
+                                                {
+                                                    <td class="text-center status-icon"><span class="badge badge-danger">@item.status</span></td>
+                                                }
+                                                else if (item.status == "Rejected")
+                                                {
+                                                    <td class="text-center status-icon"><span class="badge badge-warning">@item.status</span></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="text-center status-icon"><span class="badge badge-primary">@item.status</span></td>
+                                                }
+                                                <td>
+                                                    @if (item.require_qty == item.AllocatedQty)
+                                                    {
+                                                        <button type="submit" class="btn btn-xs btn-outline-danger" disabled><b> Allocated </b></button>
+                                                    }
+                                                    else
+                                                    {
+                                                        if (item.AvailableQty > 0)
+                                                        {
+                                                            if (item.status == "Rejected")
+                                                            {
+                                                                <button type="submit" class="btn btn-xs btn-outline-info" disabled><b>Rejected</b></button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button type="submit" onclick="Approve_Rejected('Approve',@item.RequestId,@item.require_qty,@item.AllocatedQty)" class="btn btn-xs btn-success"> Approve </button>
+                                                                <button type="submit" onclick="Approve_Rejected('Rejected',@item.RequestId,@item.require_qty,@item.AllocatedQty)" class="btn btn-xs btn-primary"> Rejected </button>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <button type="submit" class="btn btn-xs btn-outline-dark" disabled><b>UnAvailable</b></button>
+                                                        }
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="bind_data">
+    @Html.Partial("_AvailableItemSupplier", Model)
+</div>
+@section scripts{
+    <script type="text/javascript">
+        function Approve_Rejected(status, RequestId, require_qty, AllocatedQty) {
+            debugger;
+            if (status == "Rejected") {
+                FinalStatus(RequestId, status);
+            }
+            else {
+                $("#progress").show();
+                $.ajax({
+                    type: "POST",
+                    url: "/Stock/AvailableItemSupplier",
+                    data: { RequestId: RequestId, RequireQty: require_qty, AllocatedQty: AllocatedQty == "" ? 0 : parseInt(AllocatedQty) },
+                    success: function (result) {
+                        debugger
+                        $("#bind_data").html(result);
+                        $("#Supplier_data").modal("show");
+                        $("#progress").hide();
+                    },
+                    error: function (textStatus, errorThrown) {
+                        $("#progress").hide();
+                        alert(textStatus);
+                    }
+                })
+            }
+        }
+        function FinalStatus(RequestId, status) {
+            debugger;
+            var SupplierId = ($('#Selected_Supplierid :selected').val() == "" || $('#Selected_Supplierid :selected').val() == undefined) ? 0 : parseInt($('#Selected_Supplierid :selected').val());
+            var AllocatedQty = ($("#AllocatedQty").val() == "" || $("#AllocatedQty").val() == undefined) ? 0 : parseInt($("#AllocatedQty").val());
+
+            if (SupplierId == 0 && status == "Approve") {
+                $("#Selected_Supplierid").focus();
+            }
+            else if (AllocatedQty == 0 && status == "Approve") {
+                $("#AllocatedQty").focus();
+            }
+            else {
+                if (AllocatedQty <= parseInt($("#SelectedSupplierAvialbale_Qty").val() == undefined ? 0 : $("#SelectedSupplierAvialbale_Qty").val())) {
+                    if (AllocatedQty <= parseInt($("#Require_Qty").val() == undefined ? 0 : $("#Require_Qty").val())) {
+                        $("#progress").show();
+                        $("#Allocated_btn").attr('disabled', true);
+                        $.ajax({
+                            type: "POST",
+                            url: "/Stock/ApproveRequest",
+                            data: { RequestId: RequestId, status: status, SupplierId: SupplierId, AllocatedQty: AllocatedQty },
+                            success: function (result) {
+                                debugger
+                                $("#progress").hide();
+                                if (result == "success")
+                                    window.location = "/Stock/StoreRequestList";
+                                else {
+                                    $("#Allocated_btn").removeAttr('disabled');
+                                    alert(result);
+                                }
+                            },
+                            error: function (textStatus, errorThrown) {
+                                $("#progress").hide();
+                                $("#Allocated_btn").removeAttr('disabled');
+                                alert(textStatus);
+                            }
+                        })
+                    }
+                    else {
+                        alert("Allocated Qty is les or equal to require Qty.")
+                    }
+                }
+                else {
+                    alert("Allocated Qty is les or equal to available Qty.")
+                }
+            }
+        }
+
+        function Supplier_Change(supId) {
+            debugger;
+            if (supId != undefined && supId != "" && supId != null)
+                $("#SelectedSupplierAvialbale_Qty").val($('#row_supplier_' + supId).text().trim());
+            else
+                $("#SelectedSupplierAvialbale_Qty").val('');
+        }
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next('.del').remove();
+
+        });
+        function SearchTable() {
+            var QtyStatus = $("#Qty_Status").val();
+            var AllocationStatus = $("#Allocation_Status").val();
+            $("#progress").show();
+            $.ajax({
+                type: "POST",
+                url: "/Stock/SearchRequest",
+                data: { QtyStatus: QtyStatus, AllocationStatus: AllocationStatus },
+                success: function (result) {
+                    debugger
+                    $("#bind_table_data").html($(result).find("#bind_table_data").html());
+                    $("#progress").hide();
+                },
+                error: function (textStatus, errorThrown) {
+                    $("#progress").hide();
+                    alert(textStatus);
+                }
+            })
+        }
+    </script>
+}
+

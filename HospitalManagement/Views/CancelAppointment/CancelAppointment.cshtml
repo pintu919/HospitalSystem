@@ -1,0 +1,146 @@
+﻿@model HospitalManagement.Models.CancelAppointmentModel
+@{
+    ViewBag.Title = "CancelAppointment";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="page-title">Cancel Appointments</h4>
+        </div>
+        @*<div class="col-sm-8 col-9 text-right m-b-20">
+                <a href="~/HMSDoctorAppointment/AddHMSDoctorAppointment" class="btn skin-gradient-btn btn-sm float-right"><i class="fa fa-calendar-plus-o"></i>Add Appointment +</a>
+            </div>*@
+    </div>
+
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                <table class="table table-striped custom-table datatable mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th><input type="checkbox" id="checkbox_2" onclick="allcheck('allstatuscheck')" /></th>
+                            <th>Patient Name</th>
+                            <th>Age</th>
+                            <th>Doctor Name</th>
+                            <th>Department</th>
+                            <th>Appointment</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                            <th>Refund</th>
+                            @*<th data-orderable="false">Action</th>*@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DoctorCanappointlist != null && Model.DoctorCanappointlist.Count > 0)
+                        {
+                            for (int i = 0; i < Model.DoctorCanappointlist.Count; i++)
+                            {
+
+                                <tr id="row_@Model.DoctorCanappointlist[i].AppointmentId" class="">
+                                    <td>
+                                        @Html.HiddenFor(Model => Model.DoctorCanappointlist[i].AppointmentId)
+                                        @Html.CheckBoxFor(Model => Model.DoctorCanappointlist[i].Ctrl, new { @class = "statusclass" })
+                                        @*@Html.CheckBox("item.ctrl", new { @class = "statusclass" })*@
+                                    </td>
+                                    <td>
+                                        @{
+                                            var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                            if (Model.DoctorCanappointlist[i].PatientProfile != "" && Model.DoctorCanappointlist[i].PatientProfile != null)
+                                            { PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + Model.DoctorCanappointlist[i].PatientProfile; }
+                                        }
+                                        <img class="avatar" src="@PatProfile" alt="User Image"><h2>@Model.DoctorCanappointlist[i].PatientName <span class="d-block text-secondary">@Model.DoctorCanappointlist[i].patient_code</span></h2>
+                                    </td>
+                                    <td><h2>@Model.DoctorCanappointlist[i].Gender <span class="text-secondary">@Model.DoctorCanappointlist[i].PatientAge</span></h2></td>
+                                    <td><h2>@Model.DoctorCanappointlist[i].DoctorName <span class="d-block text-secondary">@Model.DoctorCanappointlist[i].HosDocCode</span></h2></td>
+                                    <td><span>@Model.DoctorCanappointlist[i].HosDepName</span></td>
+                                    <td><h2>
+                                        @Model.DoctorCanappointlist[i].AppointmentDate
+                                        @*@if (@item.is_appointment == true)
+                                            {<b>&nbsp;&nbsp;<i class="fa fa-circle text-success"></i> Online</b> }
+                                            else
+                                            { <b>&nbsp;&nbsp;<i class="fa fa-circle text-info"></i> Offline</b>}*@
+                                        <span class="d-block text-secondary">@Model.DoctorCanappointlist[i].AppointmentTime</span></h2>
+                                    </td>
+                                    @if (Model.DoctorCanappointlist[i].Ctrl == true)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (Model.DoctorCanappointlist[i].Ctrl == false)
+                                    {
+                                        <td><span class="badge badge-danger">Cancel</span></td>
+                                    }
+                                    <td style="width:15%;"><label style="font-size:13px;">@Model.DoctorCanappointlist[i].cancelreason</label></td>
+
+                                    <td>
+                                        @if (Model.DoctorCanappointlist[i].Isrefund == 1)
+                                        {
+
+                                            <span class="custom-badge status-green"><i class="fa fa-check"></i>Done</span>
+                                            @*if (Convert.ToDateTime(item.appointment_date) <= DateTime.Now)
+                                                {
+                                                    <a href="#" onclick="ConfirmRegister(@item.appointment_id)" title="Register Active Appointment" class="skin-gradient-btn action-icon"><i class="fa fa-registered m-r-5"></i></a>
+                                                }
+                                                else
+                                                {
+                                                    <button href="#" class="btn skin-gradient-btn action-icon" disabled><i class="fa fa-registered"></i></button>
+                                                }*@
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning">Pending</span>
+                                            @*<button href="#" class="btn skin-gradient-btn action-icon" disabled><i class="fa fa-registered"></i></button>*@
+                                        }
+                                    </td>
+                                    @*<td>
+                                        @if (Model.DoctorCanappointlist[i].Isrefund == 0)
+                                        {
+                                            <a href="javascript:;" onclick="submit('@Model.DoctorCanappointlist[i].uniqrow')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-arrow-right"></i> </a>
+                                        }
+                                        else
+                                        {
+                                            <button href="#" title="Refund" class="action-icon btn skyblue-gradient-btn" disabled> <i class="fa fa-arrow-right"></i> </button>
+                                        }
+                                       
+                                    </td>*@
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-12 text-center mt-3">
+            <button class="btn skin-gradient-btn submit-btn">Refund Cancel Appointment</button>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Appointment").addClass("subdrop");
+        //$(".Submenu_Appointment").css("display", "block");
+        //$(".Submenu_Appointment").css("display", "block");
+        //$(".CancelAppointment").addClass("active");
+
+        function allcheck(type) {
+            debugger;
+            if (type == 'allselectcheck') {
+                if ($("#checkbox_1").is(':checked'))
+                    $('.selectClass').prop('checked', true)
+                else
+                    $('.selectClass').prop('checked', false)
+            }
+            else if (type == 'allstatuscheck') {
+                if ($("#checkbox_2").is(':checked'))
+                    $('.statusclass').prop('checked', true)
+                else
+                    $('.statusclass').prop('checked', false)
+            }
+
+        }
+    </script>
+}
+

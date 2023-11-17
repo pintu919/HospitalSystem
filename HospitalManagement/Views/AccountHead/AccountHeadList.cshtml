@@ -1,0 +1,86 @@
+﻿@model HospitalManagement.Models.AccountHeadModel
+@{
+    ViewBag.Title = "AccountHeadList";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-4 col-6">
+            <h4 class="page-title"> Account Head List</h4>
+        </div>
+        <div class="col-sm-8 col-6 text-right m-b-20 res-575-mb-15">
+            <a href="~/AccountHead/AccountHead" class="btn  skin-gradient-btn btn-sm float-right"><i class="fa fa-plus-square"></i> Add Account Head +</a>
+        </div>
+    </div>
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.HeadTypeList != null && Model.HeadTypeList.Count > 0)
+                {
+                    <table class="table table-border table-striped custom-table  mb-0" id="headtable">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Head Name</th>
+                                <th>Head Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.HeadTypeList)
+                            {
+                                <tr id="row_@item.head_id">
+                                    <td class="collapse"> @item.head_id</td>
+                                    <td>@item.head_name</td>
+                                    <td>@item.head_type</td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="badge badge-danger">Deactive</span></td>
+                                    }
+                                    <td>
+                                        @if (item.is_editable == 1)
+                                        {
+                                            <a href="javascript:;" onclick="submit(@item.head_id)" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                        }
+                                        else
+                                        {
+                                            <button href="javascript:;" title="Edit" class="action-icon btn skyblue-gradient-btn" disabled> <i class="fa fa-pencil"></i> </button>
+                                        }
+                                        @*<a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.acc_id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-remove"></i></a>*@
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_AccountData").css("display", "block");
+        //$(".AccountHeadList").addClass("active");
+
+
+        $(document).ready(function () {
+            $("#headtable").dataTable({
+            });
+        });
+        function submit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/AccountHead/EditAccountHead', '_self') });
+        }
+    </script>
+}
+
+
+

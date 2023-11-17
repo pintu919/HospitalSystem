@@ -1,0 +1,372 @@
+﻿@model HospitalManagement.Models.AppointmentModel
+@{
+    ViewBag.Title = "EditHMSDoctorAppointment";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="page-title"> Edit Appointment</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("EditAppointment", " HMSDoctorAppointment", new AjaxOptions { HttpMethod = "POST", OnBegin = "ajaxbegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row appointment-form m-0">
+            <div class="col-md-12">
+                <form>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group text-center divider p-b-10">
+                                <label class="radio-label text-danger"><b> Take Appointment:</b></label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.RegPatAppointment.AppointmentType, "Department Wise", new { @id = "DepartmentWise", @type = "radio", @value = "1", @checked = true, disabled = "disabled" })
+                                        Department Wise
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.RegPatAppointment.AppointmentType, "Date Wise", new { @id = "DateWise", @type = "radio", @value = "0", disabled = "disabled" })
+                                        Date Wise
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @Html.HiddenFor(model => model.RegPatAppointment.AppointmentType, new { @id = "AppointType" })
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Appointment Code</label>
+                                @Html.TextBoxFor(model => model.RegPatAppointment.AppointmentCode, new { @class = "form-control", @readonly = "readonly", @id = "AppointCode" })
+                                <i class="fa fa-id-card"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Patient Name</label>
+                                @Html.ValidationMessageFor(model => model.RegPatAppointment.PatientName, "", new { @class = "text-danger" })
+                                @Html.TextBoxFor(model => model.RegPatAppointment.PatientName, new { @class = "form-control requiredSelect", @readonly = "readonly" })
+                                <i class="fa fa-pencil"></i>
+                                @Html.HiddenFor(model => model.RegPatAppointment.patient_code, new { @id = "PATCode" })
+                            </div>
+                        </div>
+                        <div id="datwise" class="col-md-6" hidden>
+                            <div class="form-group">
+                                <label>Appointment Date</label>
+                                @Html.ValidationMessageFor(model => model.RegPatAppointment.AppointmentDate, "", new { @class = "text-danger" })
+                                @Html.TextBoxFor(model => model.RegPatAppointment.AppointmentDate, new { @class = "form-control", @id = "datetimepicker12", @readonly = "readonly", placeholder = "Select Appintment Date" })
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Department</label>
+                                @Html.ValidationMessageFor(model => model.RegPatAppointment.HosDepCode, "", new { @class = "text-danger" })
+                                @Html.DropDownListFor(model => model.RegPatAppointment.HosDepCode, new SelectList(Model.HosDepartmentList, "Hos_department_code", "Hos_department_name"), "Select Department", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData()", @id = "hosdepartment" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group binddoc">
+                                <label>Doctor</label>
+                                @Html.ValidationMessageFor(model => model.RegPatAppointment.HosDocCode, "", new { @class = "text-danger" })
+                                @Html.DropDownListFor(model => model.RegPatAppointment.HosDocCode, new SelectList(Model.DoctorList, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select requiredSelect", onchange = "GetDoctorDays()", @id = "hosDoctor" })
+
+                            </div>
+                        </div>
+                        <div id="Appointdate" class="col-md-6">
+                            <div class="form-group">
+                                <label>Appointment Date</label>
+                                @Html.ValidationMessageFor(model => model.RegPatAppointment.AppointmentDate, "", new { @class = "text-danger" })
+                                @Html.TextBoxFor(model => model.RegPatAppointment.AppointmentDate, new { @class = "form-control", @id = "datetimepicker11", @readonly = "readonly" })
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group bindTimeslot">
+                                <label>Time</label>
+                                <div class="">
+                                    @Html.ValidationMessageFor(model => model.RegPatAppointment.AppointmentFromTime, "", new { @class = "text-danger" })
+                                    @Html.DropDownListFor(model => model.RegPatAppointment.AppointmentFromTime, new SelectList(Model.DoctorTimeSlotList, "TimeSlot", "TimeSlot"), "Select TimeSlot", new { @class = "form-control select requiredSelect", @id = "DoctorTiming" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Comission Agent</label>
+                                @*@Html.ValidationMessageFor(model => model.NonRegPatAppointment.Comission_Agent_Id, "", new { @class = "text-danger" })*@
+                                @Html.DropDownListFor(model => model.RegPatAppointment.Comission_Agent_Id, new SelectList(Model.Comission_Agent_List, "Comission_Agent_Id", "Commision_Agent"), "Select Comission Agent", new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="display-block">Appointment Status @Html.ValidationMessageFor(model => model.RegPatAppointment.Ctrl, "", new { @class = "text-danger" })</label>
+                                <div class="form-check form-check-inline mt-3">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.RegPatAppointment.Ctrl, 1, new { @id = "Active" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline mt-3">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.RegPatAppointment.Ctrl, 2, new { @id = "Register" })
+                                        Register
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline mt-3">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.RegPatAppointment.Ctrl, 0, new { @id = "InActive" })
+                                        Cancel
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 cancelreason" hidden>
+                            Reason For Cancellation
+                            @Html.TextAreaFor(model => model.RegPatAppointment.cancelreason, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="m-t-20 text-center">
+                        <button class="btn skin-gradient-btn submit-btn">Save</button>
+                        <a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSDoctorAppointment/HMSDoctorAppointmentList"><i class="fa fa-arrow-left"></i> Back To List</a>
+                    </div>
+                </form>
+            </div>
+            <div id="cardbox" class="card-box" hidden>
+            </div>
+            @Html.HiddenFor(model => model.RegPatAppointment.AppointmentFromTime, new { @id = "Apptime" })
+        </div>
+    }
+</div>
+@section scripts{
+    <link href="~/wwwroot/assets/css/jquery-ui.css" rel="stylesheet" />
+    <script src="~/wwwroot/assets/js/jquery-1.10.2.js"></script>
+    <script src="~/wwwroot/assets/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $.noConflict();
+        $(document).ready(function () {
+            $('#datetimepicker11').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2,
+                startDate: new Date()
+            });
+            $('#datetimepicker12').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2,
+                startDate: new Date()
+            });
+            var radioValue = $("[name='AppointmentType']:checked").val();
+            if (radioValue == 'Department Wise') {
+                $('#Appointdate').removeAttr('hidden');
+                $("#datwise").attr("hidden", true);
+            }
+            else {
+                $('#datwise').removeAttr('hidden');
+                $("#Appointdate").attr("hidden", true);
+
+            }
+        });
+        setTimeout(function () {
+            GetDoctorDays();
+        }, 1000);
+        function ajaxbegin() {
+        }
+        function SuccessMethod(data) {
+            var htmlstr = "";
+            if (data == "Record Update Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong>  <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Does Not Update Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem   has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Please Enter Cancellation Reason")
+            {
+                  $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strong>Please read the</strong> comments  <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+        function GetDropdownData() {
+            var radioValue = $("[name='AppointmentType']:checked").val();
+            if (radioValue == 'Department Wise') {
+                $('.loadingimg').css('display', 'block');
+                var url = "";
+                url = "/HMSDoctorAppointment/GetDatabyCode?code=" + $("#hosdepartment").val() + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $('.loadingimg').css('display', 'none');
+                    $(".binddoc").empty();
+                    $(".binddoc").html($(datahtml).find(".binddoc").html());
+                });
+            }
+            else {
+                var date = $("#datetimepicker12").val();
+                var newdate = date.split("/").reverse().join("-");
+                var d = new Date(newdate);
+                var day = d.getDay();
+                $('.loadingimg').css('display', 'block');
+                var url = "";
+                url = "/HMSDoctorAppointment/GetDocDatabyCode?code=" + $("#hosdepartment").val()+ "&day=" + day + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $('.loadingimg').css('display', 'none');
+                    $(".binddoc").empty();
+                    $(".binddoc").html($(datahtml).find(".binddoc").html());
+                });
+            }
+        }
+        function GetDoctorDays() {
+            debugger;
+            var radioValue = $("input[name='AppointmentType']:checked").val();
+            if (radioValue == 'Department Wise') {
+                $('.loadingimg').css('display', 'block');
+                $.ajax({
+                    url: "/HMSDoctorAppointment/GateDoctorDays",
+                    dataType: "json",
+                    ContentType: 'application/json;utf-8',
+                    data: { code: $("#hosDoctor").val() },
+                    success: function (data) {
+                        $('.loadingimg').css('display', 'none');
+                        if (data.days.length > 0) {
+                            var sub_array = [];
+                            for (var i = 0; i < data.days.length; i++) {
+                                sub_array.push(data.days[i].daynumber);
+                            }
+                            $('#datetimepicker11').datetimepicker('setDaysOfWeekDisabled', sub_array);
+                            var arr = [];
+                            if (data.date.length > 0) {
+                                var startDate = new Date(data.date[0].fromdate);
+                                var endDate = new Date(data.date[0].todate);
+                                var dt = new Date(startDate);
+                                while (dt <= endDate) {
+                                    var d = new Date(dt);
+                                    month = '' + (d.getMonth() + 1),
+                                        day = '' + d.getDate(),
+                                        year = d.getFullYear();
+                                    if (month.length < 2) month = '0' + month;
+                                    if (day.length < 2) day = '0' + day;
+                                    var date = [year, month, day].join('-');
+                                    arr.push(date);
+                                    dt.setDate(dt.getDate() + 1);
+                                }
+                            }
+                            $('#datetimepicker11').datetimepicker('setDatesDisabled', arr);
+                            $('#datetimepicker11').datetimepicker('show');
+                            $('#datetimepicker11').datetimepicker('hide');
+                        }
+                      else {
+                           $('#datetimepicker11').datetimepicker('setDaysOfWeekDisabled', []);
+                        }
+                        $("#datetimepicker11").trigger("change");
+                    }
+                })
+            }
+            else {
+                var date = $("#datetimepicker12").val();
+                var newdate = date.split("/").reverse().join("-");
+                var d = new Date(newdate);
+                var day = d.getDay();
+                var date1 = new Date();
+                var hours = date1.getHours() < 10 ? "0" + date1.getHours() : date1.getHours();
+                var minutes = date1.getMinutes() < 10 ? "0" + date1.getMinutes() : date1.getMinutes();
+                var time = hours + ":" + minutes + ":" + '00';
+                $('.loadingimg').css('display', 'block');
+                var url = "";
+                url = "/HMSDoctorAppointment/GetEditDoctorTimeSlot?Doccode=" + $("#hosDoctor").val() + " &day=" + day + " &AppointDate=" + $("#datetimepicker11").val() + " &time=" + time + " &AppointCode=" + $("#AppointCode").val() + "  ";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $('.loadingimg').css('display', 'none');
+                    $(".bindTimeslot").empty();
+                    $(".bindTimeslot").html($(datahtml).find(".bindTimeslot").html());
+                    if ($("#Apptime").val() != '') {
+                        $('#DoctorTiming').val($("#Apptime").val()).change();
+                        $("#Apptime").val('');
+                    }
+                });
+            }
+        }
+        $("#datetimepicker11").change(function () {
+            var dat = $("#datetimepicker11").val();
+            $("#datetimepicker12").val(dat);
+            var date = $("#datetimepicker11").val();
+            var newdate = date.split("/").reverse().join("-");
+            var d = new Date(newdate);
+            var day = d.getDay();
+            var date1 = new Date();
+            var hours = date1.getHours() < 10 ? "0" + date1.getHours() : date1.getHours();
+            var minutes = date1.getMinutes() < 10 ? "0" + date1.getMinutes() : date1.getMinutes();
+            var time = hours + ":" + minutes + ":" + '00';
+            $('.loadingimg').css('display', 'block');
+            var url = "";
+            url = "/HMSDoctorAppointment/GetEditDoctorTimeSlot?Doccode=" + $("#hosDoctor").val() + " &day=" + day + " &AppointDate=" + $("#datetimepicker11").val() + " &time=" + time + " &AppointCode=" + $("#AppointCode").val() + "  ";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bindTimeslot").empty();
+                $(".bindTimeslot").html($(datahtml).find(".bindTimeslot").html());
+                if ($("#Apptime").val() != '') {
+                    $('#DoctorTiming').val($("#Apptime").val()).change();
+                    $("#Apptime").val('');
+                }
+            });
+        });
+        $("#datetimepicker12").change(function () {
+            $("#hosdepartment").val('');
+            $("#hosDoctor").val('');
+        });
+
+        $('#InActive').change(function () {
+            debugger;
+            if ($('#InActive').is(':checked')) {
+                $('.cancelreason').removeAttr('hidden');
+            }
+            else {
+                $('.cancelreason').attr('hidden');
+            }
+      
+        });
+
+         $('#Active').change(function () {
+            debugger;
+            if ($('#Active').is(':checked')) {
+                $('.cancelreason').attr('hidden', true);
+            }
+           
+      
+         });
+
+         $('#Register').change(function () {
+            debugger;
+            if ($('#Register').is(':checked')) {
+                 $('.cancelreason').attr('hidden', true);
+            }
+           
+      
+        });
+
+
+
+    </script>
+}
+
+
+

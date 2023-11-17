@@ -1,0 +1,166 @@
+﻿@model HospitalManagement.Models.InPatient
+<div id="new_add_services" class="modal fade" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class=" modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="color:#fff;">Add New Services</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @using (Ajax.BeginForm("Add_IP_Services", "InPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "IPServiceSuccess", OnBegin = "IPServiceBegin", LoadingElementId = "progress" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.IPservices.uniqrowid)
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="form-group">
+                                @if (Model.IPservices != null && Model.IPservices.IPBillingServicelst != null)
+                                {
+                                    if (Model.IPservices.IPBillingServicelst.Count > 0)
+                                    {
+                                        @Html.ValidationMessageFor(model => model.IPservices.Service_id, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.IPservices.Service_id, new SelectList(Model.IPservices.IPBillingServicelst, "id", "service_name"), "Select Service", new { @class = "form-control select2 requiredSelect", onchange = "Getcost()" })
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div id="service_cost" class="row bindcostservice" hidden>
+                        @if (Model.IPservices.is_realtime == 0)
+                        {
+                            <div class="col-md-6" hidden>
+                                <div class="form-group">
+                                    <label class="focus-label">Price :</label>
+                                    @Html.TextBoxFor(model => model.IPservices.SellingCost, new { @class = "form-control", @readonly = "readonly", @id = "invSellingCost" })
+                                    @Html.HiddenFor(model => model.IPservices.is_realtime)
+                                </div>
+                            </div>
+                            <div class="col-md-6" hidden>
+                                <div class="form-group">
+                                    <label class="focus-label">Discount(Amount) :</label>
+                                    <span id="dismsg" class="msg_billing" hidden>(<small class="text-danger">Note: Discount Amount is to much.Minimum selling Amount is @Model.IPservices.MinSellingCost </small>)</span>
+                                    @Html.TextBoxFor(model => model.IPservices.Discount, new { @class = "form-control groupOfTexbox dicount_check" })
+                                </div>
+                            </div>
+                        }
+                        @if (Model.IPservices.is_realtime == 1)
+                        {
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="focus-label">Service Name :</label>
+                                    <span id="oth_Sname" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Service Name. </small>)</span>
+                                    @Html.TextBoxFor(model => Model.IPservices.ServiceName, new { @class = "form-control" })
+                                    @Html.HiddenFor(model => Model.IPservices.is_realtime)
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="focus-label">Cost : </label>
+                                    <span id="oth_cost" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Cost. </small>)</span>
+                                    @Html.TextBoxFor(model => Model.IPservices.Cost, new { @class = "form-control groupOfTexbox" })
+                                </div>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="focus-label">Selling Cost :</label>
+                                    <span id="oth_Scost" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Selling Cost. </small>)</span>
+                                    @Html.TextBoxFor(model => Model.IPservices.SellingCost, new { @class = "form-control groupOfTexbox" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="focus-label">Remark :</label>
+                                    @Html.TextAreaFor(model => Model.IPservices.Remark, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        }
+                        @Html.HiddenFor(model => model.IPservices.MinSellingCost)
+                        @Html.HiddenFor(model => model.IPservices.Cost)
+                        <div class="col-md-12 text-center">
+                            <button id="btnAddservice" class="btn skin-gradient-btn"  name="submit"><i class="fa fa-plus"></i> Add Service Item</button>
+                        </div>
+                        <div id="cardboxservice" hidden>
+                        </div>
+                    </div>
+
+                }
+
+                <div class="row">
+                    <div class="col-12 bindstatusmsg">
+
+                        @if (Model.status != null && Model.status !="")
+                        {
+                            if (Model.status == "1")
+                            {
+                                
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+                            else if (Model.status == "0")
+                            {
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                     Record Allrady Exists!.
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            }
+
+                        }
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-12 bindipservicelst">
+                        @if (Model.IPservices.IPBillingServicelstdata != null && Model.IPservices.IPBillingServicelstdata.Count > 0)
+                        {
+                            <div class="table-responsive">
+                                <h5><b>InPatient Service List</b></h5>
+                                <table class="table table-bordered custom-table" style="border-bottom: 5px solid #dee2e6;" id="example1">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Service Name</th>
+                                            <th hidden>Selling cost</th>
+                                            <th hidden>Discount</th>
+                                            <th>Date</th>
+                                            @*<th data-orderable="false" class="text-center">Action</th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.IPservices.IPBillingServicelstdata.Count; i++)
+                                        {
+
+
+                                            <tr id="row_@Model.IPservices.IPBillingServicelstdata[i].id">
+                                                <td>
+                                                    @Html.DisplayFor(Model => Model.IPservices.IPBillingServicelstdata[i].service_name)
+                                                    @Html.HiddenFor(Model => Model.IPservices.IPBillingServicelstdata[i].id)
+
+                                                </td>
+
+                                                <td hidden>@Html.DisplayFor(Model => Model.IPservices.IPBillingServicelstdata[i].Price)</td>
+                                                <td hidden>@Html.DisplayFor(Model => Model.IPservices.IPBillingServicelstdata[i].Discount)</td>
+                                                <td>@Html.DisplayFor(Model => Model.IPservices.IPBillingServicelstdata[i].Date)</td>
+                                                @*<td class="text-center">
+                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@Model.BillingServiceItemlst[i].id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-remove"></i></a>
+                                    </td>*@
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

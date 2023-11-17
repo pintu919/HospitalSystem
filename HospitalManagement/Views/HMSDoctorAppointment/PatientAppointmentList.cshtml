@@ -1,0 +1,262 @@
+﻿@using HospitalManagement.Helper
+@model HospitalManagement.Models.AppointModel
+@{
+    ViewBag.Title = "PatientAppointmentList";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="page-title">Paitent Prescription</h4>
+        </div>
+    </div>
+
+    @using (Ajax.BeginForm("PatientAppointmentList", "HMSDoctorAppointment", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", LoadingElementId = "progress" }))
+    {
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div class="input-group mb-3">
+                    @Html.TextBoxFor(model => model.PatientName, new { @class = "form-control", placeholder = "Enter keyword related to patient" })
+                    @Html.HiddenFor(model => model.PatientCode)
+                    <div id="patdanger" class="input-group-append" hidden><button class="btn  btn-danger" type="submit"><i class="fa fa-close"></i></button></div>
+                    <div id="patsucess" class="input-group-append" hidden><button class="btn  btn-success" type="submit"><i class="fa fa-check"></i></button></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group">
+
+                    @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating", placeholder = "From Date", @id = "datetimepicker1", autocomplete = "off" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group">
+                    @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating ", placeholder = "To Date", @id = "datetimepicker2", autocomplete = "off" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-2">
+                <button class="btn btn-warning btn-block submit-btn">Search</button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        <div class="col-sm-12">
+            <span class="text-danger small" style="font-weight:600" id="bindmsg"> Below prescription data is from @Model.FromDate To @Model.ToDate</span>
+        </div>
+    </div>
+    <div class="row bindtable">
+        <div class="col-sm-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                <table class="table table-border table-striped custom-table mb-0" id="patapplst">
+                    <thead>
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Doctor Name</th>
+                            <th>Age</th>
+                            <th hidden>AppointDatetime</th>
+                            <th>Appointment</th>
+                            <th>Visited</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Patient_AppList)
+                        {
+                            <tr>
+                                <td>
+                                    @{
+                                        var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                        if (item.Profile != string.Empty)
+                                        { PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.Profile; }
+                                    }
+                                    @*<img class="avatar" src="@PatProfile" alt="User Image"><h2>@item.PatientName <span>@item.PatientCode</span></h2>*@
+                                    <img class="avatar" src="@PatProfile" alt="User Image"><h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.PatientName </a><span class="d-block"> @item.PatientCode</span><span class="text-secondary">@item.Mobile</span> </h2>
+                                </td>
+                                <td><h2>@item.DoctorName <span class="text-secondary">@item.DepartmentName</span></h2></td>
+                                <td><h2>@item.Gender <span class="text-secondary">@item.Age</span></h2></td>
+                                <td hidden>@Html.DisplayFor(model => item.AppointDatetime)</td>
+                                <td><h2>@item.AppointDate &nbsp; @item.AppointmentTime <span class="text-secondary">@item.AppoinmentCode</span></h2></td>
+                                <td>
+                                    @if (item.IsVisited == 1)
+                                    {
+                                        <span class="badge badge-success">Complited</span>
+                                    }
+                                    else if (item.IsVisited == 0)
+                                    {
+                                        <span class="badge badge-warning">Pending</span>
+                                    }
+                                    else if (item.IsVisited == 2)
+                                    {
+                                        <span class="badge badge-danger">Non Register</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="table-action">
+                                        @Ajax.RawActionLink(string.Format("<i class='fa fa-file-pdf-o'></i> PDF"), "Print_Presc", "HMSDoctorAppointment",
+                                              new { ApptCode = item.AppoinmentCode },
+                                              new AjaxOptions()
+                                              {
+                                                  HttpMethod = "POST",
+                                                  OnSuccess = "PrintElem",
+                                                  LoadingElementId = "progress"
+                                              }, new { @class = "btn-sm btn blue-gradient-btn", title = "Print prescription" }
+                                            )
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="http://cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js"></script>
+    <script type="text/javascript">
+
+        //$(".PatientPrescription").addClass("subdrop");
+        //$(".Submenu_PatientPrescription").css("display", "block");
+        //$(".Submenu_PatientPrescription").css("display", "block");
+        //$(".PatientAppointmentList").addClass("active");
+
+        $(document).ready(function () {
+            $('#datetimepicker1').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2,
+
+
+            });
+            $('#datetimepicker2').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2,
+
+
+            });
+
+            setCurrentDate();
+
+            $('#patapplst').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+
+            });
+        });
+
+        function setCurrentDate() {
+            debugger;
+            var now = new Date();
+            var day = ("0" + now.getDate()).slice(-2);
+            var month = ("0" + (now.getMonth() + 1)).slice(-2);
+            var today = (day) + "/" + (month) + "/" + now.getFullYear();
+            $('#datetimepicker1').val(today);
+            $('#datetimepicker2').val(today);
+        }
+
+        $("#PatientName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/BillingService/GatePatient',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        debugger;
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            arr.patient_firstname = "No Record Found";
+                            arr.patient_code = "";
+                            data.push(arr);
+                            response($.map(data, function (item) {
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                            $("#PatientCode").val("");
+                            $("#PatientName").val("");
+                            $('#patdanger').removeAttr('hidden');
+                            $('#patsucess').attr('hidden', true);
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    $('#patmsg').attr('hidden', true);
+                    $("#PatientCode").val(i.item.patient_code);
+                    $("#PatientName").val(i.item.value);
+                    $('#patsucess').removeAttr('hidden');
+                    $('#patdanger').attr('hidden', true);
+                }
+            },
+            minLength: 3,
+        }).bind("keyup.autocomplete", function (event) {
+            if (event.keyCode == $.ui.keyCode.BACKSPACE || event.keyCode == $.ui.keyCode.DELETE) {
+                $("#PatientCode").val("");
+                $("#PatientName").val("");
+                $('#patdanger').removeAttr('hidden');
+                $('#patsucess').attr('hidden', true);
+            };
+        });
+
+        function sucessmethod(data) {
+            debugger;
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            if ($("#PatientName").val() == "" || $("#PatientName").val() == null) {
+                if ($('#datetimepicker1').val() == "" || $("#PatientName").val() == null) {
+                    setCurrentDate();
+                }
+                $("#bindmsg").text("Below prescription data is from " + $('#datetimepicker1').val() + " To " + $('#datetimepicker2').val());
+            }
+            else {
+                $("#bindmsg").text("Below prescription data is for " + $('#PatientName').val());
+                $('#datetimepicker1').val('');
+                $('#datetimepicker2').val('');
+            }
+
+            $('#patapplst').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+
+            });
+        }
+
+        function PrintElem(data) {
+            window.open(data, "_blank");
+            ////var mywindow = window.open('', '', 'height=' + $(window).height() + ',width=' + $(window).width() + '');
+            ////mywindow.document.write(JSON.parse(StringHtml).m_StringValue);
+            ////mywindow.document.close(); // necessary for IE >= 10
+            ////mywindow.focus(); // necessary for IE >= 10*/
+            ////mywindow.print();
+            ////return false;
+            ////mywindow.close();
+        }
+    </script>
+}

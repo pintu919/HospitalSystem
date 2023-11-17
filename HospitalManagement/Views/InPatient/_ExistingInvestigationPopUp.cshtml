@@ -1,0 +1,40 @@
+﻿@model HospitalManagement.Models.InPatient
+
+    <div id="new_existing_invs" class="modal fade delete-modal" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class=" modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="icon-box">
+                        <i class="fa fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="modal-title w-100">Are you sure?</h3>
+                    <h4 class="font-weight-normal">
+                        This Investigation Already Exists. Are You Sure you Want to Add?
+                    </h4>
+
+                    <input type="hidden" id="hiddeninvestigation" value="@Model.status" />
+                    <div class="col-md-12 bindinvestigationlst">
+                        @if (Model.Investigation.existinvestigationList != null)
+                        {
+                            <div>
+                                <p class="text-danger"><b></b></p>
+                            </div>
+                            <div class="col-md-12">
+                                @using (Ajax.BeginForm("Add_IP_Investigation", "InPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "InvestigationSuccess", LoadingElementId = "progress" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.HiddenFor(Model => Model.Investigation.uniqrowid)
+                                    @Html.HiddenFor(Model => Model.Investigation.checkexisting)
+                                    @Html.HiddenFor(Model => Model.Investigation.investigationmaster_id)
+                                    @Html.HiddenFor(Model => Model.Investigation.Instruction)
+                                    <button class="btn green-gradient-btn submit-btn" name="submit">Continue</button>
+                                    <a href="#" class="btn red-gradient-btn" data-dismiss="modal">Close</a>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+

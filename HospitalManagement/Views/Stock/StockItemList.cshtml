@@ -1,0 +1,58 @@
+﻿@model HospitalManagement.Models.StockItemModel
+@{
+    ViewBag.Title = "StockItemList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Stock Item List</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Stock/StockItem" class="btn  skin-gradient-btn btn-sm"><i class="fa fa-plus-square"></i> Add Item</a>
+        </div>
+    </div>
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.lst_item != null && Model.lst_item.Count > 0)
+                {
+                    <table id="stk_item_lists" class="table table-border table-striped custom-table  mb-0">
+                        <thead>
+                            <tr>
+                                <th>Sr.No</th>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Details</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int i = 1;}
+                            @foreach (var item in Model.lst_item)
+                            {
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@item.item_name</td>
+                                    <td>@item.category_name</td>
+                                    <td>@item.details</td>
+                                    <td><a href="~/Stock/EditStockItem/@item.id" target="_blank" title="Edit Item" class="action-icon btn green-gradient-btn"><i class="fa fa-edit"></i></a></td>
+                                </tr>
+                                i++;
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#stk_item_lists").dataTable();
+        });
+    </script>
+}

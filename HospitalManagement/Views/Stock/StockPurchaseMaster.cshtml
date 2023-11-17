@@ -1,0 +1,291 @@
+﻿@model HospitalManagement.Models.StockPurchase
+@{
+    ViewBag.Title = "StockPurchaseMaster";
+}
+<!-- Style CSS -->
+<div class="content">
+    <div class="row" id="cleardiv">
+        <div class="col-sm-12 col-lg-12">
+            <div class="rh-card">
+                <div class="rh-card-header d-flex justify-content-between">
+                    <h5>Stock Purchase</h5>
+                    <div class="text-right mb-3">
+                        <a href="~/Stock/StockPurchaseList" class="btn btn-sm btn-success"><i class="ri-file-list-line"></i>Purchase List</a>
+                    </div>
+                </div>
+                @using (Ajax.BeginForm("AddPurchaseItem", "Stock", new AjaxOptions { HttpMethod = "POST", OnBegin = "OnBeginpurchase", OnSuccess = "Sucessmethod", LoadingElementId = "progress" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="rh-card-body">
+                        <div class="row">
+                            <div class="col-xl-10 m-auto">
+                                <div class="row align-items-center">
+                                    <div class="col-sm-6">
+                                        <div class="form-group row">
+                                            <label class="control-label col-sm-12 col-md-4 align-self-center mb-0 text-md-right" for="email">Purchase No. <span class="text-danger">*</span> :</label>
+                                            <div class="col-sm-12 col-md-8">
+                                                @Html.TextBoxFor(model => model.PurchaseNo, new { @class = "form-control", type = "text", autocomplete = "off", @id = "PurchaseNo", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group row">
+                                            <label class="control-label col-sm-12 col-md-4 align-self-center mb-0 text-md-right" for="email">Sup. Invoice No. <span class="text-danger">*</span> :</label>
+                                            <div class="col-sm-12 col-md-8">
+                                                @Html.TextBoxFor(model => model.InvoiceNo, new { @class = "form-control", type = "text", autocomplete = "off", @id = "InvoiceNo", @required = "required" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group row">
+                                            <label class="control-label col-sm-12 col-md-4 align-self-center mb-0 text-md-right" for="email">ReceivedDate :</label>
+                                            <div class="col-sm-12 col-md-8">
+                                                @Html.TextBoxFor(model => model.ReceivedDate, new { @class = "datetimepicker form-control", type = "text", autocomplete = "off", @id = "ReceivedDate" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group row">
+                                            <label class="control-label col-sm-12 col-md-4 align-self-center mb-0 text-md-right" for="email">InvoiceDate :</label>
+                                            <div class="col-sm-12 col-md-8">
+                                                @Html.TextBoxFor(model => model.InvoiceDate, new { @class = "datetimepicker form-control", type = "text", autocomplete = "off", @id = "InvoiceDate" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group row">
+                                            <label class="control-label col-sm-12 col-md-4 align-self-center mb-0 text-md-right" for="email">Supplier <span class="text-danger">*</span> :</label>
+                                            <div class="col-sm-12 col-md-8">
+                                                @Html.DropDownListFor(model => model.SupplierId, new SelectList(Model.SupplierList, "Value", "Text"), "Choose...", new { @class = "form-control  js-source-states", @id = "supplier" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group row">
+                                            <label class="control-label col-sm-12 col-md-4 align-self-center mb-0 text-md-right" for="email">Details :</label>
+                                            <div class="col-sm-12 col-md-8">
+                                                @Html.TextBoxFor(model => model.Details, new { @class = "form-control", type = "text", autocomplete = "off" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3 align-items-center">
+                            <div class="col-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="purchaseTable">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th class="text-center w-25">Name<i class="text-danger">*</i></th>
+                                                <th class="text-center"><nobr>Batch No<i class="text-danger">*</i></nobr></th>
+                                                <th class="text-center"><nobr>Expiry Date</nobr></th>
+                                                @*<th class="text-center"><nobr>Box Qty</nobr></th>*@
+                                                <th class="text-center"><nobr>Qty<i class="text-danger">*</i></nobr></th>
+                                                <th class="text-center"><nobr>Vat<small class="text-danger">Amount</small></nobr></th>
+                                                <th class="text-center"><nobr>Price<i class="text-danger">*</i></nobr></th>
+                                                <th class="text-center"><nobr>Total Price</nobr></th>
+                                                <th class="text-center"><nobr>Action</nobr></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="experience-info" id="addPurchaseItem">
+                                            @if (Model.PurchaseItemList != null && Model.PurchaseItemList.Count > 0)
+                                            {
+                                                for (int i = 0; i < Model.PurchaseItemList.Count; i++)
+                                                {
+
+                                                    <tr id="@i" class="experience-cont">
+                                                        <td>
+                                                            <div class="form-group mb-0">
+                                                                @Html.TextAreaFor(model => model.PurchaseItemList[i].Name, new { @class = "form-control no-resize overflow-hidden Item_Name", type = "text", @autocomplete = "off", @id = "Item_Name_" + @i, @onkeypress = "product_list_purchase(" + @i + ")", @placeholder = "Item Name", @required = "required", @rows = "1" })
+                                                                @Html.HiddenFor(model => model.PurchaseItemList[i].ItemID, new { @id = "ItemId_" + @i, @class = "autocomplete_hidden_value" })
+                                                                <input type="hidden" class="sl" value="@i">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group mb-0">
+                                                                @Html.TextBoxFor(model => model.PurchaseItemList[i].BatchId, new { @class = "form-control text-right", @autocomplete = "off", @id = "BatchId_" + @i, type = "text", @placeholder = "Batch No", @required = "required" })
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group mb-0">
+                                                                @Html.TextBoxFor(model => model.PurchaseItemList[i].ExpiryDate, new { @class = "datetimepicker form-control", @autocomplete = "off", @id = "ExpiryDate_" + @i, type = "text", @placeholder = "Expiry Date" })
+                                                            </div>
+                                                        </td>
+
+                                                        @*<td>
+                                                                <div class="form-group mb-0">
+                                                                    @Html.TextBoxFor(model => model.PurchaseItemList[i].BoxQty, new { @class = "form-control text-right valid_number", @autocomplete = "off", @id = "BoxQty_" + @i, @placeholder = "0.00", @required = "required" })
+                                                                </div>
+                                                            </td>*@
+                                                        <td>
+                                                            <div class="form-group mb-0">
+                                                                @Html.TextBoxFor(model => model.PurchaseItemList[i].Qty, new { @class = "form-control text-right valid_number", @autocomplete = "off", @id = "Qty_" + @i, onkeyup = "purchase_calculation(" + i + ")", @placeholder = "0.00", @required = "required" })
+                                                            </div>
+                                                        </td>
+
+                                                        <td>
+                                                            <div class="form-group mb-0">
+                                                                @Html.TextBoxFor(model => model.PurchaseItemList[i].Vat, new { @class = "form-control  text-right", @autocomplete = "off", @id = "Vat_" + @i, @placeholder = "0.00", onkeyup = "purchase_calculation(" + i + ")" })
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group mb-0">
+                                                                @Html.TextBoxFor(model => model.PurchaseItemList[i].Price, new { @class = "form-control  text-right", @autocomplete = "off", @id = "Price_" + @i, @placeholder = "0.00", onkeyup = "purchase_calculation(" + i + ")", @required = "required" })
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group mb-0">
+                                                                @Html.TextBoxFor(model => model.PurchaseItemList[i].TotalPurchasePrice, new { @class = "form-control total_price text-right", @readonly = "readonly", @id = "TotalPurchasePrice_" + @i, @placeholder = "0.00" })
+
+                                                            </div>
+                                                        </td>
+                                                        <td id="deleterow_@i">
+                                                            <input id="total_tax_@i" class="total_tax_@i valid_number" type="hidden">
+                                                            <input id="all_tax_@i" class="total_tax" type="hidden" name="tax[]">
+                                                            <a href="#" class="btn btn-sm btn-icon rh-bg-danger-light trash" onclick="deleteRow(this)"><i class="fa fa-trash-o"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th class="text-right" colspan="6">Sub Total</th>
+                                                <td class="text-right">
+                                                    <div class="form-group mb-0">
+                                                        @Html.TextBoxFor(model => model.SubTotal, new { @class = "form-control text-right", type = "text", autocomplete = "off", @id = "sub_total", @readonly = "readonly" })
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href="#" class="btn btn-sm btn-icon rh-bg-primary-light" onclick="add_purchaseRow('addPurchaseItem')"><i class="fa fa-plus-circle"></i></a>
+                                                </td>
+                                            </tr>
+                                            @*<tr>
+                                                    <th class="text-right" colspan="7">Total Vat</th>
+                                                    <td class="text-right">
+                                                        <div class="form-group mb-0">
+                                                            @Html.TextBoxFor(model => model.TotalVat, new { @class = "form-control text-right valid_number", type = "text", autocomplete = "off", @id = "TotalVat", @readonly = "readonly" })
+                                                        </div>
+                                                    </td>
+                                                    <td></td>
+                                                </tr>*@
+                                            <tr hidden>
+                                                <th class="text-right" colspan="6">Discount (<span class="text-success"> Amount </span>):</th>
+                                                <td class="text-right">
+                                                    <div class="form-group mb-0">
+                                                        @Html.TextBoxFor(model => model.Discount, new { @class = "form-control text-right valid_number", type = "text", autocomplete = "off", @id = "Discount", @placeholder = "0.00", onkeyup = "disoucnt_calculation()" })
+                                                    </div>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-right" colspan="6">Grand Total</th>
+                                                <td class="text-right">
+                                                    <div class="form-group mb-0">
+                                                        @Html.TextBoxFor(model => model.GrandTotal, new { @class = "form-control text-right", type = "text", autocomplete = "off", @id = "grandTotal", @placeholder = "0.00", @readonly = "readonly" })
+                                                    </div>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                            @*<tr>
+                                                    <th class="text-right" colspan="7">Paid Amount</th>
+                                                    <td class="text-right">
+                                                        <div class="form-group mb-0">
+                                                            @Html.TextBoxFor(model => model.paid_amount, new { @class = "form-control text-right valid_number", type = "text", autocomplete = "off", @id = "paid_amount", @placeholder = "0.00", onkeyup = "paid_calculation()" })
+                                                        </div>
+                                                    </td>
+                                                    <td></td>
+                                                </tr>*@
+                                            <tr>
+                                                <th class="text-right" colspan="6">Due Amount</th>
+                                                <td class="text-right">
+                                                    <div class="form-group mb-0">
+                                                        @Html.TextBoxFor(model => model.due_amount, new { @class = "form-control text-right", type = "text", autocomplete = "off", @id = "due_amount", @readonly = "readonly" })
+
+                                                    </div>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-9 purmsg mt-2" hidden></div>
+                            <div class="col-12 col-lg-3 ml-auto">
+                                <div class="text-md-right text-center mt-2">
+                                    <button type="submit" class="btn btn-primary" id="btnpurchase"><i class="ri-save-line"></i> SAVE</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Scripts/StockPurchase/purchase_setting.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".js-source-states").select2({
+                dropdownPosition: 'below'
+            });
+            var myDate = new Date();
+            var prettyDate = ("0" + myDate.getDate()).slice(-2) + '/' + ("0" + (myDate.getMonth() + 1)).slice(-2) + "/" + myDate.getFullYear();
+            $("#ReceivedDate").val(prettyDate);
+        });
+
+        function Sucessmethod(data) {
+            debugger;
+            if (data == "0") {
+                var htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span>Someting went to wrong !!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $('.purmsg').removeAttr('hidden');
+                $(".purmsg").html(htmlstr);
+                $("#btnpurchase").removeAttr('disabled');
+            }
+            else if (data == "1") {
+                var htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span>Successfully Saved.</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $('.purmsg').removeAttr('hidden');
+                $(".purmsg").html(htmlstr);
+            }
+            else if (data == "2") {
+                var htmlstr = "<div class='alert alert-primary alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span>Enter qty greater than 0.</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $('.purmsg').removeAttr('hidden');
+                $(".purmsg").html(htmlstr);
+                $("#btnpurchase").removeAttr('disabled');
+            }
+            else if (data == "3") {
+                var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span>Enter atleast one Item.</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $('.purmsg').removeAttr('hidden');
+                $(".purmsg").html(htmlstr);
+                $("#btnpurchase").removeAttr('disabled');
+            }
+            else if (data == "4") {
+                var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span> Purchase invoice is allrady exists. </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $('.purmsg').removeAttr('hidden');
+                $(".purmsg").html(htmlstr);
+                $("#btnpurchase").removeAttr('disabled');
+            }
+            else if (data == "5") {
+                var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Message!</strong>  <a href='#' class='alert-link'></a> <span> You must be enter item price. </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $('.purmsg').removeAttr('hidden');
+                $(".purmsg").html(htmlstr);
+                $("#btnpurchase").removeAttr('disabled');
+            }
+        }
+        function OnBeginpurchase() {
+            debugger;
+            if ($("#supplier").val() == "") {
+                $("#supplier").select2("open");
+                return false;
+            }
+            if ($("#InvoiceNo").val() == "") {
+                $("#InvoiceNo").focus();
+                return false;
+            }
+            $("#btnpurchase").attr('disabled', true);
+        }
+    </script>
+}
+
