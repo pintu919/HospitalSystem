@@ -1,0 +1,582 @@
+﻿@model HospitalManagement.Models.discharge_profile
+@{
+    ViewBag.Title = "DischargeProfile";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+
+    .medicine-brand {
+        display: inline-block;
+        margin-bottom: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: #15558d;
+    }
+
+    .formation {
+        display: inline-block;
+        font-size: 16px;
+        color: #888;
+        padding-left: 15px;
+    }
+</style>
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-4 col-3">
+            <h4 class="page-title"> Discharge Profile</h4>
+        </div>
+    </div>
+    <div class="row patient-form m-0">
+        <div class="col-sm-4 col-md-4 col-lg-4 col-xl-3">
+            <button type="button" class="btn skyblue-gradient-btn btn-block" data-toggle="modal" data-target="#Add_section"> <i class="fa fa-plus"></i> Add Profile Section</button><br />
+            <div class="form-group sectiondropbind">
+                @{var ActiveStationLst = @Model.ProfileSectionlist.Where(m => m.ctrl == 1).ToList(); }
+                @Html.DropDownListFor(model => model.pfsection.SectionId, new SelectList(ActiveStationLst, "section_id", "section_name"), "Select Profile Section", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData()", @id = "hossection" })
+
+            </div>
+        </div>
+        <div class="col-12">
+            @using (Ajax.BeginForm("Add_Discharge_med", "DischargeProfile", new AjaxOptions { HttpMethod = "POST", OnBegin = "ONbeginEvent", OnSuccess = "SuccessMethod" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Prog_Med.RealMedicineName, new { @id = "realNameMedicine" })
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="Investigation">
+                                Search Medicine
+                            </label>
+                            <div id="FilterByMedicine_Prog" class="d-inline-block ml-2">
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="Medicine_FilterBy" value="BrandWise" checked><label style="font-weight:600"> BrandWise </label>
+                                    </label>
+                                </div>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="Medicine_FilterBy" value="GenericWise"><label style="font-weight:600"> GenericWise </label>
+                                    </label>
+                                </div>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="Medicine_FilterBy" value="RealMedicine"><label style="font-weight:600"> RealMedicine </label>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.Prog_Med.genericname, new { @class = "form-control requiredSelect", placeholder = "Enter MedicineName" })
+                                @Html.HiddenFor(model => model.Prog_Med.mappingid)
+                                @Html.HiddenFor(model => model.Prog_Med.brand_code)
+                                @Html.HiddenFor(model => model.Prog_Med.SectionId, new { @id = "bnd_SectionId" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="Dosage">Dosage</label>
+                            @Html.TextBoxFor(model => model.Prog_Med.Dosages, new { @class = "form-control" })
+
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="Frequency">Frequency</label>
+
+                            @{
+                                List<SelectListItem> listfrequencyType = new List<SelectListItem>();
+                                listfrequencyType.Add(new SelectListItem
+                                {
+                                    Text = "1+0+0",
+                                    Value = "1"
+
+                                });
+                                listfrequencyType.Add(new SelectListItem
+                                {
+                                    Text = "1+0+1",
+                                    Value = "7"
+
+                                });
+                                listfrequencyType.Add(new SelectListItem
+                                {
+                                    Text = "1+1+1",
+                                    Value = "3"
+
+                                });
+                                listfrequencyType.Add(new SelectListItem
+                                {
+                                    Text = "0+1+0",
+                                    Value = "4"
+
+                                });
+                                listfrequencyType.Add(new SelectListItem
+                                {
+                                    Text = "0+0+1",
+                                    Value = "5"
+
+                                });
+                                listfrequencyType.Add(new SelectListItem
+                                {
+                                    Text = "1+1+0",
+                                    Value = "2"
+
+                                });
+                                listfrequencyType.Add(new SelectListItem
+                                {
+                                    Text = "0+1+1",
+                                    Value = "6"
+
+                                });
+                                listfrequencyType.Add(new SelectListItem
+                                {
+                                    Text = "1+1+1+1",
+                                    Value = "8"
+
+                                });
+                            }
+                            @Html.DropDownListFor(model => model.Prog_Med.Used, new SelectList(listfrequencyType, "Value", "Text"), new { @class = "form-control requiredSelect" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="Duration(Days)">Duration(Days)</label>
+                            @Html.TextBoxFor(model => model.Prog_Med.Duration, new { @class = "form-control" })
+
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label for="Remarks">Remarks</label>
+                            @Html.TextBoxFor(model => model.Prog_Med.Remark, new { @class = "form-control", list = "remark_list", autocomplete = "off" })
+                            <datalist id="remark_list" class="Bind_medicine_remark">
+                                @if (Model.RemarkList != null)
+                                {
+                                    if (Model.RemarkList != null)
+                                    {
+                                        foreach (var item in Model.RemarkList)
+                                        {
+                                            <option value="@item.remark_name">  </option>
+                                        }
+                                    }
+                                }
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="text-center">
+                            <button id="btnAddservice" class="btn skin-gradient-btn btn-sm" type="submit" name="submit"><i class="fa fa-plus"></i> Add</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="cardboxservice" hidden>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row bindmed">
+
+                    @if (Model.med_list != null && Model.med_list.Count > 0)
+                    {
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="example4" class="table table-bordered custom-table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Medicine</th>
+                                            <th class="text-center" title="one time Dosage">Dosage</th>
+                                            <th class="text-center">Frequency</th>
+                                            <th class="text-center" title="Duration(Days)">Days</th>
+                                            <th class="text-center">Remark</th>
+                                            <th class="text-center"> Remove </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.med_list.Count; i++)
+                                        {
+                                            <tr id="row_@Model.med_list[i].id">
+                                                <td>
+                                                    @Html.HiddenFor(m => Model.med_list[i].mappingid)
+                                                    @if (Model.med_list[i].Brand_Name == "" || Model.med_list[i].Brand_Name == null)
+                                                    {
+                                                        <p>@Model.med_list[i].drug_generic_name</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <h5 class="medicine-brand">@Model.med_list[i].Brand_Name</h5><span class="formation">@Model.med_list[i].formulationname</span>
+                                                        <p>@Model.med_list[i].drug_generic_name &nbsp;&nbsp; (@Model.med_list[i].strength)</p>
+                                                    }
+                                                </td>
+                                                <td class="text-center">@Html.HiddenFor(m => Model.med_list[i].brand_code) @Model.med_list[i].Dosages</td>
+                                                <td class="text-center">@Model.med_list[i].frequency </td>
+                                                <td class="text-center">@Model.med_list[i].Duration</td>
+                                                <td class="text-center">@Model.med_list[i].Remark</td>
+                                                <td class="text-center">
+                                                    <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDeletemed(@Model.med_list[i].id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+<div id="Add_section" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header skin-bg-gradient">
+                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Add Profile Section</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Ajax.BeginForm("AddProfileSection", "DischargeProfile", new AjaxOptions { HttpMethod = "POST", OnSuccess = "PDSuccessMethod" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <label> Profile Section Name :</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.pfsection.SectionName, new { @class = "form-control ", @id = "SactionName" })
+                                @Html.HiddenFor(m => m.pfsection.SectionId, new { @id = "sctiontaid" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label> General Advice  <span class="text-danger"></span> :</label>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                @Html.TextAreaFor(model => model.pfsection.GeneralAdvice, new { @class = "form-control no-resize overflow-hidden", @cols = "20", @row = "2", height = "100px", @id = "gen_advice" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label> Status : </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.pfsection.Ctrl, 1, new { @id = "Activechecked" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.pfsection.Ctrl, 0, new { @id = "InActivechecked" })
+                                        Inactive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="">
+                                <button type="submit" class="btn btn-sm green-gradient-btn">Add Profile Section</button> &nbsp;&nbsp;
+                            </div>
+                        </div>
+                        <div id="cardboxsection" class="card-box" hidden>
+                        </div>
+                    </div>
+                    <div class="row mt-4 bindsection">
+                        @if (Model.ProfileSectionlist != null && Model.ProfileSectionlist.Count > 0)
+                        {
+
+                            <div class="col-md-12 ">
+                                <div class="table-responsive table-scrolling">
+                                    <table class="table table-bordered table-striped custom-table datatable w-100">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th class="collapse">#</th>
+                                                <th>Section Name</th>
+                                                <th hidden>General advice</th>
+                                                <th>Status</th>
+                                                <th class="text-right" data-orderable="false">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.ProfileSectionlist)
+                                            {
+                                                <tr id="row1_@item.section_id">
+                                                    <td class="collapse"> @item.section_id</td>
+                                                    <td>@Html.DisplayFor(modelItem => item.section_name)</td>
+                                                    <td hidden>@Html.DisplayFor(modelItem => item.general_advice)</td>
+                                                    @if (item.ctrl == 1)
+                                                    {
+                                                        <td><span class="badge badge-success">Active</span></td>
+                                                    }
+                                                    @if (item.ctrl == 0)
+                                                    {
+                                                        <td><span class="badge badge-danger">Deactive</span></td>
+                                                    }
+                                                    <td class="text-right">
+                                                        <a href="#" onclick="EditStation(@item.section_id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.section_id)"><i class="fa fa-remove"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" id="message" value=@Model.ProfileSectionlist[0].message />
+                                </div>
+                            </div>
+
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_IP").css("display", "block");
+        //$(".DischargeProfile").addClass("active");
+
+        jQuery("#Prog_Med_genericname").autocomplete({
+            source: function (request, response) {
+                debugger;
+                $("#Prog_Med_genericname").text("")
+                $("#Prog_Med_mappingid").val(0);
+                $("#Prog_Med_brand_code").val("");
+                var MedicineIds = ""; var BrandCodess = "";
+                $('#example4 > tbody  > tr').each(function () {
+                    MedicineIds += $(this).find("td").eq(0).find(":hidden").val() + ',';
+                    BrandCodess += $(this).find("td").eq(1).find(":hidden").val() + ',';
+                });
+                var FilterBy = $("input[name='Medicine_FilterBy']:checked", "#FilterByMedicine_Prog").val();
+                if (FilterBy != "RealMedicine") {
+                    $("#realNameMedicine").val("");
+                    $.ajax({
+                        url: '/DischargeProfile/GetSearchMedicine',
+                        type: "POST",
+                        dataType: "json",
+                        async: false,
+                        data: { Prefix: request.term, MedIds: MedicineIds, FilterBy: FilterBy, BrandCodess: BrandCodess },
+                        success: function (list) {
+
+                            if (list.length > 0) {
+                                response($.map(list, function (dataitem) {
+                                    return { label: dataitem.drug_generic_name, value: dataitem.drug_generic_name, med_id: dataitem.medicine_id, Brand_Name: dataitem.Brand_Name, title: dataitem.title, brand_code: dataitem.brand_code };
+                                }))
+                            }
+                            else {
+                                var list_dt = [];
+                                var arr = {};
+                                arr.drug_generic_name = "No Record Found";
+                                arr.medicine_id = "No Record Found";
+                                list_dt.push(arr);
+                                response($.map(list_dt, function (dataitem) {
+                                    return { label: dataitem.drug_generic_name, value: dataitem.medicine_id, Brand_Name: dataitem.Brand_Name };
+                                }))
+                                $("#Prog_Med_genericname").val("");
+                            }
+                        }
+                    })
+                }
+                else
+                    $("#realNameMedicine").val($("#Prog_Med_genericname").val());
+            },
+            select: function (e, i) {
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    $("#Prog_Med_genericname").text(i.item.med_id);
+                    $("#Prog_Med_mappingid").val(i.item.med_id);
+                    $("#Prog_Med_brand_code").val(i.item.brand_code);
+                }
+            },
+            minLength: 3,
+        }).autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+                .append("<div>" + "<span style='color:#15558d;font-size:15px;font-weight:600;'>" + item.Brand_Name + "</span> <span style='color:#888;font-size:15px;font-weight:600;padding-left:15px;'>" + item.title + "</span >" + "<br>" + "<span style='font-size:13px;'>" + item.label + "</span>" + "</div>")
+                .appendTo(ul);
+        };
+
+        function ONbeginEvent() {
+            debugger;
+            if ($("#hossection").val() == '') {
+                $('#cardboxservice').removeAttr('hidden');
+                var htmlstr1 = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'>Please Select Profile Section !!!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxservice").html(htmlstr1);
+                return false;
+            }
+            else {
+                $('#cardboxservice').attr('hidden', true);
+
+            }
+
+        }
+
+        function SuccessMethod(data) {
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                var sectionid = $("#hossection").val();
+                url = "/DischargeProfile/GetDischargeMedSectionWise?SectionId=" + sectionid + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $(".bindmed").empty();
+                    $(".bindmed").html($(datahtml).find(".bindmed").html());
+                    $("#progress").hide();
+                });
+            }
+            else if (data == "Record Not Saved!") {
+                $("#progress").hide();
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Allrady Exists!") {
+                $("#progress").hide();
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Please enter all require item!!") {
+                $("#progress").hide();
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#btnAddservice").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+            $("#cardboxservice").html(htmlstr);
+        }
+
+        function PDSuccessMethod(data) {
+            debugger;
+            $(".sectiondropbind").empty();
+            $(".bindsection").empty();
+            $(".bindsection").html($(data).find(".bindsection").html());
+            $(".sectiondropbind").html($(data).find(".sectiondropbind").html());
+            var htmlstr = "";
+            if ($("#message").val() == "same") {
+                $('#cardboxsection').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Alrady Exists !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if ($("#message").val() == "update") {
+                $('#cardboxsection').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'> Record Update Success !! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if ($("#message").val() == "notupdate") {
+                $('#cardboxsection').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Not Updated !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (parseInt($("#message").val()) > 0) {
+                $('#cardboxsection').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Added Success !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (parseInt($("#message").val()) == 0) {
+                $('#cardboxsection').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Unable to Record Save !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#hossection").val("");
+            $("#sctiontaid").val(0);
+            $("#SactionName").val("");
+            $("#gen_advice").val("");
+            $("#cardboxsection").empty();
+            $("#cardboxsection").html(htmlstr);
+        }
+
+        function EditStation(val) {
+            debugger;
+            $("#sctiontaid").val(parseInt($("#row1_" + val).find("td:eq(0)").text()));
+            $("#SactionName").val($("#row1_" + val).find("td:eq(1)").text())
+            $("#gen_advice").val($("#row1_" + val).find("td:eq(2)").text())
+            if ($("#row1_" + val).find("td:eq(3)").text().trim() == "Active") {
+                $("#Activechecked").prop('checked', true);
+            }
+            else {
+                $("#InActivechecked").prop('checked', true)
+            }
+        }
+
+        var ConfirmDelete = function (sectionid) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/DischargeProfile/DeleteSection",
+                data: { SectionId: sectionid },
+                success: function (result) {
+                    if (result == true) {
+                        $("#row1_" + sectionid).remove();
+                        $("#hossection option[value='" + sectionid + "']").remove();
+                    }
+                }
+            })
+        }
+
+        var ConfirmDeletemed = function (id) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/DischargeProfile/DeleteMed",
+                data: { Id: id },
+                success: function (result) {
+                    if (result == true) {
+                        $("#row_" + id).remove();
+                    }
+                }
+            })
+        }
+
+        function GetDropdownData() {
+            debugger;
+            var sectionid = 0;
+            $('.loadingimg').css('display', 'block');
+            if ($("#hossection").val() != '') {
+                sectionid = $("#hossection").val()
+                $("#bnd_SectionId").val(sectionid);
+            }
+            else {
+                $("#hossection").val('');
+                $(".bindmed").empty();
+                $('.loadingimg').css('display', 'none');
+                return;
+            }
+
+            url = "/DischargeProfile/GetDischargeMedSectionWise?SectionId=" + sectionid + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $(".bindmed").empty();
+                $(".bindmed").html($(datahtml).find(".bindmed").html());
+
+                $("#progress").hide();
+            });
+            $('.loadingimg').css('display', 'none');
+
+        }
+
+
+    </script>
+}

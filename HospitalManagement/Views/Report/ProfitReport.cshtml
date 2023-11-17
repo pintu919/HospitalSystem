@@ -1,0 +1,273 @@
+﻿@model  HospitalManagement.Models.IndividualReport
+@{
+    ViewBag.Title = "ProfitReport";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title"> Profit Report</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("GetProfitData", "Report", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+<div class="row filter-row">
+    <div class="col-sm-6 col-md-3">
+        <div class="form-group form-focus">
+            <label class="focus-label">Day</label>
+            @Html.DropDownListFor(model => model.Durationtype, new List<SelectListItem>
+            {
+              new SelectListItem{ Text="Today", Value = "Today" },
+              new SelectListItem{ Text="Weekly", Value = "Weekly" },
+              new SelectListItem{ Text="Custom", Value = "Custom" },
+            }, new { @class = "select floating", @id = "Days", @onchange = "GetDropdownData()" })
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="form-group form-focus">
+            <label class="focus-label"><small> Type </small></label>
+            @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+            @Html.DropDownListFor(model => model.Type, new List<SelectListItem>
+            {
+           new SelectListItem{ Text="-- Select Type --", Value = "" },
+             new SelectListItem{ Text="All", Value = "All" },
+              new SelectListItem{ Text="IP Wise", Value = "InPatientWise" },
+              new SelectListItem{ Text="OPD Wise", Value = "OPDPatientWise" },
+              new SelectListItem{ Text="Outer Patient Wise", Value = "OuterPatientWise" },
+            }, new { @class = "select floating" })
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-2 collapse" id="colpfrom">
+        <div class="form-group form-focus">
+            <label class="focus-label">FromDate</label>
+            @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating", @id = "datetimepicker1", autocomplete = "off", type = "Date" })
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-2 collapse" id="colpto">
+        <div class="form-group form-focus">
+            <label class="focus-label">ToDate</label>
+            @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating", @id = "datetimepicker2", autocomplete = "off", type = "Date" })
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="form-group form-focus">
+            <label class="focus-label"> ReportType</label>
+            @Html.DropDownListFor(model => model.reportType, new List<SelectListItem>
+            {
+              new SelectListItem{ Text="ServiceWise", Value = "ServiceWise" },
+              new SelectListItem{ Text="InvestigationWise", Value = "InvestigationWise" },
+              //new SelectListItem{ Text="Doctorfees", Value = "Doctorfees" },
+              //new SelectListItem{ Text="BedRent", Value = "BedRent" },
+            }, new { @class = "select floating", @id = "ReportType" })
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-2">
+        <div class="form-group">
+            <button class="btn btn-sm btn-success">Search</button>
+        </div>
+    </div>
+</div>
+    }
+    <div class="row table-scrolling m-0">
+        <div class="col-md-12">
+            <div id="chart"></div>
+        </div>
+        <div class="col-md-12 BindGridData">
+
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/wwwroot/assets/plugins/apexchart/apexcharts.min.js"></script>
+    <script type="text/javascript">
+
+        //$(".Report").addClass("subdrop");
+        //$(".Submenu_Report").css("display", "block");
+        //$(".Submenu_Report").css("display", "block");
+        //$(".ProfitReport").addClass("active");
+
+        //Apex Chart
+        var chart = "";
+
+        function graphdata(GraphOPvalue, GraphIpvalue, GraphBillvalue, Graphname) {
+            debugger;
+            if (chart)
+                chart.destroy();
+            var options = {
+                series: [{
+                    name: 'IP GP%(Gross Profit %)',
+                    data: GraphIpvalue
+                }, {
+                    name: 'OP GP%(Gross Profit %)',
+                    data: GraphOPvalue
+                }, {
+                    name: 'DirectBilling GP%(Gross Profit %)',
+                    data: GraphBillvalue
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    stacked: true,
+                    toolbar: {
+                        show: true
+                    },
+                    zoom: {
+                        enabled: true
+                    }
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        legend: {
+                            position: 'bottom',
+                            offsetX: -10,
+                            offsetY: 0
+                        }
+                    }
+                }],
+                plotOptions: {
+                    bar: {
+                        borderRadius: 8,
+                        horizontal: false
+                        //endingShape: 'rounded'
+                    },
+                },
+                xaxis: {
+                    //type: 'datetime',
+                    categories: Graphname,
+                },
+                yaxis: {
+                    title: {
+                        text: 'GP%(Gross Profit %)',
+                    },
+                },
+                legend: {
+                    position: 'right',
+                    offsetY: 40
+                },
+                fill: {
+                    opacity: 1,
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'light',
+                        type: "horizontal",
+                        shadeIntensity: 0.25,
+                        gradientToColors: undefined,
+                        inverseColors: true,
+                        opacityFrom: 0.85,
+                        opacityTo: 0.85,
+                        stops: [50, 0, 100]
+                    },
+                }
+            };
+
+            chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        }
+
+
+        //function graphdata(Graphvalue, Graphname) {
+        //    if (chart)
+        //        chart.destroy();
+        //    var options = {
+        //        series: [{
+        //            name: 'GP%(Gross Profit %)',
+        //            data: Graphvalue
+        //    }],
+        //        chart: {
+        //            height: 350,
+        //            type: 'bar',
+        //        },
+        //        plotOptions: {
+        //            bar: {
+        //                columnWidth: '70%',
+        //                endingShape: 'rounded'
+        //            }
+        //        },
+        //        dataLabels: {
+        //            enabled: false
+        //        },
+        //        stroke: {
+        //            width: 2
+        //        },
+        //        grid: {
+        //            row: {
+        //                colors: ['#fff', '#f2f2f2']
+        //            }
+        //        },
+        //        xaxis: {
+        //            labels: {
+        //                rotate: -45
+        //            },
+        //            categories: Graphname,
+        //            tickPlacement: 'on'
+        //        },
+        //        yaxis: {
+        //            title: {
+        //                text: 'GP%(Gross Profit %)',
+        //            },
+        //        },
+        //        fill: {
+        //            type: 'gradient',
+        //            gradient: {
+        //                shade: 'light',
+        //                type: "horizontal",
+        //                shadeIntensity: 0.25,
+        //                gradientToColors: undefined,
+        //                inverseColors: true,
+        //                opacityFrom: 0.85,
+        //                opacityTo: 0.85,
+        //                stops: [50, 0, 100]
+        //            },
+        //        }
+        //    };
+        //    chart = new ApexCharts(document.querySelector("#chart"), options);
+        //    chart.render();
+        //}
+        //End Apex Chart
+        var TodayDate = (new Date().getFullYear()) + '-' + (("0" + (new Date().getMonth() + 1)).slice(-2)) + '-' + (("0" + new Date().getDate()).slice(-2));
+        $("#datetimepicker1").val(TodayDate);
+        $("#datetimepicker2").val(TodayDate);
+        function GetDropdownData() {
+            debugger;
+            if ($('#Days').val() == 'Today') {
+                $("#datetimepicker1").val(TodayDate);
+                $("#datetimepicker2").val(TodayDate);
+                var days = -6;
+                var date = new Date();
+                var res = date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                date = new Date(res);
+                var TodayDate1 = (date.getFullYear()) + '-' + (("0" + (date.getMonth() + 1)).slice(-2)) + '-' + (("0" + date.getDate()).slice(-2));
+                alert(TodayDate1);
+
+            }
+            else if ($('#Days').val() == 'Weekly') {
+
+                var days = -6;
+                var date = new Date();
+                var res = date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                date = new Date(res);
+                var FromDate = (date.getFullYear()) + '-' + (("0" + (date.getMonth() + 1)).slice(-2)) + '-' + (("0" + date.getDate()).slice(-2));
+                var ToDate = (new Date().getFullYear()) + '-' + (("0" + (new Date().getMonth() + 1)).slice(-2)) + '-' + (("0" + new Date().getDate()).slice(-2));
+                $("#datetimepicker1").val(FromDate);
+                $("#datetimepicker2").val(ToDate);
+            }
+            if ($('#Days').val() == 'Custom') {
+                $("#datetimepicker1").val('');
+                $("#datetimepicker2").val('');
+                $('#colpfrom').removeClass('collapse');
+                $('#colpto').removeClass('collapse');
+            }
+            else {
+                $('#colpfrom').addClass('collapse');
+                $('#colpto').addClass('collapse');
+            }
+        }
+        function SuccessMethod(result) {
+            debugger;
+            $(".BindGridData").empty();
+            $(".BindGridData").html(result.datahtml);
+            graphdata(result.GraphOPvalue, result.GraphIpvalue, result.GraphBillvalue, result.Graphname);
+        }
+    </script>
+}

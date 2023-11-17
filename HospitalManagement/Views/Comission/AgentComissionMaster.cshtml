@@ -1,0 +1,274 @@
+﻿@model HospitalManagement.Models.ComissionModel
+@{
+    ViewBag.Title = "AgentComissionMaster";
+}
+<div class="content">
+
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Agent Comission Master</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Comission/ComissionCategoryMaster" class="btn skin-gradient-btn btn-sm"><i class="ti ti-view-grid"></i> Add Comission Category +</a>
+        </div>
+    </div>
+    <div class="row employee-form m-0">
+        <div class="col-lg-12 p-0">
+            @using (Ajax.BeginForm("Add_Update", "Comission", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-6 col-lg-6">
+                    <div class="form-group">
+                        <label>Agent Name</label>
+                        @Html.ValidationMessageFor(model => model.AgentName, "", new { @class = "text-danger" })
+                        @Html.TextBoxFor(model => model.AgentName, new { @class = "form-control" })
+                        @Html.HiddenFor(m => m.id)
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class="form-group">
+                        <label>Agent Mobile</label>
+                        @Html.ValidationMessageFor(model => model.AgentMobile, "", new { @class = "text-danger" })
+                        @Html.TextBoxFor(model => model.AgentMobile, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    <div class="form-group">
+                        <label>Comission Category</label>
+                        @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger" })
+                        @Html.DropDownListFor(model => model.CategoryId, new SelectList(Model.comission_Category, "CategoryId", "CategoryName"), "Select Category", new { @class = "form-control" })
+                    </div>
+                </div>
+
+                @*<div class="col-md-3 col-lg-3">
+                    <div class="form-group">
+                        <label>Comission Type</label>
+                        @Html.ValidationMessageFor(model => model.ComissionType, "", new { @class = "text-danger" })
+
+                        @{
+                            List<SelectListItem> listItemsType = new List<SelectListItem>();
+                            listItemsType.Add(new SelectListItem
+                            {
+                                Text = "Select Type",
+                                Value = "",
+                                Selected = true
+                            });
+                            listItemsType.Add(new SelectListItem
+                            {
+                                Text = "Percentage Wise",
+                                Value = "Percentage Wise"
+
+                            });
+                            listItemsType.Add(new SelectListItem
+                            {
+                                Text = "Amount Wise",
+                                Value = "Amount Wise"
+
+                            });
+
+                        }
+                        @Html.DropDownList("ComissionType", listItemsType, new { @class = "form-control",@readonly= "readonly" })
+
+                       
+                    </div>
+                </div>*@
+                @*<div class="col-md-3 col-lg-3">
+                    <div class="form-group">
+                        <label>Comission</label>
+                        @Html.ValidationMessageFor(model => model.Comission, "", new { @class = "text-danger" })
+                        @Html.TextBoxFor(model => model.Comission, new { @class = "form-control", @type = "number", @step = "1", @min = "0", @max = "100", @readonly = "readonly" })
+                    </div>
+                </div>*@
+                <div class="col-md-3 col-lg-2">
+                    <div class="form-group">
+                        <label class="display-block">Status</label>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_active">
+                                @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "active" })
+                                Active
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_inactive">
+                                @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                InActive
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-4 col-xl-2">
+                    <button type="submit" class="btn skin-gradient-btn submit-btn" id="update_insertbtn_set">Add</button>
+                </div>
+            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div id="cardbox_status" class="">
+                            @{
+                                if (Model.ResponseMsg != null)
+                                {
+                                    if (Model.ResponseMsg.StatusId == "1")
+                                    {
+                                        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Success!</strong> Your <a href="#" class="alert-link">action</a> has been successful.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "0")
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "2")
+                                    {
+                                        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.ALlData != null)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Agent Name</th>
+                                <th>Mobile</th>
+                                <th class="collapse">CategoryId</th>
+                                <th>Category</th>
+                                @*<th>Comission Type</th>
+                                <th>Comission</th>*@
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ALlData)
+                            {
+                            <tr id="row_@item.id">
+                                <td class="collapse">@item.id</td>
+                                <td>@item.AgentName</td>
+                                <td>@item.AgentMobile</td>
+                                <td class="collapse">@item.CategoryId</td>
+                                <td>@item.CategoryName</td>
+                                @*<td>@item.ComissionType</td>
+                                <td>@item.Comission</td>*@
+                                @if (item.ctrl == 1)
+                                {
+                                    <td><span class="badge badge-success">Active</span></td>
+                                }
+                                @if (item.ctrl == 0)
+                                {
+                                    <td><span class="badge badge-danger">Deactive</span></td>
+                                }
+                                <td class="text-center">
+                                    <a href="javascript:;" onclick="EditService(@item.id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                                    <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_CommissionMaster").css("display", "block");
+        //$(".AgentComissionMaster").addClass("active");
+
+        $(".custom-table").dataTable();
+        function SuccessMethod(datahtml) {
+            debugger;
+            $(".bindtable").empty();
+            $("#cardbox_status").empty();
+            $(".bindtable").html($(datahtml).find(".bindtable").html());
+            $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+            $(".custom-table").dataTable();
+            $("#id").val(0);
+            $("#AgentName").val('');
+            $("#AgentMobile").val('');
+            $("#CategoryId").val('');
+            $("#ComissionType").val('');
+            $("#Comission").val('');
+            $("#update_insertbtn_set").html("Add");
+        }
+        function EditService(val) {
+            debugger;
+            $("#id").val(parseInt($("#row_" + val).find("td:eq(0)").text()));
+            $("#AgentName").val($("#row_" + val).find("td:eq(1)").text());
+            $("#AgentMobile").val($("#row_" + val).find("td:eq(2)").text());
+            $("#CategoryId").val($("#row_" + val).find("td:eq(3)").text()).attr("selected", "selected");
+            if ($("#row_" + val).find("td:eq(5)").text().trim() == "Active") {
+                $("#active").prop('checked', true);
+            }
+            else {
+                $("#Inactive").prop('checked', true)
+            }
+            $("#update_insertbtn_set").html("Update");
+        }
+
+        var ConfirmDelete = function (id) {
+            $("#progress").show();
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/Comission/Delete",
+                data: { id: id },
+                success: function (datahtml) {
+                    debugger;
+                    $(".bindtable").empty();
+                    $("#cardbox_status").empty();
+                    $(".bindtable").html($(datahtml).find(".bindtable").html());
+                    $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+                    $(".custom-table").dataTable();
+                    $("#progress").hide();
+                }
+            })
+        }
+
+        //function GetDropdownData() {
+        //    debugger;
+        //    $("#progress").show();
+        //    var url = "";
+        //    url = "/Comission/GetCategorywiseComission?CategoryId=" + $("#CategoryId").val() +"";
+        //    $.ajax({
+        //        url: url,
+        //        datatype: 'json',
+        //        ContentType: 'application/json;utf-8'
+        //    }).done(function (data) {
+        //        debugger;
+        //        $("#ComissionType").val(data.comissiontype);
+        //        $("#Comission").val(data.categoryid);
+        //        $("#progress").hide();
+        //    });
+        //}
+
+    </script>
+}
+

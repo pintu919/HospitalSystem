@@ -1,0 +1,241 @@
+﻿@model HospitalManagement.Models.LabSupplierModel
+@{
+    ViewBag.Title = "LabMaster";
+}
+<div class="content">
+    @using (Ajax.BeginForm("AddLab", "LabSupplier", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row patient-form m-0">
+            @Html.HiddenFor(m => m.SupplierId, new { @id = "hdnSupplier_id" })
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label> Lab Name <span class="text-danger">@Html.ValidationMessageFor(model => model.LabName, "", new { @class = "text-danger" })</span></label>
+                    @Html.TextBoxFor(m => m.LabName, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label> Address </label>
+                    @Html.TextBoxFor(m => m.Address, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label> Register Number </label>
+                    @Html.TextBoxFor(m => m.RegisterNo, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label> Mobile <span class="text-danger">@Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "text-danger" })</span></label>
+                    @Html.TextBoxFor(m => m.Mobile, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label class="display-block">Status</label>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label" for="product_active">
+                            @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "Active" })
+                            Active
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label" for="product_inactive">
+                            @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "InActive" })
+                            InActive
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="text-center">
+                    <button type="submit" class="btn skin-gradient-btn submit-btn">Save</button>
+                </div>
+            </div>
+
+            <div class="col-md-12 bindstatus">
+                @if (Model.Status != null)
+                {
+                    if (Model.Status == "1")
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    else if (Model.Status == "0")
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while action your data.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    else if (Model.Status == "2")
+                    {
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> Record Allrady Exists!.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    else if (Model.Status == "3")
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Delete successfully.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    else if (Model.Status == "4")
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Update successfully.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <table class="table table-bordered table-striped custom-table datatable mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Lab Name</th>
+                        <th>Register No.</th>
+                        <th>Mobile</th>
+                        <th>Address</th>
+                        <th data-orderable="false">Active/Deactive</th>
+                        <th data-orderable="false" class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="lab_data_bind">
+                    @foreach (var item in Model.LabList)
+                    {
+                        <tr>
+                            <td> @item.lab_name </td>
+                            <td> @item.reg_no </td>
+                            <td> @item.mobile </td>
+                            <td> @item.address </td>
+                            @if (item.ctrl == 1)
+                            {
+                                <td><span class="badge badge-success">Active</span></td>
+                            }
+                            @if (item.ctrl == 0)
+                            {
+                                <td><span class="badge badge-danger">Deactive</span></td>
+                            }
+                            <td class="text-center">
+                                <a href="javascript:;" onclick="EditData('@item.supplier_id')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete('@item.supplier_id')" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-remove"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="delete_patient" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <img src="~/wwwroot/assets/img/sent.png" alt="" width="50" height="46">
+                <h3>Are you sure want to delete this Patient?</h3>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteRecord()" class="btn red-gradient-btn">Delete</button> &nbsp;
+                    <a href="#" class="btn skyblue-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".LabSupplierMaster").addClass("subdrop");
+        //$(".Submenu_LabSupplierMaster").css("display", "block");
+        //$(".Submenu_LabSupplierMaster").css("display", "block");
+        //$(".LabMaster").addClass("active");
+
+        var ConfirmDelete = function (id) {
+            $("#hdnSupplier_id").val(id);
+        }
+        function DeleteRecord() {
+            var id = $("#hdnSupplier_id").val();
+            $.ajax({
+                type: "POST",
+                url: "/LabSupplier/Delete",
+                data: { Id: id },
+                success: function (datahtml) {
+                    //$(".datatable").dataTable({ "destroy": true });
+                    $(".bindstatus").empty();
+                    $(".lab_data_bind").empty();
+                    $(".bindstatus").html($(datahtml).find(".bindstatus").html());
+                    $(".lab_data_bind").html($(datahtml).find(".lab_data_bind").html());
+                    $("#hdnSupplier_id").val(0);
+                    $("#delete_patient").modal('hide');
+                }
+            })
+        }
+        function EditData(id) {
+            debugger;
+            $("#progress").show();
+            $.ajax({
+                type: "POST",
+                url: "/LabSupplier/GetEditData",
+                data: { Id: id },
+                success: function (res) {
+                    $("#LabName").val(res[0].lab_name);
+                    $("#RegisterNo").val(res[0].reg_no);
+                    $("#Mobile").val(res[0].mobile);
+                    $("#Address").val(res[0].address);
+                    if (res[0].ctrl == 1)
+                        $("#Active").prop('checked', true);
+                    else
+                        $("#InActive").prop('checked', true);
+                    $("#hdnSupplier_id").val(res[0].supplier_id);
+                    $("#progress").hide();
+                }
+            })
+        }
+        function SuccessMethod(datahtml) {
+            debugger;
+            //$(".datatable").dataTable({ "destroy": true });
+            $(".bindstatus").empty();
+            $(".lab_data_bind").empty();
+            $(".bindstatus").html($(datahtml).find(".bindstatus").html());
+            $(".lab_data_bind").html($(datahtml).find(".lab_data_bind").html());
+            $("#hdnSupplier_id").val(0);
+            clear();
+            reparseform();            
+        }
+        function clear() {
+            $("#LabName").val('');
+            $("#RegisterNo").val('');
+            $("#Mobile").val('');
+            $("#Address").val('');
+            $("#ctrl").val(1);
+            $("#hdnSupplier_id").val(1);
+        }
+        var reparseform = function () {
+            $("form").removeData("validator");
+            $("form").removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse("form");
+        };
+    </script>
+}
+

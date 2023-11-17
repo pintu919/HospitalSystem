@@ -1,0 +1,391 @@
+﻿@model HospitalManagement.Models.BillingServiceItemModel
+@{
+    ViewBag.Title = "AddBillingServiceItem";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Add Biiling Service Item</h4>
+        </div>
+    </div>
+    <div class="row employee-form m-0">
+        <div class="col-lg-12 p-0">
+            @using (Ajax.BeginForm("Add_Update", "BillingService", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-sm-2 col-6">
+                                <div class="form-check">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.type, "Billing", new { @class = "form-check-input", @id = "Billing" })
+                                        <b> Billing </b>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-2 col-6">
+                                <div class="form-check">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.type, "Ot", new { @class = "form-check-input", @id = "Ot" })
+                                        <b> (OT) </b>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-2 col-6">
+                                <div class="form-check">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.type, "Nursing", new { @class = "form-check-input", @id = "Nursing" })
+                                        <b>Nursing</b>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-2 col-6">
+                                <div class="form-check">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.type, "All", new { @class = "form-check-input", @id = "All" })
+                                        <b>All</b>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Service Name</label>
+                            @Html.ValidationMessageFor(model => model.service_name, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => model.service_name, new { @class = "form-control" })
+                            @Html.HiddenFor(m => m.id)
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Cost</label>
+                            @Html.ValidationMessageFor(model => model.cost, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => model.cost, new { @class = "form-control", @type = "number" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Selling  Price</label>
+                            @Html.ValidationMessageFor(model => model.selling_price, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => model.selling_price, new { @class = "form-control", @type = "number" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-0">
+                            <label>Selling Minimum Price <span id="CheckPrice" hidden> <small class="text-danger"> Note:- Selling minimum cost is not higher then this service cos. </small> </span></label>
+                            @Html.ValidationMessageFor(model => model.minimum_selling_price, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => model.minimum_selling_price, new { @class = "form-control", @type = "number" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="checkbox m-t-30">
+                            @Html.CheckBoxFor(model => model.is_realtime) Realtime
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="checkbox m-t-30">
+                            @Html.CheckBoxFor(model => model.is_admission) Admission
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group mb-0">
+                            <label class="display-block">Status</label>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_active">
+                                    @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "active" })
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_inactive">
+                                    @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                    InActive
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-4 col-xl-2 mt-3">
+                        <button type="submit" class="btn skin-gradient-btn submit-btn" id="update_insertbtn_set">Add</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 m-auto">
+                        <div id="cardbox_status" class="">
+                            @{
+                                if (Model.ResponseMsg != null)
+                                {
+                                    if (Model.ResponseMsg.StatusId == "1")
+                                    {
+                                        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Success!</strong> Your <a href="#" class="alert-link">action</a> has been successful.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "0")
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "2")
+                                    {
+                                        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "3")
+                                    {
+                                        <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Note!</strong>  You can not delete this service. because of related this  service provided to patient..
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.ALlData != null)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Service</th>
+                                <th>Cost</th>
+                                <th>SellingPrice</th>
+                                <th>Min.SellingPrice</th>
+                                <th>Type</th>
+                                <th>IsRealtime</th>
+                                <th>IsAdmission</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ALlData)
+                            {
+                            <tr id="row_@item.id">
+                                <td class="collapse">@item.id</td>
+                                <td>@item.service_name</td>
+                                <td>@item.cost</td>
+                                <td>@item.selling_price</td>
+                                <td>@item.minimum_selling_price</td>
+                                <td>@item.type</td>
+                                @if (item.is_realtime == 1)
+                                {
+                                    <td><span class="custom-badge status-green"><i class="fa fa-check"></i>True</span></td>
+                                }
+                                @if (item.is_realtime == 0)
+                                {
+                                    <td><span class="custom-badge status-red"><i class="fa fa-remove"></i>False</span></td>
+                                }
+                                @if (item.is_admission == 1)
+                                {
+                                    <td><span class="custom-badge status-green"><i class="fa fa-check"></i>True</span></td>
+                                }
+                                @if (item.is_admission == 0)
+                                {
+                                    <td><span class="custom-badge status-red"><i class="fa fa-remove"></i>False</span></td>
+                                }
+                                @if (item.ctrl == 1)
+                                {
+                                    <td><span class="badge badge-success">Active</span></td>
+                                }
+                                @if (item.ctrl == 0)
+                                {
+                                    <td><span class="badge badge-danger">Deactive</span></td>
+                                }
+                                <td class="text-center">
+                                    <a href="javascript:;" onclick="EditService(@item.id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                                    <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".AddBillingServiceItem").addClass("active");
+
+        $("#is_realtime").change(function () {
+            debugger;
+            if ($(this).is(':checked')) {
+                $("#cost").attr("readonly", true);
+                $("#selling_price").attr("readonly", true);
+                $("#minimum_selling_price").attr("readonly", true);
+                 $("#is_admission").css('pointer-events', 'none');
+            }
+            else {
+                $("#cost").attr("readonly", false);
+                $("#selling_price").attr("readonly", false);
+                $("#minimum_selling_price").attr("readonly", false);
+                $("#is_admission").css('pointer-events','');
+            }
+            $("#cost").val(0);
+            $("#selling_price").val(0);
+            $("#minimum_selling_price").val(0);
+        });
+
+      $("#is_admission").change(function () {
+            debugger;
+            if ($(this).is(':checked')) {
+                 $("#is_realtime").css('pointer-events', 'none');
+            }
+            else {
+                
+                $("#is_realtime").css('pointer-events','');
+            }
+           
+        });
+
+
+
+        $(".custom-table").dataTable();
+        //function OnBegin() {
+        //    debugger;
+        //    if (parseInt($("#cost").val()) > parseInt($("#minimum_selling_price").val())) {
+        //        $("#CheckPrice").removeAttr('hidden');
+        //        return false;
+        //    }
+        //    $("#CheckPrice").attr('hidden');
+        //}
+        function SuccessMethod(datahtml) {
+            debugger;
+            $(".bindtable").empty();
+            $("#cardbox_status").empty();
+            $(".bindtable").html($(datahtml).find(".bindtable").html());
+            $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+            $(".custom-table").dataTable();
+            $("#id").val(0);
+            $("#service_name").val('');
+            $("#cost").val(0);
+            $("#selling_price").val(0);
+            $("#minimum_selling_price").val(0);
+            $("#All").prop('checked', true)
+            $("#is_realtime").prop('checked', false)
+            $("#is_admission").prop('checked', false)
+            $("#cost").attr("readonly", false);
+            $("#selling_price").attr("readonly", false);
+            $("#minimum_selling_price").attr("readonly", false);
+            $("#update_insertbtn_set").html("Add");
+        }
+        function EditService(val) {
+            debugger;
+            $("#id").val(parseInt($("#row_" + val).find("td:eq(0)").text()));
+            $("#service_name").val($("#row_" + val).find("td:eq(1)").text());
+            $("#cost").val($("#row_" + val).find("td:eq(2)").text());
+            $("#selling_price").val($("#row_" + val).find("td:eq(3)").text());
+            $("#minimum_selling_price").val($("#row_" + val).find("td:eq(4)").text());
+            if ($("#row_" + val).find("td:eq(5)").text().trim() == "Billing") {
+                $("#Billing").prop('checked', true);
+            }
+            else if ($("#row_" + val).find("td:eq(5)").text().trim() == "Nursing") {
+                $("#Nursing").prop('checked', true)
+            }
+            else if ($("#row_" + val).find("td:eq(5)").text().trim() == "Ot") {
+                $("#Ot").prop('checked', true)
+            }
+            else if ($("#row_" + val).find("td:eq(5)").text().trim() == "All") {
+                $("#All").prop('checked', true)
+            }
+            if ($("#row_" + val).find("td:eq(6)").text().trim() == "True") {
+                $("#is_realtime").prop('checked', true);
+                $("#cost").attr("readonly", true);
+                $("#selling_price").attr("readonly", true);
+                $("#minimum_selling_price").attr("readonly", true);
+            }
+            else {
+                $("#is_realtime").prop('checked', false)
+                $("#cost").attr("readonly", false);
+                $("#selling_price").attr("readonly", false);
+                $("#minimum_selling_price").attr("readonly", false);
+            }
+             if ($("#row_" + val).find("td:eq(7)").text().trim() == "True") {
+                $("#is_admission").prop('checked', true);
+                
+            }
+            else {
+                $("#is_admission").prop('checked', false)
+               
+            }
+            if ($("#row_" + val).find("td:eq(8)").text().trim() == "Active") {
+                $("#active").prop('checked', true);
+            }
+            else {
+                $("#Inactive").prop('checked', true)
+            }
+            $("#update_insertbtn_set").html("Update");
+        }
+
+        var ConfirmDelete = function (id) {
+            $("#progress").show();
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/BillingService/Delete",
+                data: { id: id },
+                success: function (datahtml) {
+                    debugger;
+                    $(".bindtable").empty();
+                    $("#cardbox_status").empty();
+                    $(".bindtable").html($(datahtml).find(".bindtable").html());
+                    $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+                    $(".custom-table").dataTable();
+                    $("#progress").hide();
+                }
+            })
+            }
+
+    $("#is_realtime").click(function () {
+            if ($(this).is(":checked")) {
+                $("#is_admission").attr("disbaled", true);
+            } else {
+               $("#is_admission").removeAttr("disbaled");
+            }
+    });
+
+     $("#is_admission").click(function () {
+            if ($(this).is(":checked")) {
+                $("#is_realtime").attr("disbaled", true);
+            } else {
+               $("#is_realtime").removeAttr("disbaled");
+            }
+        });
+    </script>
+}

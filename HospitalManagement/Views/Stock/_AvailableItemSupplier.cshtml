@@ -1,0 +1,73 @@
+﻿@model List<HospitalManagement.Models.StoreRequestLists>
+<div id="Supplier_data" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg bind_services">
+        <div class="modal-content">
+            <div class="modal-header skin-bg-gradient">
+                <h4 class="modal-title" id="myModalLabel">
+                    Requested Availabe Item Supplier
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (Model.Count > 0 && Model[0].AvailabeSupplierLst != null)
+                {
+                    <div hidden>
+                        <table>
+                            <tbody id="sup_tbl">
+                                @foreach (var h in Model[0].AvailabeSupplierLst)
+                                {
+                                    <tr>
+                                        <td id="row_supplier_@h.SupplierId">@h.AvialableQty</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="row m-0">
+                                <div class="col-md-12 ">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Select Supplier </label>
+                                                @Html.DropDownListFor(model => Model[0].SupplierId, new SelectList(Model[0].AvailabeSupplierLst, "SupplierId", "SupplierName"), "Choose...", new { @class = "form-control", @id = "Selected_Supplierid", @onchange = "Supplier_Change(this.value)" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Available Qty :</label>
+                                                <input type="text" class="form-control" disabled value="0" id="SelectedSupplierAvialbale_Qty" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Require Qty :</label>
+                                                <input type="text" class="form-control" disabled value="@Model[0].require_qty" id="Require_Qty" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Allocated Qty : :</label>
+                                                <input type="text" class="form-control" required value="@Model[0].require_qty" id="AllocatedQty" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="text-center">
+                                                <button class="btn btn-sm btn-success" id="Allocated_btn" onclick="FinalStatus(@Model[0].RequestId,'Approve')">Allocated</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

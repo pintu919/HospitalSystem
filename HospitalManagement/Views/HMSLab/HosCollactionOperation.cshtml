@@ -1,0 +1,114 @@
+﻿@model HospitalManagement.Models.HosCollectionOprModel
+@{
+    ViewBag.Title = "HosCollactionOperation";
+}
+<link href="~/wwwroot/assets/css/bootstrap-multiselect.css" rel="stylesheet" />
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-4 col-3">
+            <h4 class="page-title"><i class="ti ti-user"></i> Add Hospital Collection Item</h4>
+        </div>
+        <div class="col-sm-8 col-9 text-right m-b-20">
+            <a href="~/HMSPatient/HMSPatientList" class="btn skin-gradient-btn btn-sm float-right"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddHosPurchase", "HMSLab", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="row  employee-form">
+            <div class="col-lg-12">
+                <form>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Test Investigation </label>
+                                @Html.ValidationMessageFor(model => model.testid, "", new { @class = "text-danger" })
+                                @Html.DropDownListFor(model => model.testid, new SelectList(Model.testlist, "test_id", "test_name"), "Select Test", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData()", @id = "testinv" })
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group rgentbnd">
+                                <label>Regent Item </label>
+                                @Html.ListBoxFor(model => model.regentid, Model.Reg_List, new { @class = "listbox", @id = "regent" })
+                                @*@Html.DropDownListFor(model => model.regent_id, new SelectList(Model.RegentList, "reagent_id", "reagent_name"), "Select Regent", new { @class = "form-control select requiredSelect", @id = "regent" })*@
+                                @*<i class="fa fa-money"></i>*@
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.ValidationMessageFor(model => model.status, "", new { @class = "text-danger" })
+                                @Html.DropDownList("status", new List<SelectListItem>
+                                        { new SelectListItem { Text = "Collected", Value = "1", Selected= Model.status==1 ? true : false},
+                                          new SelectListItem { Text = "Pending", Value = "2",Selected=Model.status==2 ? true : false},
+                                          new SelectListItem { Text = "Sent", Value = "3",Selected=Model.status==3 ? true : false}
+                                        }, "Select Status", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="display-block">Status</label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "active" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                        InActive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-t-20 text-center">
+                        <button type="submit" class="btn skin-gradient-btn submit-btn">Save</button>
+                        @*<a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSDoctor/HMSDoctorContractList"><i class="fa fa-arrow-left"></i> Back To List</a>*@
+                    </div>
+                    <div id="cardbox" class="card-box" hidden></div>
+                </form>
+            </div>
+        </div>
+    }
+
+
+</div>
+
+@section scripts{
+    <script src="~/wwwroot/assets/js/bootstrap-multiselect.js"></script>
+    <script type="text/javascript">
+
+        $(function () {
+            $('.listbox').multiselect({
+                includeSelectAllOption: true
+            });
+        });
+
+        function GetDropdownData() {
+            $('.loadingimg').css('display', 'block');
+            var url = "";
+            url = "/HMSLab/GetDatabyCode?testid=" + $("#testinv").val() + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".rgentbnd").empty();
+                $(".rgentbnd").html($(datahtml).find(".rgentbnd").html());
+                $('.listbox').multiselect({
+                    includeSelectAllOption: true
+                });
+                $('#loadingmessage').hide();
+            });
+        }
+
+    </script>
+}
+
+
+

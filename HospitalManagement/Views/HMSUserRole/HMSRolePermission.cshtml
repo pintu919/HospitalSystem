@@ -1,0 +1,237 @@
+﻿@model HospitalManagement.Models.UserRole
+@{
+    ViewBag.Title = "HMSRolePermission";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4 class="page-title">Roles & Permissions</h4>
+        </div>
+    </div>
+
+    <div class="row patient-form m-0">
+        <div class="col-sm-4 col-md-4 col-lg-4 col-xl-3">
+            <h4 class="small-page-title">Role Lists </h4>
+            <div class="roles-menu">
+                <ul class="nav-list">
+                    @foreach (var item in Model.UserGroupList)
+                    {
+                        if (item.usergroup_id == Model.UserGroupId)
+                        {
+                            <li class="active"> <a href="javascript:void(0);">@item.groupname <input type="hidden" value="@item.usergroup_id" /></a> </li>
+                        }
+                        else
+                        {
+                            <li> <a href="javascript:void(0);">@item.groupname <input type="hidden" value="@item.usergroup_id" /></a> </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-8 col-md-8 col-lg-8 col-xl-9">
+            <h4 class="small-page-title">Module Access</h4>
+            <div class="m-b-30 bindmenulist" style="line-height: 2.5;">
+                <div id="navigation">
+                    <ul class="list-group two role-list-item">
+                        @{var Mainmenu = ""; int j = 0; }
+                        @for (int i = 0; i < Model.MenuList.OrderBy(a => a.hp_keyword).Count(); i++)
+                        {
+                            if (Mainmenu != Model.MenuList[i].hp_keyword)
+                            {
+                                Mainmenu = Model.MenuList[i].hp_keyword;
+                                var filter = Model.MenuList.OrderBy(a => a.hp_keyword).Where(o => o.hp_keyword == Mainmenu).ToList();
+                                //Set Icon
+                                var Icon = "";
+                                var color = "";
+                                switch (Mainmenu.ToLower().Trim())
+                                {
+                                    case "department":
+                                        Icon = "fa-hospital-o";
+                                        color = "#3498DB";
+                                        break;
+                                    case "patients":
+                                        Icon = "fa-wheelchair";
+                                        color = "#E74C3C";
+                                        break;
+                                    case "doctors":
+                                        Icon = "fa-user-md";
+                                        color = "#F39C12";
+                                        break;
+                                    case "hrm":
+                                        Icon = "fa-user";
+                                        color = "#27AE60";
+                                        break;
+                                    case "appointment":
+                                        Icon = "fa-plus-square";
+                                        color = "#34495E";
+                                        break;
+                                    case "admin":
+                                        Icon = "fa-cog";
+                                        color = "#E74C3C";
+                                        break;
+                                    case "register appointment":
+                                        Icon = "fa-plus-square";
+                                        color = "#34495E";
+                                        break;
+                                    case "account":
+                                        Icon = "fa-money";
+                                        color = "#F39C12";
+                                        break;
+                                    case "investigation station":
+                                        Icon = "fa-search";
+                                        color = "#3498DB";
+                                        break;
+
+                                    case "dashboard":
+                                        Icon = "fa-th";
+                                        color = "#000";
+                                        break;
+                                    case "patient prescription":
+                                        Icon = "fa-file-powerpoint-o";
+                                        color = "#07673f";
+                                        break;
+                                    case "lab supplier master":
+                                        Icon = "fa-flask";
+                                        color = "#27AE60";
+                                        break;
+                                    case "in patient":
+                                        Icon = "fa-bed";
+                                        color = "#F39C12";
+                                        break;
+
+                                    case "video appointment":
+                                        Icon = "fa-calendar";
+                                        color = "#34495E";
+                                        break;
+
+                                    case "report":
+                                        Icon = "fa-file";
+                                        color = "#27AE60";
+                                        break;
+
+                                    case "payables":
+                                        Icon = "fa-paypal";
+                                        color = "#07673f";
+                                        break;
+
+                                    case "billing":
+                                        Icon = "fa-envelope";
+                                        color = "#3498DB";
+                                        break;
+
+                                    case "settings":
+                                        Icon = "fa fa-cog";
+                                        color = "#E74C3C";
+                                        break;
+
+                                }
+                                //End
+                                var OpenClose = filter.Where(a => a.IsSelected == true).ToList().Count() > 0 ? "display:block;" : "display:none;";
+                                <li onclick="ScrollDown(@i)">
+                                    <a href="javascript:void(0);"><i class="fa @Icon" style="color:@color;"></i> @Mainmenu</a>
+                                    <ul id="openclose_@i" class="list-style-disc" style=@OpenClose>
+                                        @foreach (var item in filter)
+                                        {
+                                            <li class="modual_list">
+                                                @Html.Label(item.hp_menuname)
+                                                <div class="material-switch float-right" style="padding-right:57%;">
+                                                    <input id="staff_module_@j" value='@item.hp_menuid' checked=@item.IsSelected type="checkbox">
+                                                    <label for="staff_module_@j" class="badge-success"></label>
+                                                </div>
+                                            </li>
+                                            j++;
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        @Html.HiddenFor(Model => Model.UserGroupId)
+        <div class="col-sm-4 col-md-4 col-lg-4 col-xl-3"></div>
+        <div class="col-sm-4 col-md-4 col-lg-4 col-xl-3"></div>
+        <div class="col-sm-8 col-md-8 col-lg-8 col-xl-9">
+            <button class="btn skin-gradient-btn submit-btn" onclick="SaveRoleAccess()"><i class="fa fa-key"></i> Save Access</button>
+        </div>
+        <div id="cardbox" class="card-box" hidden>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".HMSRolePermission").addClass("active");
+
+        $('.nav-list').on('click', 'li', function () {
+            $('.loadingimg').css('display', 'block');
+            $('.nav-list li.active').removeClass('active');
+            $(this).addClass('active');
+            $("#UserGroupId").val($(this).find('a').find('input').val());
+            $.ajax({
+                type: "POST",
+                url: "/HMSUserRole/GetHospitalMenuList",
+                data: { Id: $("#UserGroupId").val() },
+                success: function (htmlstring) {
+                    $(".bindmenulist").empty();
+                    $(".bindmenulist").html($(htmlstring).find(".bindmenulist").html());
+                    $('.loadingimg').css('display', 'none');
+                }
+            })
+        });
+        function SaveRoleAccess() {
+
+            $('.loadingimg').css('display', 'block');
+            var list = [];
+            $('.modual_list').each(function () {
+
+                var record = {};
+                if ($(this).find('input')[0].checked == true) {
+                    record.UserGroupId = $("#UserGroupId").val() == '0' ? 1 : parseInt($("#UserGroupId").val());
+                    record.Hp_MenuId = parseInt($(this).find('input').val());
+                    list.push(record);
+                }
+            });
+            if (list.length == 0) {
+                var obj = {};
+                obj.UserGroupId = $("#UserGroupId").val();
+                obj.Hp_MenuId = 0;
+                list.push(obj);
+            }
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: '/HMSUserRole/RoleAssign',
+                data: '{Data:' + JSON.stringify(list) + '}',
+                success: function (data) {
+                    if (data == "1") {
+                        $('#cardbox').removeAttr('hidden');
+                        htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + "Role Assign Sucess!!" + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    }
+                    else if (data == "0") {
+                        $('#cardbox').removeAttr('hidden');
+                        htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + "Role is not Assign!!" + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    }
+                    $("#cardbox").html(htmlstr);
+                    $('.loadingimg').css('display', 'none');
+                },
+                failure: function (response) {
+                    $('.loadingimg').css('display', 'none');
+                    Alert(response);
+                }
+            });
+        }
+        function ScrollDown(value) {
+
+            if ($("#openclose_" + value)[0].style.cssText == "display: block;")
+                $("#openclose_" + value).css('display', 'none');
+            else if ($("#openclose_" + value)[0].style.cssText == "display: none;")
+                $("#openclose_" + value).css('display', 'block');
+        }
+    </script>
+}
+

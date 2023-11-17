@@ -1,0 +1,103 @@
+﻿
+@model HospitalManagement.Models.HMSVitalParaModel
+@{
+    ViewBag.Title = "AddVitalPara";
+}
+<link href="~/wwwroot/assets/css/select2.min.css" rel="stylesheet" />
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Add Vital Parameter</h4>
+        </div>
+    </div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="row employee-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="form-group">
+                        <label>Vital </label>
+                        @Html.ValidationMessageFor(model => model.VitalParaCode, "", new { @class = "text-danger" })
+                        @Html.DropDownListFor(model => model.VitalParaCode, new SelectList(Model.VitalLst, "vitalpar_code", "vitalpara_name"), "Select Vital", new { @class = "form-control requiredSelect", @id = "MainMaster_Vital_Para" })
+                    </div>
+                    <div class="form-group">
+                        <label> Name</label>
+                        @Html.ValidationMessageFor(model => model.HosVitalParaName, "", new { @class = "text-danger" })
+                        @Html.TextBoxFor(model => model.HosVitalParaName, new { @class = "form-control", autocomplete = "off" })
+                    </div>
+                    <div class="form-group">
+                        <label>Vital Unit</label>
+                        @Html.TextBoxFor(model=>model.VitalUnit,new {@class="form-control", autocomplete = "off" })
+                    </div>
+                    <div class="form-group">
+                        <label class="display-block"> Status</label>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_active">
+                                @Html.RadioButtonFor(model => model.Ctrl, true)
+                                Active
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label" for="product_inactive">
+                                @Html.RadioButtonFor(model => model.Ctrl, false)
+                                Inactive
+                            </label>
+                        </div>
+                    </div>
+                    <div class="m-t-20 text-center">
+                        <button class="btn skin-gradient-btn submit-btn">Create Vital Parameter</button>
+                        <a class="btn skin-border-btn submit-btn" href="~/VitalPara/VitalParaLists"><i class="fa fa-arrow-left"></i> Back To List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card-box">
+            @if ((string)TempData["message"] == "Record Added Successfully!")
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            else if ((string)TempData["message"] == "Record Not Saved!")
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            else if ((string)TempData["message"] == "Record Allrady Exists!")
+            {
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            else if ((string)TempData["message"] != null)
+            {
+                @TempData["message"].ToString()
+
+            }
+        </div>
+    }
+</div>
+
+@section scripts{
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () { $("#MainMaster_Vital_Para").select2(); });
+    </script>
+}
+
+

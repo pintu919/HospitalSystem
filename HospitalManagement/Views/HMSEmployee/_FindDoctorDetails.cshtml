@@ -1,0 +1,58 @@
+﻿@model HospitalManagement.Models.HMSEmployeeModel
+<div class="row align-items-center">
+    <div class="col-sm-6 col-lg-8">
+        @if (Model.status == 1)
+        {
+            <label style="background-color:green; color:white; font-weight:bold;">Doctor Available</label>
+            <div class="d-block mb-5">
+                <span><label>DMBC :</label> @Model.DMBCNO</span>
+            </div>
+            <div>
+                <span><label>Code :</label> @Model.DoctorCode</span>
+            </div>
+        }
+        else
+        {
+            <label style="background-color:red; color:white; font-weight:bold;">Doctor Not Available</label>
+        }
+    </div>
+    <div class="col-sm-6 col-lg-4">
+        <div class="profile-upload_emp">
+            <div class="patients-img text-center">
+                @if (Model.Photo == "")
+                {
+                    <img alt="your image" width="100" height="100" class="m-r-10 " src="~/wwwroot/assets/img/user.jpg">
+                }
+                else
+                {
+                    var img = System.Configuration.ConfigurationManager.AppSettings["getDocimgUrl"] + Model.Photo;
+                    <img width="100" height="100" src="@img" class="m-r-10 " alt="">
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-block mb-5">
+    <span><label>Name :</label><b> @Model.EmployeeFirstname</b></span>
+</div>
+<div class="d-block mb-5">
+    <span><label>Mobile :</label> @Model.Phone</span>
+</div>
+<div class="d-block mb-5">
+    <span><label>Email :</label> @Model.Email</span>
+</div>
+<div class="d-block mb-5">
+    <span><label>Department :</label> @Model.DeparmentName</span>
+</div>
+<div class="d-block mb-5">
+    <input type="hidden" value="@Model.status" id="CheckDoctor" />
+</div>
+<div class="d-block mb-0">
+    <button type="button" class=" btn close-red-btn" onclick="closepopup()" aria-label="Close">
+        <i class="fa fa-close"></i>
+    </button>
+</div>
+
+
+
+

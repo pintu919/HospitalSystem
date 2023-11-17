@@ -1,0 +1,50 @@
+﻿@model HospitalManagement.Models.ReceiptModel
+@{
+    ViewBag.Title = "Receiptlist";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4 class="page-title">Receipt List</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("FilterReceiptList", "Report", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "BindreceiptList", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">From</label>
+                    @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating", type = "Date" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">To</label>
+                    @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating", type = "Date" })
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label"><small> Type </small></label>
+                    @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+                    @Html.DropDownListFor(model => model.Type, new List<SelectListItem>
+                    {
+                      new SelectListItem{ Text="All", Value = "All" },
+                      new SelectListItem{ Text="IP Wise", Value = "InPatientWise" },
+                      new SelectListItem{ Text="OPD Wise", Value = "OPDPatientWise" },
+                      new SelectListItem{ Text="Outer Patient Wise", Value = "OuterPatientWise" },
+                    }, new { @class = "select floating" })
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-2">
+                <button class="btn btn-warning btn-block submit-btn m-b-20">Search</button>
+            </div>
+        </div>
+    }
+    <div id="BindreceiptList">
+        @Html.Partial("_ReceiptListTable", Model)
+    </div>
+</div>

@@ -1,0 +1,622 @@
+﻿@model HospitalManagement.Models.HMSDoctorData
+@{
+    ViewBag.Title = "HMSDoctorContractList";
+}
+<style type="text/css">
+    .inactiveLink {
+        pointer-events: none;
+        cursor: default;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Doctors Contract</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/HMSDoctor/AddHMSDoctorContract" class="btn skin-gradient-btn btn-sm"><i class="flaticon flaticon-doctor-1"></i> Add Doctor +</a>
+        </div>
+    </div>
+    <div class="acttype">
+        @Html.HiddenFor(model => model.ActionType, new { @id = "Act_Type" })
+    </div>
+    @using (Ajax.BeginForm("GetData", "HMSDoctor", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        <fieldset>
+            @if (Model.DocContractList != null)
+            {
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="table-responsive table-scrolling">
+                            <table class="table table-border table-striped custom-table dataTable mb-0" id="doc_lsttable">
+                                <thead>
+                                    <tr>
+                                        <th title="Doctor Name">Doctor Name</th>
+                                        <th title="Hospital Department">Department</th>
+                                        <th hidden>Contract Id</th>
+                                        <th title="Doctor Visit and Followup Fees">Visit | Followup</th>
+                                        <th title="Docotr Followup Policy">Days</th>
+                                        <th title="Doctor Online Appointment">online</th>
+                                        <th title="Doctor Appointment Slot">Mints</th>
+                                        <th data-orderable="false" title="Add and Stop Appointment">Schedule | Stop</th>
+                                        <th data-orderable="false">Status</th>
+                                        <th data-orderable="false" class="">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.DocContractList)
+                                    {
+                                        <tr id="row_@item.ContactId">
+                                            <td><a href="~/HMSDoctor/DcotorProfile/@item.Uniqrow" title="Click and view doctor profile" target="_blank">@item.DoctorName</a></td>
+                                            <td>@Html.DisplayFor(modelItem => item.DepartmentName)</td>
+                                            <td hidden>@Html.DisplayFor(modelItem => item.ContactId)</td>
+                                            <td title="doctor Visit and Followup Fees "> @(Math.Round(Convert.ToDecimal(item.VisitFees), 2) + " | " + Math.Round(Convert.ToDecimal(item.FollowupFees), 2)) </td>
+                                            <td>@Html.DisplayFor(modelItem => item.FollowPolicy)</td>
+                                            @if (item.OnlineApointAllow == true)
+                                            {
+                                                <td><span class="badge badge-light-success">Yes</span></td>
+                                            }
+                                            @if (item.OnlineApointAllow == false)
+                                            {
+                                                <td><span class="badge badge-light-warning">No</span></td>
+                                            }
+                                            <td>@Html.DisplayFor(modelItem => item.AppointmentSlot)</td>
+                                            <td>
+                                                <button class="btn orange-gradient-btn action-icon" name="Submit" title="Add Appointment Timing" value="schedule/@item.ContactId"><i class="fa fa-calendar-o"></i></button>
+                                                <a class="action-icon btn blue-gradient-btn" href="#" title="Stop Appointment " onclick="ShowLeaves(@item.ContactId)"><i class="fa fa-stop-circle"></i></a>
+                                            </td>
+
+                                            @if (item.Ctrl == 1)
+                                            {
+                                                <td class="status-icon"><span class="badge badge-success">Active</span> </td>
+                                            }
+                                            @if (item.Ctrl == 0)
+                                            {
+                                                <td class="status-icon"><span class="badge badge-danger">Deactive</span></td>
+                                            }
+                                            @if (item.Ctrl == 3)
+                                            {
+                                                <td><span class="custom-badge status-red">Delete</span></td>
+                                            }
+                                            <td>
+                                                <a href="javascript:;" onclick="submit('@item.Uniqrow')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                                <a href="#" onclick="ConfirmDelete(@item.ContactId)" title="Remove Appointment" class="action-icon btn red-gradient-btn"><i class="fa fa-trash"></i></a>
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </fieldset>
+    }
+</div>
+<body>
+    <div id="show_schedule" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div id="bindschedule" class="modal-content">
+                @Html.HiddenFor(model => model.ContractId, new { @id = "hdnContractId" })
+                <div class="modal-header skin-bg-gradient">
+                    <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Add Schedule</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                @if (Model.DocSchedleList != null)
+                {
+                    <div class="modal-body">
+                        <table id="tblCustomers" class="table" cellpadding="0" cellspacing="0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.DocSchedleList.Count > 0)
+                                {
+                                    foreach (var item in Model.DocSchedleList)
+                                    {
+                                        <tr class="trdata">
+                                            <td class="scheduleId" hidden>
+                                                <span>@item.scheduleId</span>
+                                            </td>
+                                            <td class="Day">
+                                                <span class="DayName">@item.Day</span>
+                                                @Html.DropDownList("selection", new List<SelectListItem>()
+                                                                                   {
+                                                                                       new SelectListItem { Text="Sunday", Value="Sunday" },
+                                                                                       new SelectListItem { Text="Monday", Value="Monday" },
+                                                                                       new SelectListItem { Text="Tuesday", Value="Tuesday" },
+                                                                                        new SelectListItem { Text="Wednesday", Value="Wednesday" },
+                                                                                         new SelectListItem { Text="Thursday", Value="Thursday" },
+                                                                                         new SelectListItem { Text="Friday", Value="Friday" },
+                                                                                         new SelectListItem { Text="Saturday", Value="Saturday" }
+                                                                                   }, new { @class = "form-control", @style = "display:none;", @id = "ddlEditDay" })
+                                            </td>
+
+                                            <td class="TimeFrom">
+                                                <span>@item.TimeFrom</span>
+                                                <input type="time" value="@item.TimeFrom" class="form-control" style="display: none" required />
+                                            </td>
+                                            <td class="TimeTo">
+                                                <span>@item.TimeTo</span>
+                                                <input type="time" value="@item.TimeTo" class="form-control" style="display: none" required />
+                                            </td>
+                                            <td>
+                                                <a class="Edit" href="javascript:;"><i class="fa fa-pencil-square-o text-success"></i></a>
+                                                <a class="Update" href="javascript:;" style="display: none"><i class="fa fa-check text-warning"></i></a>
+                                                <a class="Cancel" href="javascript:;" style="display: none"><i class="fa fa-close text-secondary"></i></a>
+                                                <a class="Delete" href="javascript:;"><i class="fa fa-trash text-danger"></i></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+
+
+                        </table>
+                        <table border="0" class="table" cellpadding="0" cellspacing="0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        @Html.DropDownList("selection", new List<SelectListItem>()
+                                                                               {
+                                                                                 new SelectListItem { Text="Sunday", Value="Sunday" },
+                                                                                   new SelectListItem { Text="Monday", Value="Monday" },
+                                                                                   new SelectListItem { Text="Tuesday", Value="Tuesday" },
+                                                                                    new SelectListItem { Text="Wednesday", Value="Wednesday" },
+                                                                                     new SelectListItem { Text="Thursday", Value="Thursday" },
+                                                                                     new SelectListItem { Text="Friday", Value="Friday" },
+                                                                                     new SelectListItem { Text="Saturday", Value="Saturday" }
+                                                                               }, new { @class = "form-control", @id = "ddlAddDay" })
+                                    </td>
+                                    <td>
+                                        <input type="time" id="txtCountry" class="form-control" />
+                                    </td>
+                                    <td>
+                                        <input type="time" id="txtCountry1" class="form-control" />
+                                    </td>
+                                    <td>
+                                        <input type="button" id="btnAdd" class="btn green-gradient-btn" value="Add" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="cardbox" class="mt-2">
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+    <div id="stop_appoint" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div id="bindleave" class="modal-content">
+                <div class="modal-header skin-bg-gradient">
+                    <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Stop Appointment(Vaction/Leaves)</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>From Date <span class="text-danger">@Html.ValidationMessageFor(model => model.DocLeavesList[0].FromDate, "", new { @class = "text-danger" })</span></label>
+                                <div class="cal-icon">
+                                    @Html.TextBoxFor(model => model.DocLeavesList[0].FromDate, new { @class = "form-control datetimepicker", placeholder = "(dd/mm/yyyy)", @id = "fromdate1" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>To Date <span class="text-danger">@Html.ValidationMessageFor(model => model.DocLeavesList[0].Todate, "", new { @class = "text-danger" })</span></label>
+                                <div class="cal-icon">
+                                    @Html.TextBoxFor(model => model.DocLeavesList[0].Todate, new { @class = "form-control datetimepicker", placeholder = "(dd/mm/yyyy)", @id = "todate1" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Days(Leaves/Vaction) <span class="text-danger">@Html.ValidationMessageFor(model => model.DocLeavesList[0].LeaveDays, "", new { @class = "text-danger" })</span></label>
+                                <div>
+                                    @Html.TextBoxFor(model => model.DocLeavesList[0].LeaveDays, new { @class = "form-control datetimepicker", @readonly = "readonly", @id = "leavedays" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="text-center">
+                                <button type="submit" onclick="AddLeaves()" class="btn green-gradient-btn">Save</button>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div id="cardboxLeave" class="mt-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="delete_ContractedDr" class="modal fade delete-modal" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="icon-box">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                    <h3 class="modal-title w-100">Are you sure?</h3>
+                    <h4 class="font-weight-normal">Are you sure want to delete this Doctor?</h4>
+                    <div class="m-t-20">
+                        <button type="submit" onclick="DeleteContractedDr()" class="btn red-gradient-btn">Delete</button>
+                        <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                    </div>
+                    <div id="cardboxDelContract" class="mt-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<input type="hidden" id="hiddenconid" />
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Doctors").addClass("subdrop");
+        //$(".Submenu_Doctors").css("display", "block");
+        //$(".Submenu_Doctors").css("display", "block");
+        //$(".HMSDoctorContractList").addClass("active");
+
+        $(document).ready(function () {
+            $("#doc_lsttable").dataTable({
+                "order": [[2, "desc"]],
+            });
+            $('#todate1').datetimepicker({
+                dateFormat: "DD/MM/YYYY"
+            }).on('dp.change', function (e) {
+                debugger;
+                var date = $("#fromdate1").val();
+                var d = new Date(date.split("/").reverse().join("-"));
+                var dd = d.getDate();
+                var mm = d.getMonth() + 1;
+                var yy = d.getFullYear();
+                var newdate = yy + "/" + mm + "/" + dd;
+
+                var date1 = new Date(newdate);
+                var date2 = new Date(e.date);
+                var timediff = date2.getTime() - date1.getTime();
+                var miliscondsInOneScond = 1000;
+                var secondInOneHour = 3600;
+                var hoursInOneDay = 24;
+                var daydiff = parseInt(timediff / (miliscondsInOneScond * secondInOneHour * hoursInOneDay));
+
+                $('#leavedays').val(daydiff);
+            });
+        });
+
+        var ConfirmDelete = function (contractid) {
+            $("#hiddenconid").val(contractid);
+            $("#delete_ContractedDr").modal('show');
+        }
+
+        var DeleteContractedDr = function () {
+            var contractid = $("#hiddenconid").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSDoctor/ContractedDrDelete",
+                data: { ContractId: contractid },
+                success: function (result) {
+                    if (result == false) {
+                        var htmlstr = "<div class='alert alert-warning  alert-dismissible fade show' role='alert'>  <span id='statusmsg'> Doctor realated Some appointment pending. completed or deleted after this doctor delete.   </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $("#cardboxDelContract").html(htmlstr);
+                    }
+                    else {
+                        $("#delete_ContractedDr").modal("hide");
+                        $("#row_" + contractid).remove();
+
+                    }
+
+                }
+            })
+        }
+
+
+        var ShowLeaves = function (contractid) {
+            debugger;
+            $("#bindleave").find('input:text,input:file,select, textarea').val('');
+            $("#hiddenconid").val(contractid);
+            $("#stop_appoint").modal('show');
+        }
+
+        var AddLeaves = function () {
+            debugger;
+            var ContractId = $("#hiddenconid").val();
+            var fromdate = $("#fromdate1").val();
+            var todate = $("#todate1").val();
+            var leavedays = $("#leavedays").val();
+            var ischeck = true;
+            if (fromdate == '' || fromdate == undefined) {
+                alert("please select From Date");
+                ischeck = false;
+                return false;
+            }
+            if (todate == '' || todate == undefined) {
+                alert("please select To Date");
+                ischeck = false;
+                return false;
+            }
+
+
+
+            if (ischeck) {
+                $.ajax({
+                    type: "POST",
+                    url: "/HMSDoctor/InsertLeaves",
+                    data: '{ContractId:"' + ContractId + '", FromDate: "' + fromdate + '", Todate: "' + todate + '",LeaveDays:"' + leavedays + '" }',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "html",
+                    success: function (r) {
+
+                        var htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + r + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $("#cardboxLeave").html(htmlstr);
+                        $("#bindleave").find('input:text,input:file,select, textarea').val('');
+                    }
+                });
+            }
+
+        };
+
+
+
+
+        function checkuncheck(day, type) {
+            debugger;
+            var IsCheck = $('#Day' + day).is(':checked');
+            if (IsCheck) {
+                $('#Day' + day + '_Cliniq_open_time').prop("disabled", false);
+                $('#Day' + day + '_Cliniq_close_time').prop("disabled", false);
+            }
+            else {
+                $('#Day' + day + '_Cliniq_open_time').prop("disabled", true);
+                $('#Day' + day + '_Cliniq_close_time').prop("disabled", true);
+            }
+        }
+        function SetChecked() {
+            debugger;
+            $.each([1, 2, 3, 4, 5, 6, 7], function (index, value) {
+                checkuncheck(value);
+            });
+        }
+
+        var reparseform = function () {
+            $("form").removeData("validator");
+            $("form").removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse("form");
+        };
+
+
+
+        function SuccessMethod(data) {
+            debugger;
+
+            var Type = $(data).find(".acttype").html().split('value="')[1].split('">')[0];
+            if (Type == "schedule") {
+                $("#bindschedule").empty();
+                $("#bindschedule").html($(data).find("#bindschedule").html());
+                //datepicker();
+                $("#show_schedule").modal('show');
+            }
+
+            //if (Type == "leaves") {
+            //    $("#bindleave").empty();
+            //    $("#bindleave").html($(data).find("#bindleave").html());
+            //    datepicker();
+
+            //    $("#stop_appoint").modal('show');
+            //}
+
+            reparseform();
+        }
+
+        $("body").on("click", "#btnAdd", function () {
+            debugger;
+            var ContractId = $("#hdnContractId").val();
+            //var ContractId = $("#hdnContractId")
+            var txtCountry = $("#txtCountry");
+            var txtCountry1 = $("#txtCountry1");
+            var ddlAddDay = $("#ddlAddDay").find("option:selected");
+            var ischeck = true;
+            $("tr.trdata").each(function () {
+                var day = $(this).find("span.DayName").html();
+                if (ddlAddDay.text() == day) {
+                    alert("Allrady Added!!");
+                    ischeck = false;
+                }
+            });
+            if (txtCountry.val() == '' && ischeck == true) {
+                alert("Add Start Time !!!");
+                ischeck = false;
+            }
+            if (txtCountry1.val() == '' && ischeck == true) {
+                alert("Add End Time !!!");
+                ischeck = false;
+            }
+            if (ischeck) {
+                $.ajax({
+                    type: "POST",
+                    url: "/HMSDoctor/Insertschedule",
+                    data: '{ContractId:"' + ContractId + '", Day: "' + ddlAddDay.text() + '", TimeFrom: "' + txtCountry.val() + '",TimeTo:"' + txtCountry1.val() + '" }',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "html",
+                    success: function (r) {
+                        debugger;
+                        $("#tblCustomers").empty();
+                        $("#tblCustomers").html($(r).find("#tblCustomers").html());
+                    }
+                });
+            }
+
+        });
+
+        $("body").on("click", "#tblCustomers .Edit", function () {
+            debugger;
+            var row = $(this).closest("tr");
+            $("td", row).each(function () {
+                if ($(this).find("input").length > 0 || $(this).find("select").length > 0) {
+                    $(this).find("input").show();
+                    $(this).find("select").show().val($(this).find("span")[0].innerHTML);
+                    $(this).find("span").hide();
+                }
+            });
+            row.find(".Update").show();
+            row.find(".Cancel").show();
+            row.find(".Delete").hide();
+            $(this).hide();
+        });
+
+        //Update event handler.
+        $("body").on("click", "#tblCustomers .Update", function () {
+            debugger;
+            var row = $(this).closest("tr");
+            var Dayname = "";
+            var FromTime = "";
+            var ToTime = "";
+            var i = 0;
+
+            $("td", row).each(function () {
+                if ($(this).find("input").length > 0) {
+
+                    var input = $(this).find("input");
+                    if (i == 0)
+                        FromTime = input.val();
+                    else if (i == 1)
+                        ToTime = input.val();
+                    i++;
+                }
+                if ($(this).find("select").length > 0) {
+                    //debugger
+
+                    Dayname = $(this).find("select").find("option:selected").text();
+                }
+            });
+            var schedule = {};
+            schedule.scheduleId = row.find(".scheduleId").find("span").html();
+            schedule.Day = Dayname;//row.find(".Day").find("option:selected").text();
+            schedule.TimeFrom = FromTime;// row.find(".TimeFrom").find("span").html();
+            schedule.TimeTo = ToTime; //row.find(".TimeTo").find("span").html();
+            schedule.ContractId = $("#hdnContractId").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/HMSDoctor/Updateschedule",
+                data: '{schedule:' + JSON.stringify(schedule) + '}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (r) {
+                    debugger;
+                    if (r == "1") {
+                        $("td", row).each(function () {
+                            if ($(this).find("input").length > 0) {
+                                var span = $(this).find("span");
+                                var input = $(this).find("input");
+                                span.html(input.val());
+                                span.show();
+                                input.hide();
+                            }
+                            if ($(this).find("select").length > 0) {
+                                //debugger
+                                var span = $(this).find('span');
+                                var select = $(this).find("select");
+                                span.html($(this).find("select").find("option:selected").text());
+                                select.hide();
+                                span.show();
+                            }
+                        });
+                        row.find(".Edit").show();
+                        row.find(".Delete").show();
+                        row.find(".Cancel").hide();
+                        row.find(".Update").hide();
+                        $(this).hide();
+                        var htmlstr = "<div class='alert alert-success  alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Update Sucessfully</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $("#cardbox").html(htmlstr);
+                    }
+                    else {
+                        var htmlstr = "<div class='alert alert-danger  alert-dismissible fade show' role='alert'> <strong>Wrong!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + r + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $("#cardbox").html(htmlstr);
+                    }
+                }
+            });
+            // }
+
+        });
+
+        //Cancel event handler.
+        $("body").on("click", "#tblCustomers .Cancel", function () {
+            debugger;
+            var row = $(this).closest("tr");
+            $("td", row).each(function () {
+                if ($(this).find("input").length > 0 || $(this).find("select").length > 0) {
+                    var span = $(this).find("span");
+                    var input = $(this).find("input");
+                    var select = $(this).find("select");
+                    input.val(span.html());
+                    span.show();
+                    input.hide();
+                    select.hide();
+                }
+            });
+            row.find(".Edit").show();
+            row.find(".Delete").show();
+            row.find(".Update").hide();
+            $(this).hide();
+        });
+
+        //Delete event handler.
+        $("body").on("click", "#tblCustomers .Delete", function () {
+            debugger;
+            if (confirm("Do you want to delete this row?")) {
+                var row = $(this).closest("tr");
+                var ScheduleId = row.find("span").html();
+                $.ajax({
+                    type: "POST",
+                    url: "/HMSDoctor/DeleteSchedule",
+                    data: { Schedule: ScheduleId },
+                    success: function (response) {
+                        if ($("#tblCustomers tr").length > 2) {
+                            row.remove();
+                        } else {
+                            row.find(".Edit").hide();
+                            row.find(".Delete").hide();
+                            row.find("span").html('&nbsp;');
+                        }
+                    }
+                });
+            }
+        });
+
+        function submit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/HMSDoctor/EditHMSDoctorContract', '_self') });
+        }
+
+    </script>
+}
+
+

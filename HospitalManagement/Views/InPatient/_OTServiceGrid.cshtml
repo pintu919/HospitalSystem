@@ -1,0 +1,107 @@
+﻿@model HospitalManagement.Models.IP_OT_Transfer
+<div class="row OTservices-@j">
+    <div class="col-md-2">
+        <label class="focus-label m-b-30">Other Service :</label>
+    </div>
+    <div class="col-md-8">
+        <div class="form-group">
+            @Html.DropDownListFor(model => model.OTservice.Service_id, new SelectList(Model.OTservice.ot_service_list, "id", "service_name"), "Select Service", new { @class = "form-control service_id_" + j, onchange = "Getcost('" + j + "')" })
+        </div>
+    </div>
+
+    <div class="row bindService-@j">
+        @if (Model.OTservice.is_realtime == 0)
+        {
+            <div class="col-md-6">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="focus-label m-b-30">Price :</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            @Html.TextBoxFor(model => model.OTservice.SellingCost, new { @class = "form-control", @readonly = "readonly", @id = "invSellingCost" })
+                            @Html.HiddenFor(model => model.OTservice.is_realtime)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="focus-label m-b-30">Discount(Amount) :</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <span id="dismsg" class="msg_billing" hidden>(<small class="text-danger">Note: Discount Amount is to much.Minimum selling Amount is @Model.OTservice.MinSellingCost </small>)</span>
+                            @Html.TextBoxFor(model => model.OTservice.Discount, new { @class = "form-control groupOfTexbox dicount_check" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (Model.OTservice.is_realtime == 1)
+        {
+            <div class="col-md-6">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="focus-label m-b-30">Service Name : </label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <span id="oth_Sname" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Service Name. </small>)</span>
+                            @Html.TextBoxFor(model => Model.OTservice.ServiceName, new { @class = "form-control" })
+                            @Html.HiddenFor(model => Model.OTservice.is_realtime)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="focus-label m-b-30">Service Cost : </label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <span id="oth_cost" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Cost. </small>)</span>
+                            @Html.TextBoxFor(model => Model.OTservice.Cost, new { @class = "form-control groupOfTexbox" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="focus-label m-b-30">Selling Price :</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <span id="oth_Scost" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Selling Cost. </small>)</span>
+                            @Html.TextBoxFor(model => Model.OTservice.SellingCost, new { @class = "form-control groupOfTexbox" })
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="focus-label m-b-30">Remark :</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            @Html.TextAreaFor(model => Model.OTservice.Remark, new { @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        @Html.HiddenFor(model => model.OTservice.MinSellingCost)
+        @Html.HiddenFor(model => model.OTservice.Cost)
+        <div class="col-md-12 text-center">
+            <button id="btnAddservice" class="btn skin-gradient-btn btn-sm" type="submit" name="submit"><i class="fa fa-plus"></i> Add Service Item</button>
+        </div>
+        <div id="cardboxservice" hidden>
+        </div>
+    </div>
+</div>

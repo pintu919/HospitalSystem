@@ -1,0 +1,269 @@
+﻿@model HospitalManagement.Models.PaymentToSupplierModel
+@{
+    ViewBag.Title = "PaymentToSupplier";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Payment To Supplier</h4>
+        </div>
+    </div>
+    <div class="row employee-form m-0">
+        <div class="col-lg-12 p-0">
+            @using (Ajax.BeginForm("AddPaymentToSupplier", "Stock", new AjaxOptions { HttpMethod = "POST", OnBegin = "onBegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-6 col-xl-6">
+                        <div class="form-group">
+                            <label>Payment Date </label>
+                            @Html.TextBoxFor(model => model.Date, new { @class = "form-control floating", type = "Date" })
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-xl-6">
+                        <div class="form-group">
+                            <label>Purchase InvoiceCode </label>
+                            @Html.TextBoxFor(model => model.PurchaseCode, new { @class = "form-control", placeholder = "Enter keyword related to purchase Invoice" })
+                            @Html.HiddenFor(model => model.PurchaseId)
+
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-xl-6">
+                        <div class="form-group">
+                            <label> Payment to Supplier </label>
+                            @Html.TextBoxFor(model => model.Supplier, new { @class = "form-control ", @required = "required", @placeholder = "Supplier", @disabled = "disabled" })
+                            @Html.HiddenFor(model => model.SupplierId)
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-xl-6">
+                        <div class="form-group">
+                            <label> Invoice Panding Amount </label>
+                            @Html.TextBoxFor(model => model.Balance, new { @class = "form-control", @required = "required", @placeholder = "Balance", @disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-xl-6">
+                        <div class="form-group">
+                            <label> Pay Amount </label>
+                            @Html.TextBoxFor(model => model.Payment, new { @class = "form-control groupOfTexbox", @required = "required", @placeholder = "Payment" })
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-xl-6">
+                        <div class="form-group">
+                            <label> Remark </label>
+                            @Html.TextAreaFor(model => model.Remark, new { @class = "form-control", @placeholder = "Remark" })
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-lg-6">
+                        @if (Model.PaymentType_List != null && Model.PaymentType_List.Count > 0)
+                        {
+                            <div class="form-group">
+                                <label> Payment Type </label>
+                                @Html.DropDownListFor(model => model.PaymentTypeId, new SelectList(Model.PaymentType_List, "Id", "PaymentType"), "Select Payment Type", new { @class = "form-control", @required = "required", @onchange = "GetPaymentTypeChannel()" })
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-lg-6 bindChanneltype" hidden>
+                        @if (Model.paymentType_Channel_list != null && Model.paymentType_Channel_list.Count > 0)
+                        {
+                            <div class="form-group">
+                                <label> Payment Channel </label>
+                                @Html.DropDownListFor(model => model.ChannelId, new SelectList(Model.paymentType_Channel_list, "Id", "ChannelName"), "Select Payment Channel", new { @class = "form-control", @required = "required", })
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5 col-lg-5 col-xl-5">
+                    </div>
+                    <div class="col-md-2 col-lg-2 col-xl-2">
+                        <div class="form-group">
+                            <button type="submit" class="btn skin-gradient-btn submit-btn" id="update_insertbtn_set">Save</button>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-lg-5 col-xl-5">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div id="cardbox_status" class="">
+                            @{
+                                if (Model.ResponseMsg != null)
+                                {
+                                    if (Model.ResponseMsg.StatusId == "1")
+                                    {
+                                        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Success!</strong> Your <a href="#" class="alert-link">action</a> has been successful.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "0")
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "2")
+                                    {
+                                        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $(".Stock").addClass("subdrop");
+        $(".Submenu_Stock").css("display", "block");
+        $(".PaymentToSupplier").addClass("active");
+        $(document).ready(function () {
+            $('.groupOfTexbox').keypress(function (event) {
+                return isNumber(event, this)
+            });
+        });
+
+        function isNumber(evt, element) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (
+                (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // Check minus and only once.
+                (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // Check dot and only once.
+                (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+
+        $("#PurchaseCode").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Stock/GetPurchaseInvoice',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        debugger;
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+                                return { label: item.purchase_code, value: item.purchase_code, id: item.id, supplier_name: item.supplier_name, supplier_id: item.supplier_id, grand_total: item.grand_total };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            response($.map(data, function (item) {
+                                return { label: item.purchase_code, value: item.purchase_code, id: item.id, supplier_name: item.supplier_name, supplier_id: item.supplier_id, grand_total: item.grand_total };
+                            }))
+                            $("#PurchaseCode").val("");
+                            $("#PurchaseId").val("");
+                            $("#Supplier").val("");
+                            $("#SupplierId").val("");
+                            $("#Balance").val("");
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                debugger;
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    $("#PurchaseId").val(i.item.id);
+                    $("#PurchaseCode").val(i.item.value);
+                    $("#Supplier").val(i.item.supplier_name);
+                    $("#SupplierId").val(i.item.supplier_id);
+                    $("#Balance").val(i.item.grand_total);
+                }
+            },
+            minLength: 2,
+        }).bind("keyup.autocomplete", function (event) {
+            if (event.keyCode == $.ui.keyCode.BACKSPACE || event.keyCode == $.ui.keyCode.DELETE) {
+                $("#PurchaseId").val("");
+                $("#PurchaseCode").val("");
+                $("#Supplier").val("");
+                $("#SupplierId").val("");
+                $("#Balance").val("");
+                $("#Payment").val("");
+            };
+        });
+
+        function onBegin() {
+            debugger;
+            var payment = $("#Payment").val();
+            var balance = $("#Balance").val();
+            if (parseFloat(payment) > 0) {
+
+                if (parseFloat(payment) > parseFloat(balance)) {
+                    alert("please check balance amount and payamount not greater amount this balance amount ");
+                    return false;
+                }
+            }
+            else {
+                $("#Payment").focus();
+                return false;
+            }
+        }
+
+        function SuccessMethod(datahtml) {
+            debugger;
+            $("#PurchaseId").val('');
+            $("#PurchaseCode").val('');
+            $("#Supplier").val('');
+            $("#SupplierId").val('');
+            $("#Balance").val('');
+            $("#Payment").val('');
+            $("#Remark").val('');
+            $("#PaymentTypeId").val('');
+            $("#ChannelId").val('');
+            $("#cardbox_status").empty();
+            $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+        }
+
+        function GetPaymentTypeChannel() {
+            debugger;
+            var PaymentTypeId = $("#PaymentTypeId").val()
+            if (PaymentTypeId != null && parseInt(PaymentTypeId) > 0) {
+                url = "/Stock/PaymentTypeChannel?PaymentTypeId=" + PaymentTypeId + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $('.bindChanneltype').removeAttr('hidden');
+                    $(".bindChanneltype").empty();
+                    $(".bindChanneltype").html($(datahtml).find(".bindChanneltype").html());
+                });
+            }
+            else {
+                $('.bindChanneltype').attr('hidden', true);
+                $("#ChannelId option").remove();
+            }
+        }
+    </script>
+}

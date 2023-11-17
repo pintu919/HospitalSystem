@@ -1,0 +1,666 @@
+﻿@model HospitalManagement.Models.InvoiceModel
+@{
+    ViewBag.Title = "Invoice";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Invoices</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("FilterInvoice", "Invoice", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", OnBegin = "OPDOnBegin", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus select-focus">
+                    <label class="focus-label">Status</label>
+                    @{
+                        List<SelectListItem> listItemstatus = new List<SelectListItem>();
+                        listItemstatus.Add(new SelectListItem
+                        {
+                            Text = "All",
+                            Value = "All",
+                            Selected = true
+
+                        });
+                        listItemstatus.Add(new SelectListItem
+                        {
+                            Text = "UnPaid",
+                            Value = "UnPaid"
+                        });
+                        listItemstatus.Add(new SelectListItem
+                        {
+                            Text = "Paid",
+                            Value = "Paid"
+                        });
+                    }
+                    @Html.DropDownList("status", listItemstatus, new { @class = "form-control floating" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">From</label>
+                    @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating datetimepicker" })
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">To</label>
+                    @Html.TextBoxFor(model => model.Todate, new { @class = "form-control floating datetimepicker" })
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-3">
+                <button class="btn skin-bg-gradient btn-block submit-btn">Search</button>
+            </div>
+        </div>
+    }
+    <div id="accordion">
+        <div class="card">
+            <a class="card-link collapsed" data-toggle="collapse" href="#collapseOne">
+                Filter InvoiceCode OR AppointmentCode Wise
+            </a>
+            <div id="collapseOne" class="collapse" data-parent="#accordion">
+                <div class="card-body">
+                    @if (Model.InvoiceData != null)
+                    {
+                        using (Ajax.BeginForm("FilterInvoice", "Invoice", new AjaxOptions { HttpMethod = "POST", OnBegin = "OPDOnBegininvoice", OnSuccess = "sucessmethod", LoadingElementId = "progress" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="row align-items-center">
+                                <div class="col-md-4">
+                                    @*<div class="row">
+                                        <div class="col-md-6">*@
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(model => model.InvoiceCode, new { @class = "form-control", placeholder = "Enter Invoice OR Appointment Code " })
+                                    </div>
+                                    @*</div>
+
+                                        </div>*@
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="m-b-20">
+                                        <button class="btn skin-gradient-btn" type="submit" name="Submit" style="padding:10px; font-size:15px;"> <i class="fa fa-search"></i> </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row bindtable mt-3">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                <table class="table table-border table-striped custom-table dataTable mb-0" id="inv_lsttable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Invoice No</th>
+                            <th hidden>Invoice Id</th>
+                            <th>Patient Name</th>
+                            @*<th>Mobile</th>*@
+                            <th>Date</th>
+                            @*<th>Payment Date</th>*@
+                            <th>Total</th>
+                            <th>Discount</th>
+                            <th>Refund</th>
+                            <th>Final</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.InvoiceData != null && Model.InvoiceData.Count > 0)
+                        {
+                            foreach (var item in Model.InvoiceData.Select((x, i) => new { Data = x, Index = i + 1 }))
+                            {
+                        <tr>
+                            <td>@item.Index</td>
+                            <td><a href="~/Invoice/InvoiceView/@item.Data.uniqrow" target="_blank">@item.Data.invoice_code</a></td>
+                            <td hidden>@item.Data.invoice_id</td>
+                            <td>
+                                <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.Data.patuniqrow" target="_blank">@item.Data.patient_name </a><span>@item.Data.patient_code</span> </h2>
+                            </td>
+                            @*<td>@item.Data.phone</td>*@
+                            <td>@item.Data.cdate</td>
+                            @*<td>@item.Data.payment_date</td>*@
+                            <td> @Math.Round(Convert.ToDecimal(item.Data.total_amount), 2) </td>
+                            <td id="discount-@item.Data.uniqrow"> @Math.Round(Convert.ToDecimal(item.Data.discount_amount), 2) </td>
+                            <td id="refund-@item.Data.uniqrow">@Math.Round(Convert.ToDecimal(item.Data.refundamount), 2)</td>
+                            <td id="total-@item.Data.uniqrow"> @Math.Round( (Convert.ToDecimal(item.Data.total)- (Convert.ToDecimal(item.Data.refundamount))), 2) </td>
+                            <td id="paid-@item.Data.uniqrow">@Math.Round(Convert.ToDecimal(item.Data.paid_amount), 2)</td>
+
+                            <td id="balance-@item.Data.uniqrow"> @(((Math.Round(Convert.ToDecimal(item.Data.balance), 2) - Math.Round(Convert.ToDecimal(item.Data.refundamount), 2)))>0? ((Math.Round(Convert.ToDecimal(item.Data.balance), 2) - Math.Round(Convert.ToDecimal(item.Data.refundamount), 2))) : 0)</td>
+                            <td id="status-@item.Data.uniqrow">
+                                @if (item.Data.ctrl == 1)
+                                {
+                                    <span class="custom-badge status-green"><i class="fa fa-check"></i>Paid</span>
+                                }
+                                @if (item.Data.ctrl == 0)
+                                {
+                                    <span class="badge badge-danger">Unpaid</span>
+                                }
+                            </td>
+                            <td id="@item.Data.uniqrow">
+                                @if (item.Data.ctrl == 0)
+                                {
+                                    <a href="#" class="btn pink-gradient-btn action-icon" onclick="ConfirmPaidInv('@item.Data.uniqrow')"><i class="fa fa-money"></i></a>
+
+                                    if (item.Data.type == "billingservcie")
+                                    {
+                                        <a href="~/BillingService/EditBillingServiceInvoice?enc=@item.Data.uniqrow" title="Edit Invoice" class="action-icon btn skyblue-gradient-btn" target="_blank"><i class="fa fa-pencil"></i></a>
+                                        @*<a href="javascript:;" onclick="submit('@item.Data.invoice_code','@item.Data.patient_code')" title="Edit Invoice" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>*@
+                                    }
+                                }
+                                else
+                                {
+                                    @*if (item.Data.type == "billingservcie")
+                                    {
+                                        <a href="~/BillingService/EditBillingServiceInvoice?enc=@item.Data.uniqrow" title="Edit Invoice" class="action-icon btn skyblue-gradient-btn" target="_blank"><i class="fa fa-pencil"></i></a>
+                                    }*@
+
+                                    <a href="#" class="btn blue-gradient-btn action-icon" onclick="getPaidInv('@item.Data.uniqrow','@item.Data.invoice_code')"><i class="fa fa-eye"></i></a>
+                                }
+
+                            </td>
+                        </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Paid_inv" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header skin-bg-gradient">
+                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Payment Option</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row m-b-10 bindpatientData">
+                    @if (Model.PatientData != null && Model.PatientData.Count > 0)
+                    {
+                        foreach (var pat in Model.PatientData)
+                        {
+                            <div class="col-sm-6"><strong>Patient Name: </strong><label> @pat.patient_firstname @pat.patient_lastname </label></div>
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-4"><strong>Patient ID:</strong> <label>@pat.patient_code</label></div>
+                        }
+                    }
+                </div>
+
+                <div class="row m-b-10">
+                    <div class="col-md-3">
+                        <label>
+                            <strong>Total Amount :</strong>
+                            <span id="totalamt">@Math.Round(Convert.ToDecimal(Model.TotalAmount), 2) </span>
+                        </label>
+                    </div>
+                    <div class="col-md-3">
+                        <label>
+                            <strong> Paid Amount :</strong>
+                            <span id="paidamt">@Math.Round(Convert.ToDecimal(Model.PaidAmount), 2)  </span>
+                        </label>
+                    </div>
+                    <div class="col-md-3">
+                        <label>
+                            <strong> Refund Amount :</strong>
+                            <span id="refundamt">@Math.Round(Convert.ToDecimal(Model.RefundAmount), 2)  </span>
+                        </label>
+                    </div>
+                    <div class="col-md-3">
+                        <label>
+                            <strong> Balance :</strong>
+                            <span id="balanceamt">@Math.Round((Convert.ToDecimal(Model.TotalAmount)-(Convert.ToDecimal(Model.PaidAmount) + Convert.ToDecimal(Model.RefundAmount))),2)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <div class="form-group text-left row align-items-center">
+                            <label class="mr-3 col-lg-3 col-md-4"> <strong>Payment Option : </strong> </label>
+                            @*<div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 1, new { @id = "cash" })
+                                        Cash Payment
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 2, new { @id = "online" })
+                                        Online Payment
+                                    </label>
+                                </div>*@
+                            <div class="col-md-4 col-sm-4 col-lg-4 bindpaymenttype">
+                                @if (Model.PaymentType_List != null && Model.PaymentType_List.Count > 0)
+                                {
+                                    @Html.DropDownListFor(model => model.PaymentTypeId, new SelectList(Model.PaymentType_List, "Id", "PaymentType"), "Select Payment Type", new { @class = "form-control select requiredSelect", @onchange = "GetPaymentTypeChannel()" })
+                                }
+                            </div>
+
+                            <div class="col-md-4 col-sm-4 col-lg-4 bindChanneltype" hidden>
+                                @if (Model.paymentType_Channel_list != null && Model.paymentType_Channel_list.Count > 0)
+                                {
+                                    @Html.DropDownListFor(model => model.ChannelId, new SelectList(Model.paymentType_Channel_list, "Id", "ChannelName"), "Select Payment Channel", new { @class = "form-control select requiredSelect" })
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="row">
+                            <div class="col-4 col-sm-4 col-md-6">
+                                <div class="form-group">
+                                    <label><strong> Currunt Payment :</strong></label>
+                                    <input type="text" id="currentamt" placeholder="Enter Amount" class="form-control groupOfTexbox" />
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-4 col-md-6">
+                                <div class="form-group">
+                                    <label><strong> Transaction No :</strong></label>
+                                    <input type="text" id="transactionno" placeholder="Enter Transaction No" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="text-left">
+                            <button id="btnpaid" type="submit" onclick="PaidInv()" class="btn green-gradient-btn btn-sm"> <i id="ajxspaid" class=""></i> proceed</button> &nbsp;
+                            @*<a href="#" class="btn skyblue-gradient-btn" data-dismiss="modal">Close</a>*@
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div id="cardbox" hidden></div>
+                    </div>
+
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-12 bindpaiddata">
+                        <input type="hidden" id="totaldiscount" value="@Math.Round(Convert.ToDecimal(Model.TotalDiscount), 2)" />
+                        <input type="hidden" id="stamsg" value="@Convert.ToString(Model.status)" />
+                        <input type="hidden" id="IsVisited_Status" value="@Convert.ToString(Model.isvisited)" />
+                        @if (Model.JournalData != null && Model.JournalData.Count > 0)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-left">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Payment Refrence</th>
+                                            <th>Paymode</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @foreach (var item in Model.JournalData)
+                                        {
+                                            <tr>
+                                                <td>@item.journal_date</td>
+                                                <td>@item.journal_ref</td>
+                                                <td>@item.paymode</td>
+                                                <td>@item.payment_type</td>
+                                                <td>@item.dr_amount</td>
+                                            </tr>
+
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Get_Paid_inv" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header skin-bg-gradient">
+                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Payment History (<span id="inv_code"></span>)</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row m-b-10 bindpatientData">
+                    @if (Model.PatientData != null && Model.PatientData.Count > 0)
+                    {
+                        foreach (var pat in Model.PatientData)
+                        {
+                            <div class="col-sm-6"><strong>Patient Name: </strong><label> @pat.patient_firstname @pat.patient_lastname </label></div>
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-4"><strong>Patient ID:</strong> <label>@pat.patient_code</label></div>
+                        }
+                    }
+                </div>
+
+
+                <div class="row m-b-10">
+                    <div class="col-sm-3">
+                        <strong>Total Amount: </strong><label id="totalamt1">@Math.Round(Convert.ToDecimal(Model.TotalAmount), 2) </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <strong>Paid Amount: </strong><label id="paidamt1">@Math.Round(Convert.ToDecimal(Model.PaidAmount), 2)  </label>
+                    </div>
+                    <div class="col-md-3">
+                        <label>
+                            <strong> Paid Amount :</strong>
+                            <label id="refundamt1"> @Math.Round(Convert.ToDecimal(Model.RefundAmount), 2)   </label>
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <strong>Balance:</strong> <label id="balanceamt1">@Math.Round(Model.TotalAmount - Model.PaidAmount + Model.RefundAmount),2)</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 bindpaidalldata">
+                        @if (Model.JournalData != null && Model.JournalData.Count > 0)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-left">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Payment Refrence</th>
+                                            <th>Paymode</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @foreach (var item in Model.JournalData)
+                                        {
+                                            <tr>
+                                                <td>@item.journal_date</td>
+                                                <td>@item.journal_ref</td>
+                                                <td>@item.paymode</td>
+                                                <td>@item.payment_type</td>
+                                                <td>@item.dr_amount</td>
+                                            </tr>
+
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hiddenInvId" />
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Billing").addClass("subdrop");
+        //$(".Submenu_Billing").css("display", "block");
+        //$(".Submenu_OPD").css("display", "block");
+        //$(".Invoice").addClass("active");
+
+        $(document).ready(function () {
+            $('#status').val('UnPaid');
+            $("#inv_lsttable").dataTable({
+                "order": [[2, "desc"]],
+            });
+            $('.groupOfTexbox').keypress(function (event) {
+                return isNumber(event, this)
+            });
+
+        });
+        function sucessmethod(data) {
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $("#inv_lsttable").dataTable({
+                "order": [[2, "desc"]],
+            });
+        }
+
+        function uniqId() {
+            return Math.round(new Date().getTime() + (Math.random() * 100));
+        }
+
+        var ConfirmPaidInv = function (uniqrow) {
+            debugger;
+            $("#Paid_inv").find('input:text,input:file,select,textarea').val('');
+            /*$("#transactionno").val('TR-' + uniqId());*/
+            $("#currentamt").val('');
+            $("#hiddenInvId").val(uniqrow);
+            url = "/Invoice/getPaidAmountdata?invoicecode=" + uniqrow + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bindpaiddata").empty();
+                $(".bindpaiddata").html($(datahtml).find(".bindpaiddata").html());
+                $(".bindpatientData").empty();
+                $(".bindpatientData").html($(datahtml).find(".bindpatientData").html());
+                $("#paidamt").empty();
+                $("#paidamt").html($(datahtml).find("#paidamt").html());
+                $("#refundamt").empty();
+                $("#refundamt").html($(datahtml).find("#refundamt").html());
+                $("#totalamt").empty();
+                $("#totalamt").html($(datahtml).find("#totalamt").html());
+                $(".bindpaymenttype").empty();
+                $(".bindpaymenttype").html($(datahtml).find(".bindpaymenttype").html())
+                var balance = 0
+                var paidamt = parseFloat($("#paidamt").text());
+                var refundamount = parseFloat($("#refundamt").text());
+                var totoalamt = parseFloat($("#totalamt").text());
+                balance = (parseFloat(totoalamt) - (parseFloat(paidamt) + parseFloat(refundamount))).toFixed(2);
+                $("#balanceamt").text(balance);
+                $("#Paid_inv").modal('show');
+            });
+        }
+        var getPaidInv = function (uniqrow, invoicecode) {
+            debugger;
+            $("#hiddenInvId").val(uniqrow);
+            url = "/Invoice/getPaidAmountdata?invoicecode=" + uniqrow + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $(".bindpaidalldata").empty();
+                $(".bindpaidalldata").html($(datahtml).find(".bindpaiddata").html());
+                $(".bindpatientData").empty();
+                $(".bindpatientData").html($(datahtml).find(".bindpatientData").html());
+                $("#paidamt1").empty();
+                $("#paidamt1").html($(datahtml).find("#paidamt1").html());
+                $("#refundamt1").empty();
+                $("#refundamt1").html($(datahtml).find("#refundamt1").html());
+                $("#totalamt1").empty();
+                $("#totalamt1").html($(datahtml).find("#totalamt1").html());
+                var balance = 0
+                var paidamt = parseFloat($("#paidamt1").text());
+                var refundamount = parseFloat($("#refundamt1").text());
+                var totoalamt = parseFloat($("#totalamt1").text());
+                balance = (parseFloat(totoalamt) - (parseFloat(paidamt) + parseFloat(refundamount))).toFixed(2);
+                /*balance = parseFloat(totoalamt).toFixed(2) - parseFloat(paidamt).toFixed(2);*/
+                $("#balanceamt1").text(balance);
+                $("#inv_code").text(invoicecode);
+                $("#Get_Paid_inv").modal('show');
+            });
+        }
+        var PaidInv = function () {
+            debugger;
+            $("#btnpaid").css({ "cursor": "not-allowed", "pointer-events": "none", "opacity": "0.65", "box-shadow": "none" });
+            $("#ajxspaid").addClass('fa fa-refresh fa-spin');
+            if ($("#currentamt").val() == '') {
+                alert("Please Enter valid Amount ");
+                $("#btnpaid").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+                $("#ajxspaid").removeClass('fa fa-refresh fa-spin');
+                return;
+            }
+
+            if ($("#PaymentTypeId").val() == "") {
+                alert("Please Select Payment Type ");
+                $("#btnpaid").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+                $("#ajxspaid").removeClass('fa fa-refresh fa-spin');
+                return;
+            }
+
+            if ($("#ChannelId").val() == "") {
+                alert("Please Select Payment Channel");
+                $("#btnpaid").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+                $("#ajxspaid").removeClass('fa fa-refresh fa-spin');
+                return;
+            }
+            if (parseFloat($("#currentamt").val()) > parseFloat($("#balanceamt").text())) {
+                alert("Please Enter valid Amount ");
+                $("#btnpaid").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+                $("#ajxspaid").removeClass('fa fa-refresh fa-spin');
+                return;
+            }
+            var paymenttype = '';
+            if ($('#cash').val() == 1) {
+                paymenttype = "cash";
+            }
+            else {
+                paymenttype = "online";
+            }
+            //9 / 30 / 2022 2: 15: 41 PM
+            var now = moment().format("MM/DD/YYYY hh:mm A");
+
+            var Invcode = $("#hiddenInvId").val();
+            url = "/Invoice/PaidInvoice?invoicecode=" + Invcode + " &currentamount=" + parseFloat($("#currentamt").val()) + " &paymenttype=" + paymenttype + " &Date=" + now + " &PaymentTypeId=" + $("#PaymentTypeId").val() + " &ChannelId=" + $("#ChannelId").val() + " &TransactionId=" + $("#transactionno").val() + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $(".bindpaiddata").empty();
+                $(".bindpaiddata").html($(datahtml).find(".bindpaiddata").html());
+                $("#paidamt").empty();
+                $("#paidamt").html($(datahtml).find("#paidamt").html());
+                $("#refundamt").empty();
+                $("#refundamt").html($(datahtml).find("#refundamt").html());
+                $("#totalamt").empty();
+                $("#totalamt").html($(datahtml).find("#totalamt").html());
+                $("#totaldiscount").empty();
+                $("#totaldiscount").html($(datahtml).find("#totaldiscount").html());
+                $("#stamsg").empty();
+                $("#stamsg").html($(datahtml).find("#stamsg").html());
+
+                var totaldiscount = parseFloat($("#totaldiscount").val()).toFixed(2, 2);
+                var balance = 0
+                var paidamt = parseFloat($("#paidamt").text());
+                var refundamt = parseFloat($("#refundamt").text());
+                var totoalamt = parseFloat($("#totalamt").text());
+                balance = (parseFloat(totoalamt) - (parseFloat(paidamt) + parseFloat(refundamt))).toFixed(2);
+               /* balance = parseFloat(totoalamt).toFixed(2, 2) - parseFloat(paidamt).toFixed(2, 2);*/
+                $("#balanceamt").text(balance);
+                var invuique = $("#hiddenInvId").val();
+                $("#balance-" + invuique + "").text(balance);
+                $("#paid-" + invuique + "").text(paidamt.toFixed(2));
+                $("#refund-" + invuique + "").text(refundamt.toFixed(2));
+                $("#discount-" + invuique + "").text(totaldiscount);
+                $("#total-" + invuique + "").text(totoalamt.toFixed(2));
+                if ($("#stamsg").val() == "2") {
+                    $('#cardbox').removeAttr('hidden');
+                    htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'> This Invoice Total Amount is " + (parseFloat(totoalamt) + parseFloat(totaldiscount)) + " and paid amount is " + paidamt + " and provided discount is " + totaldiscount + " so payable balance is " + balance + " !!!! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    $("#cardbox").html(htmlstr);
+                }
+                if (parseFloat(balance) == 0 && $("#IsVisited_Status").val() != '2') {
+                    $("#" + invuique + "").html("");
+                    $("#" + invuique + "").html("<a class='btn blue-gradient-btn action-icon' title='View Invoice' href='/Invoice/InvoiceView/" + invuique + "'  target='_blank' > <i class='fa fa-eye'></i></a >");
+                    $("#status-" + invuique + "").html("");
+                    $("#status-" + invuique + "").html("<i class='fa fa-circle text-success' title='Paid'></i>");
+                }
+                $("#ajxspaid").removeClass('fa fa-refresh fa-spin');
+                $("#btnpaid").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+                $("#Paid_inv").modal('show');
+                $("#Paid_inv").find('input:text,input:file,select,textarea').val('');
+                $("#transactionno").val('');
+                /*$("#transactionno").val('TR-' + uniqId());*/
+            });
+        }
+        function isNumber(evt, element) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (
+                (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // Check minus and only once.
+                (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // Check dot and only once.
+                (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+
+        function OPDOnBegin() {
+            debugger;
+            if ($('#status').val() == 'All' || $('#status').val() == 'Paid') {
+                if ($('#FromDate').val() == "") {
+                    $('#FromDate').focus();
+                    return false;
+                }
+                else if ($('#Todate').val() == "") {
+                    $('#Todate').focus();
+                    return false;
+                }
+
+            }
+
+        }
+        function OPDOnBegininvoice() {
+            debugger;
+            if ($('#InvoiceCode').val() == "") {
+                $('#InvoiceCode').focus();
+                return false;
+            }
+        }
+        function GetPaymentTypeChannel() {
+            debugger;
+            var PaymentTypeId = $("#PaymentTypeId").val()
+
+            if (PaymentTypeId != null && parseInt(PaymentTypeId) > 0) {
+                url = "/Invoice/getPaymentTypeChannel?PaymentTypeId=" + PaymentTypeId + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $('.bindChanneltype').removeAttr('hidden');
+                    $(".bindChanneltype").empty();
+                    $(".bindChanneltype").html($(datahtml).find(".bindChanneltype").html());
+                    $("#btnpaid").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+                    $("#ajxspaid").removeClass('fa fa-refresh fa-spin');
+                    $("#Paid_inv").modal('show');
+                });
+            }
+            else {
+                $("#btnpaid").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+                $("#ajxspaid").removeClass('fa fa-refresh fa-spin');
+                $('.bindChanneltype').attr('hidden', true);
+                $("#ChannelId option").remove();
+            }
+        }
+    </script>
+}

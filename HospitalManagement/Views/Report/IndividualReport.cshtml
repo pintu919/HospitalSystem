@@ -1,0 +1,251 @@
+﻿@model HospitalManagement.Models.IndividualReport
+@using HospitalManagement.Models;
+@{
+    ViewBag.Title = "Individual Report";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title"> Service Report</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("GetReportData", "Report", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">Day</label>
+                    @Html.DropDownListFor(model => model.Durationtype, new List<SelectListItem>
+                    {
+                      new SelectListItem{ Text="Today", Value = "Today" },
+                      new SelectListItem{ Text="Weekly", Value = "Weekly" },
+                      new SelectListItem{ Text="Custom", Value = "Custom" },
+                    }, new { @class = "select floating", @id = "Days", @onchange = "GetDropdownData()" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-2 collapse" id="colpfrom">
+                <div class="form-group form-focus">
+                    <label class="focus-label">FromDate</label>
+                    @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating", @id = "datetimepicker1", autocomplete = "off", type = "Date" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-2 collapse" id="colpto">
+                <div class="form-group form-focus">
+                    <label class="focus-label">ToDate</label>
+                    @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating", @id = "datetimepicker2", autocomplete = "off", type = "Date" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label"> ReportType</label>
+                    @Html.DropDownListFor(model => model.reportType, new List<SelectListItem>
+                    {
+                      new SelectListItem{ Text="ServiceWise", Value = "ServiceWise" },
+                      new SelectListItem{ Text="InvestigationWise", Value = "InvestigationWise" },
+                      new SelectListItem{ Text="Doctorfees", Value = "Doctorfees" },
+                      new SelectListItem{ Text="BedRent", Value = "BedRent" },
+                      new SelectListItem{ Text="OT Station", Value = "ot_station" },
+                      new SelectListItem{ Text="Expenses", Value = "Expenses" },
+                    }, new { @class = "select floating", @id = "ReportType" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label"><small> Type </small></label>
+                    @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+                    @Html.DropDownListFor(model => model.Type, new List<SelectListItem>
+                    {
+                       new SelectListItem{ Text="-- Select Type --", Value = "" },
+                      new SelectListItem{ Text="All", Value = "All" },
+                      new SelectListItem{ Text="IP Wise", Value = "InPatientWise" },
+                      new SelectListItem{ Text="OPD Wise", Value = "OPDPatientWise" },
+                      new SelectListItem{ Text="Outer Patient Wise", Value = "OuterPatientWise" },
+                    }, new { @class = "select floating" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-2">
+                <div class="form-group">
+                    <button class="btn btn-sm btn-success">Search</button>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @{
+            decimal TotalAmt = 0;
+            int totalQty = 0;
+        }
+        <div class="col-md-12 BindGridData">
+            <div class="table-responsive table-scrolling">
+                <table class="table mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="w-40"></th>
+                            <th>Name</th>
+                            <th class="w-10">Qty</th>
+                            <th class="w-15">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.groupList != null)
+                        {
+                            foreach (var item in Model.groupList)
+                            {
+                                TotalAmt += Convert.ToDecimal(item.amount);
+                                totalQty += Convert.ToInt32(item.Qty);
+                                <tr>
+                                    <th class="plusicon text-center w-40">
+                                        <img src="~/Image/plus.png" class="plusimg" title="" />
+                                    </th>
+                                    <th>@item.group_name</th>
+                                    <th class="w-10">@item.Qty</th>
+                                    <th class="w-15">@Math.Round(@item.amount, 2)</th>
+                                </tr>
+                                <tr class="d-none">
+                                    <th colspan="999">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered datatable mb-0">
+                                                <tbody>
+                                                    @if (Model.gridList != null)
+                                                    {
+                                                        List<ReportList> indilst = new List<ReportList>();
+                                                        if (Model.reportType == "Expenses")
+                                                        {
+                                                            indilst = Model.gridList.FindAll(d => d.group_id == item.group_id && d.DataType == item.GroupDataType).ToList();
+                                                        }
+                                                        else
+                                                        {
+                                                            indilst = Model.gridList.FindAll(d => d.group_id == item.group_id).ToList();
+                                                        }
+                                                        foreach (var g in indilst)
+                                                        {
+                                                            <tr class="table-warning">
+                                                                <th class="text-center w-40 plusicon border-0">
+                                                                    <img src="~/Image/ext_plus.png" class="plusimg" style="max-width:16px !important;" title="" />
+                                                                </th>
+                                                                <th>@g.Name</th>
+                                                                <th class="w-10">@g.Qty</th>
+                                                                <th class="w-15">@Math.Round(g.Amount, 2)</th>
+                                                            </tr>
+                                                            <tr class="d-none">
+                                                                <th colspan="999" class="border-0">
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-bordered mb-0 m-auto">
+                                                                            <thead class="thead-light">
+                                                                                <tr>
+                                                                                    <th>Date</th>
+                                                                                    <th>Name</th>
+                                                                                    <th>Amount</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @foreach (var d in g.SubReportLists)
+                                                                                {
+                                                                                    <tr class="">
+                                                                                        <td>@d.Date</td>
+                                                                                        <td>@d.Name</td>
+                                                                                        <td>@Math.Round(d.Amount, 2)</td>
+                                                                                    </tr>
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </th>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </th>
+                                </tr>
+                            }
+                        }
+                        @if (TotalAmt != 0)
+                        {
+                            <tr class="table-primary">
+                                <th></th>
+                                <th class="text-right">Total :</th>
+                                <th class="w-10">@totalQty</th>
+                                <th class="w-15">@Math.Round(TotalAmt, 2)</th>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Report").addClass("subdrop");
+        //$(".Submenu_Report").css("display", "block");
+        //$(".Submenu_Report").css("display", "block");
+        //$(".IndividualReport").addClass("active");
+
+        var TodayDate = (new Date().getFullYear()) + '-' + (("0" + (new Date().getMonth() + 1)).slice(-2)) + '-' + (("0" + new Date().getDate()).slice(-2));
+        $("#datetimepicker1").val(TodayDate);
+        $("#datetimepicker2").val(TodayDate);
+        function GetDropdownData() {
+            debugger;
+            if ($('#Days').val() == 'Today') {
+                $("#datetimepicker1").val(TodayDate);
+                $("#datetimepicker2").val(TodayDate);
+            }
+            else if ($('#Days').val() == 'Weekly') {
+                var days = -6;
+                var date = new Date();
+                var res = date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                date = new Date(res);
+                var FromDate = (date.getFullYear()) + '-' + (("0" + (date.getMonth() + 1)).slice(-2)) + '-' + (("0" + date.getDate()).slice(-2));
+                var ToDate = (new Date().getFullYear()) + '-' + (("0" + (new Date().getMonth() + 1)).slice(-2)) + '-' + (("0" + new Date().getDate()).slice(-2));
+                $("#datetimepicker1").val(FromDate);
+                $("#datetimepicker2").val(ToDate);
+            }
+            if ($('#Days').val() == 'Custom') {
+                $("#datetimepicker1").val('');
+                $("#datetimepicker2").val('');
+                $('#colpfrom').removeClass('collapse');
+                $('#colpto').removeClass('collapse');
+            }
+            else {
+                $('#colpfrom').addClass('collapse');
+                $('#colpto').addClass('collapse');
+            }
+        }
+        function SuccessMethod(datahtml) {
+            debugger;
+            $(".BindGridData").empty();
+            $(".BindGridData").html($(datahtml).find(".BindGridData").html());
+        }
+        //Assign Click event to Plus Image for LabName.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        $("body").on("click", "img[src*='minus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+        //End
+        //Assign Click event to Plus Image for Open All investigation datewise.
+        $("body").on("click", "img[src*='ext_plus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none")
+            $(this).attr("src", "/Image/ext_minus.png");
+        });
+        $("body").on("click", "img[src*='ext_minus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/ext_plus.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+                        //End
+    </script>
+}

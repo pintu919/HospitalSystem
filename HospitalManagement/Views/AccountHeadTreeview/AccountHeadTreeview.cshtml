@@ -1,0 +1,73 @@
+﻿@model List<HMS.BizLogic.HeadCategory>
+@{
+    ViewBag.Title = "AccountHeadTreeview";
+
+}
+<style>
+    .jstree-default .jstree-themeicon-custom.fa-folder-open{color:#e0b677;}
+    .jstree-default .jstree-themeicon-custom.fa-file-o {color: #a0b5c5;}
+</style>
+@*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />*@
+<link  href="~/wwwroot/assets/css/jstreemin.css" rel="stylesheet" />
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Account Head Tree View</h4>
+        </div>
+    </div>
+    <div class="row patient-form m-0">
+        <div class="col-md-12 p-0">
+            <div id="using_json_2">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>*@
+<script src="~/wwwroot/assets/js/jstree.min.js"></script>
+    <script type="text/javascript">
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_MasterOfPayment").css("display", "block");
+        //$(".AccountHeadTreeview").addClass("active");
+
+    debugger;
+    var model = @Html.Raw(System.Web.Helpers.Json.Encode(Model));
+        var events = [];
+        model.forEach(function (val) {
+            var event = {
+                id: val.head_id,
+                parent: val.parent_id,
+                text: val.head_name,
+                icon:val.icon
+            }
+            events.push(event);
+        });
+    SetTree(events);
+    function SetTree(data) {
+        debugger;
+        $('#using_json_2').jstree({
+            'core': {
+                'data': data
+            }
+            //    types: {
+            //        "root": {
+            //            "icon": "fa fa-plus"
+            //        },
+            //        "child": {
+            //            "icon": "fa fa-minus"
+            //        },
+            //        "default": {
+
+            //        }
+            //    },
+            //    plugins: ["search", "themes", "types"]
+            //}).on('open_node.jstree', function (e, data) {
+            //    data.instance.set_icon(data.node, "fa fa-minus");
+            //}).on('close_node.jstree', function (e, data) { data.instance.set_icon(data.node, "fa fa-plus"); });
+        });
+    }
+    </script>
+}

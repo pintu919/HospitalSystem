@@ -1,0 +1,216 @@
+﻿@model HospitalManagement.Models.WardTypeModel
+@{
+    /**/
+
+    ViewBag.Title = "HMSWardType";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Add Ward Type</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddWardType", "HMSRooms", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="row  employee-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="row align-items-center">
+                        <div class="col-md-5 col-lg-4 col-xl-4">
+                            <div class="form-group">
+                                <label>Ward Type</label>
+                                @Html.ValidationMessageFor(model => model.WardType, "", new { @class = "text-danger" })
+                                @Html.TextBoxFor(model => model.WardType, new { @class = "form-control", @id = "wardtypename" })
+                                @Html.HiddenFor(m => m.WardId, new { @id = "wardid" })
+
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-md-3 col-lg-4 col-xl-2">
+                            <div class="form-group">
+                                <label class="display-block">Status</label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "active" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                        InActive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-4 col-xl-2">
+                            <button type="submit" class="btn skin-gradient-btn submit-btn">Save</button>
+                        </div>
+                    </div>
+
+                    <div id="cardbox" class="card-box" hidden>
+
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    }
+
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.WardTypeList != null && Model.WardTypeList.Count > 0)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Ward Type</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var item in Model.WardTypeList)
+                            {
+                                <tr id="row_@item.ward_id">
+                                    <td class="collapse"> @item.ward_id</td>
+                                    <td>@item.ward_type</td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="badge badge-danger">Deactive</span></td>
+                                    }
+                                    <td class="text-center">
+                                        <a href="javascript:;" onclick="EditWardType(@item.ward_id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.ward_id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>
+                                    </td>
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+                    </table>
+                    <input type="hidden" id="message" value=@Model.WardTypeList[0].message />
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="delete_wardType" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to delete this Ward?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteWardType()" class="btn red-gradient-btn">Delete</button>
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardboxdelward" class="mt-2" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hdnwardid" />
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_ManageRoom").css("display", "block");
+        //$(".HMSWardType").addClass("active");
+
+        function SuccessMethod(data) {
+            debugger;
+            $(".bindtable").html($(data).find(".bindtable").html());
+            var htmlstr = "";
+            if ($("#message").val() == "same") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Alrady Exists !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if ($("#message").val() == "update") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'> Record Update Success !! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if ($("#message").val() == "notupdate") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Not Updated !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (parseInt($("#message").val()) > 0) {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Added Success !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (parseInt($("#message").val()) == 0) {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Unable to Record Save !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#wardid").val('');
+            $("#wardtypename").val('');
+            $("#active").prop('checked', true);
+            $("#cardbox").empty();
+            $("#cardbox").html(htmlstr);
+        }
+
+
+
+        function EditWardType(val) {
+            debugger;
+            $("#wardid").val(parseInt($("#row_" + val).find("td:eq(0)").text()));
+            $("#wardtypename").val($("#row_" + val).find("td:eq(1)").text());
+            if ($("#row_" + val).find("td:eq(2)").text().trim() == "Active") {
+                $("#active").prop('checked', true);
+            }
+            else {
+                $("#Inactive").prop('checked', true)
+            }
+        }
+
+        var ConfirmDelete = function (ward_id) {
+            debugger;
+            $("#hdnwardid").val(ward_id);
+            $("#delete_wardType").modal('show');
+        }
+
+        var DeleteWardType = function () {
+            debugger;
+            var wardid = $("#hdnwardid").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSRooms/DeleteWardType",
+                data: { WardId: wardid },
+                success: function (result) {
+                    if (result == true) {
+                        $("#delete_wardType").modal("hide");
+                        $("#row_" + wardid).remove();
+                    }
+                    else {
+                        var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'> This ward Type is mapping with room.Need to delete room related to this ward type then after try to delete ward type.</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $('#cardboxdelward').removeAttr('hidden');
+                        $("#cardboxdelward").html(htmlstr);
+                    }
+                }
+            })
+        }
+
+    </script>
+}
+

@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "DoctorVerification";
+    Layout = null;
+}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <title>Preclinic - Medical &amp; Hospital - Bootstrap 4 Admin Template</title>
+    <link href="~/wwwroot/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/wwwroot/assets/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/wwwroot/assets/css/style.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+            <script src="assets/js/html5shiv.min.js"></script>
+            <script src="assets/js/respond.min.js"></script>
+        <![endif]-->
+</head>
+<body>
+
+    @if (Convert.ToString(TempData["verifiedStatus"]) == "Your Account verify Success !")
+    {
+        <div class="main-wrapper error-wrapper">
+            <div class="error-box">
+                <h2>Verification</h2>
+                <h3 class="text-success"><i class="fa fa-check"></i></h3>
+                <p class="text-success">@TempData["verifiedStatus"]</p>
+                <a href="http://devdoctor.amaderdoctor.com" class="btn btn-primary go-home">Login</a>
+            </div>
+        </div>
+    }
+    else if (Convert.ToString(TempData["verifiedStatus"]) == "Your Account allrady verified !")
+    {
+        <div class="main-wrapper error-wrapper">
+            <div class="error-box">
+                <h2>Verification</h2>
+                <h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i></h3>
+                <p class="text-warning">@TempData["verifiedStatus"]</p>
+                <a href="http://devdoctor.amaderdoctor.com" class="btn btn-primary go-home">Login</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="main-wrapper error-wrapper">
+            <div class="error-box">
+                <h2>Verification</h2>
+                <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i></h3>
+                <p class="text-danger">@TempData["verifiedStatus"]</p>
+                <a href="http://devdoctor.amaderdoctor.com" class="btn btn-primary go-home">Login</a>
+            </div>
+        </div>
+
+    }
+
+    <script src="~/wwwroot/assets/js/jquery-3.2.1.min.js"></script>
+    <script src="~/wwwroot/assets/js/popper.min.js"></script>
+    <script src="~/wwwroot/assets/js/bootstrap.min.js"></script>
+
+
+</body>
+</html>
+
+

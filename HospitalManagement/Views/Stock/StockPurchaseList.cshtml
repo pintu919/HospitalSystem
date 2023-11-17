@@ -1,0 +1,61 @@
+﻿@model HospitalManagement.Models.StockPurchaseListModel
+@{
+    ViewBag.Title = "StockPurchaseList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Stock Purchase List</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Stock/StockPurchaseMaster" class="btn skin-gradient-btn btn-sm"><i class="fa fa-building-o" aria-hidden="true"></i> Purchase +</a>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("FilterStockPurchaseList", "Stock", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "BindPurchaseList", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">From</label>
+                    @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating", type = "Date" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">To</label>
+                    @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating", type = "Date" })
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                <div class="form-group form-focus">
+                    @*<label class="focus-label"><small> Category </small></label>*@
+                    @Html.ValidationMessageFor(model => model.supplier_id, "", new { @class = "text-danger" })
+                    @Html.DropDownListFor(model => model.supplier_id, new SelectList(Model.storesupplier_data, "Id", "name"), "Select Supplier", new { @class = "select floating", @required = "required" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-4 col-xl-2">
+                <button class="btn btn-warning btn-block submit-btn m-b-20">Show</button>
+            </div>
+        </div>
+    }
+    <div id="BindPurchaseList">
+        @Html.Partial("_PurchaseListTable", Model)
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        debugger;
+        $(".Stock").addClass("subdrop");
+        $(".Submenu_Stock").css("display", "block");
+        $(".StockPurchaseList").addClass("active");
+        $(document).ready(function () {
+            $("#purchase_tbl").dataTable({
+            });
+        });
+    </script>
+}
+

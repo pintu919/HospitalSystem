@@ -1,0 +1,132 @@
+﻿@model List<HMS.BizLogic.HpMenu_Entity>
+<div id="sidebar-menu" class="sidebar-menu">
+    <ul>
+        @{
+            //var Pagename = HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString();
+            //List<HMS.BizLogic.HpMenu_Entity> menulst = (List<HMS.BizLogic.HpMenu_Entity>)Session["AssignHospitalMenuList"];
+            var MainMenu = "";
+            var menulst = Model;
+            if (menulst != null)
+            {
+                var lst = menulst.Where(o => o.hp_pagename == "Dashboard").ToList();
+                if (lst.Count > 0)
+                {
+                    <li class="user_li">
+                        <div class="user-info">
+                            <div class="image">
+                                <a href="~/Dashboard/Dashboard" class=" waves-effect waves-block">
+                                    @if (Convert.ToString(Session["user_image"]) == "")
+                                    {
+                                        var im = System.Configuration.ConfigurationManager.AppSettings["gethosdefaultimg"] + "default_hplogodash.png";
+                                        <img src="@im" alt="User"><span></span>
+                                    }
+                                    else
+                                    {
+                                        var img = System.Configuration.ConfigurationManager.AppSettings["gethosimgUrl"] + HttpContext.Current.Session["user_image"];
+                                        <img id="blah1" src="@img" alt="User"> <span></span>
+                                    }
+                                </a>
+                            </div>
+                            <div class="detail">
+                                <h4>@HttpContext.Current.Session["clinic_name"]</h4>
+                                <small>@HttpContext.Current.Session["clinic_addr"]</small>
+                            </div>
+                        </div>
+                    </li>
+                }
+
+                foreach (var item in menulst.OrderBy(a => a.hp_keyword))
+                {
+                    if (MainMenu != item.hp_keyword && item.hp_pagename != "Dashboard")
+                    {
+                        MainMenu = item.hp_keyword;
+                        var filterlst = menulst.OrderBy(a => a.hp_keyword).Where(u => u.hp_keyword == MainMenu).ToList();
+                        var mainclass = MainMenu.Replace(" ", String.Empty);
+                        var submanuclass = "Submenu_" + MainMenu.Replace(" ", String.Empty);
+                        //for Set selected menu open close
+                        //var autoopen = filterlst.OrderBy(a => a.hp_keyword).Where(u => u.hp_pagename == Pagename).ToList();
+                        //var mainclass = autoopen.Count > 0 ? "subdrop" : "";
+                        //var submanuclass = autoopen.Count() > 0 ? "display:block;" : "display:none;";
+                        //end
+                        //Set Icon
+                        var Icon = "";
+                        var color = "";
+                        switch (item.hp_keyword.ToLower().Trim())
+                        {
+                            case "department":
+                                Icon = "fa fa-hospital-o";
+                                break;
+                            case "patients":
+                                Icon = "fa fa-wheelchair";
+                                break;
+                            case "doctors":
+                                Icon = "flaticon flaticon-doctor-1";
+                                break;
+                            case "hrm":
+                                Icon = "ti ti-user";
+                                break;
+                            case "appointment":
+                                Icon = "fa fa-calendar";
+                                break;
+                            case "administrator":
+                                Icon = "fa fa-cubes";
+                                break;
+                            case "register appointment":
+                                Icon = "fa fa-calendar";
+                                break;
+                            case "account":
+                                Icon = "fa fa-buysellads";
+                                break;
+                            case "investigation station":
+                                Icon = "fa fa-search";
+                                break;
+                            case "patient prescription":
+                                Icon = "fa fa-print";
+                                break;
+                            case "lab supplier master":
+                                Icon = "fa fa-flask";
+                                break;
+                            case "in patient":
+                                Icon = "fa fa-bed";
+                                break;
+
+                            case "video appointment":
+                                Icon = "fa fa-calendar";
+                                break;
+
+                            case "report":
+                                Icon = "fa fa-file";
+                                break;
+
+                            case "payables":
+                                Icon = "fa fa-paypal";
+                                break;
+
+                            case "billing":
+                                Icon = "fa fa-envelope";
+                                break;
+
+                            case "settings":
+                                Icon = "fa fa-cog";
+                                break;
+
+                        }
+                        <li class="submenu">
+                            <a href="#" class=@mainclass>
+                                <span class="rotate-icon"><i class="@Icon" style="color:@color;"></i></span>
+                                <span>@MainMenu</span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                            <ul class="@submanuclass">
+                                @foreach (var submenu in filterlst)
+                                {
+                                    <li class="@submenu.hp_pagename.Replace(" ", String.Empty)"><a href="~/@submenu.hp_actionname/@submenu.hp_pagename">@submenu.hp_menuname</a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                }
+            }
+        }
+    </ul>
+</div>

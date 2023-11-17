@@ -1,0 +1,391 @@
+﻿@model HospitalManagement.Models.InPatient
+@{string j = "";}
+@if (Model.InPatientlist != null && Model.InPatientlist.Count > 0)
+{
+    j = Model.InPatientlist[ViewBag.k].UniqRow;
+}
+else
+{
+    j = Model.uniqrowid;
+}
+<div class="vital-tabs">
+    <ul class="nav nav-tabs nav-tabs-solid nav-justified" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link " id="home-@j" data_id="1-@j" data-toggle="tab" href="#home-@j" role="tab" aria-controls="home" aria-selected="true">Investigation</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="profile-@j" data_id="2-@j" data-toggle="tab" href="#profile-@j" role="tab" aria-controls="profile" aria-selected="false">Madicine</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="contact-@j" data_id="3-@j" data-toggle="tab" href="#contact-@j" role="tab" aria-controls="contact" aria-selected="false">Vital</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="suggestion-@j" data_id="4-@j" data-toggle="tab" href="#suggestion-@j" role="tab" aria-controls="suggestion" aria-selected="false">Suggestion</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade" id="home-@j" role="tabpanel" aria-labelledby="home">
+            <table cellpadding="0" cellspacing="0" class="table table-bordered custom-table">
+                <thead class="thead-light">
+                    <tr class="more-details">
+                        <th hidden>Investigation Id</th>
+                        <th>Doctor Name</th>
+                        <th>Investigation Name</th>
+                        <th>Amount</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="Invdata-@j">
+                    @if (Model.investigationPriceList != null)
+                    {
+                        int i = 0;
+                        foreach (var price in Model.investigationPriceList)
+                        {
+                            <tr>
+                                <td hidden>@price.investigationmaster_id</td>
+                                <td><h2> @price.doctor_name <span class="text-secondary">@price.invstigation_date </span></h2></td>
+                                <td><b>@price.investigationmaster_name </b></td>
+                                <td> @Math.Round(price.price, 2)</td>
+                                @if (price.price == 0)
+                                {
+                                    <td><span class="custom-badge status-red"> Not available here</span></td>
+                                }
+                                else
+                                {
+                                    if (price.IsOwnCheckUp == 1)
+                                    {
+                                        <td class="text-center"><span class="custom-badge status-blue">Added</span></td>
+                                    }
+                                    else
+                                    {
+                                        if (price.canceled == 0)
+                                        {
+                                            <td id=@price.appoinment_code@i class="text-center @price.appoinment_code@i">
+                                                @Ajax.ActionLink("Add", "AddInvestigationAmount", "InPatient",
+                                                        new { service_id = price.service_id, Investigationid = price.investigationmaster_id, Amount = price.price, Appointmentcode = price.appoinment_code, PriceId = price.invpriceid },
+                                                        new AjaxOptions()
+                                                        {
+                                                            HttpMethod = "POST",
+                                                            OnSuccess = " $(this).remove(),SucessMethod('" + price.appoinment_code + i + "')",
+                                                        }, new { @class = "btn green-gradient-btn btn-sm" })
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="text-center"><span class="custom-badge status-red">Canceled</span></td>
+                                        }
+                                    }
+                                }
+                                @if (price.pending_sample == 0)
+                                {
+                                    if (price.price > 0)
+                                    {
+                                        if (price.canceled == 0)
+                                        {
+                                            <td id=@price.appoinment_code@i class="text-center  @price.appoinment_code@i@price.service_id">
+                                                @Ajax.ActionLink("Cancel", "CancelInvestigation", "InPatient",
+                                                                    new { service_id = price.service_id, Investigationid = price.investigationmaster_id, Amount = price.price, Appointmentcode = price.appoinment_code, PriceId = price.invpriceid },
+                                                                    new AjaxOptions
+                                                                    {
+                                                                        HttpMethod = "POST",
+                                                                        InsertionMode = InsertionMode.Replace,
+                                                                        UpdateTargetId = "Bindpara",
+                                                                        OnSuccess = "CancelshowModal('" + price.appoinment_code + i + price.service_id + "','" + price.appoinment_code + i + "')",
+                                                                        LoadingElementId = "progress"
+                                                                    },
+                                                                   new { @class = "btn red-gradient-btn btn-sm" })
+                                            </td>
+
+                                        }
+                                        else
+                                        {
+                                            <td class="text-center"><span class="custom-badge status-red">Canceled</span></td>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                            </tr>
+                            i++;
+                        }
+                    }
+                </tbody>
+            </table>
+            <div class="Invdatabtn-@j">
+                @{int x = 0;}
+                <div id=@j@x>
+                    @Ajax.ActionLink("Add New Investigation", "AddNewInvestigation", "InPatient",
+                           new { UniqRow = j },
+                            new AjaxOptions
+                            {
+                                HttpMethod = "POST",
+                                OnSuccess = "showModal()",
+                                LoadingElementId = "progress",
+                                UpdateTargetId = "bind_ip_investigation"
+                            },
+                           new { @class = "btn btn-pink btn-xs" })
+
+                    @Ajax.ActionLink("Add Services", "AddIPServices", "InPatient",
+                           new { UniqRow = j },
+                            new AjaxOptions
+                            {
+                                HttpMethod = "POST",
+                                OnSuccess = "showModalServices()",
+                                LoadingElementId = "progress",
+                                UpdateTargetId = "bind_ip_services"
+                            },
+                           new { @class = "btn skin-gradient-btn btn-xs" })
+                </div>
+
+            </div>
+            @*<table cellpadding="0" cellspacing="0" style="width:20%" class="custom-table">
+                    <tbody class="Invdatabtn-@j">
+                        @{int x = 0;}
+                        <tr>
+                            <td id=@j@x>
+                                @Ajax.ActionLink("Add New Investigation", "AddNewInvestigation", "InPatient",
+                                new { UniqRow = j },
+                                 new AjaxOptions
+                                 {
+                                     HttpMethod = "POST",
+                                     OnSuccess = "showModal()",
+                                     LoadingElementId = "progress",
+                                     UpdateTargetId = "bind_ip_investigation"
+                                 },
+                                new { @class = "btn btn-success" })
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>*@
+
+        </div>
+        <div class="tab-pane fade" id="profile-@j" role="tabpanel" aria-labelledby="profile">
+            <div class="Meddata-@j">
+                <table cellpadding="0" cellspacing="0" class="table table-bordered custom-table mb-0">
+                    <thead class="thead-light">
+                        <tr class="more-details">
+                            <th>Doctor Name</th>
+                            <th> MedicineName </th>
+                            <th>Frequency</th>
+                            <th> Dosages </th>
+                            <th> Duration </th>
+                            <th> Remark </th>
+                            <th data-orderable="false">Status</th>
+                            <th> Timing </th>
+                            <th data-orderable="false">Action</th>
+                    </thead>
+                    <tbody>
+                        @if (Model.InPatientMedecineList != null)
+                        {
+                            foreach (var item in Model.InPatientMedecineList)
+                            {
+                                <tr id="row_@item.appoinment_code">
+                                    <td>
+                                        <input type="hidden" value="@item.id" />
+                                        @if (item.IsAlert == 1 && item.isrelease == false)
+                                        {
+                                            <img src="~/wwwroot/assets/img/aler_img.gif" height="45" width="45" alt="User Image">
+                                        }
+                                        <h2>@item.doctor_name<span class="text-secondary">@item.medicine_date </span></h2>
+                                    </td>
+                                    <td>
+
+                                        <h5 class="medicine-brand">@item.Brand_Name </h5> <span class="formation">@item.formulationname</span><p>@item.drug_generic_name &nbsp;&nbsp;&nbsp;(@item.strength)</p>
+                                    </td>
+                                    <td>@Html.DisplayFor(modelitem => item.Used)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Dosages)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Duration)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Remark)</td>
+                                    <td>
+                                        @Html.DropDownList("status", new List<SelectListItem>
+                                        { new SelectListItem { Text = "Started", Value = "1", Selected=item.status==1 ? true : false},
+                                          new SelectListItem { Text = "Ordered", Value = "2",Selected=item.status==2 ? true : false},
+                                          new SelectListItem { Text = "Received", Value = "3",Selected=item.status==3 ? true : false}
+                                        }, "Select Status", new { @class = "form-control" })
+                                    </td>
+                                    <td>@Html.TextBoxFor(modelItem => item.medicinetiming, new { @class = "form-control", @type = "time" })</td>
+                                    <td> <button href="#" type="button" data-id=@item.id class="btn green-gradient-btn btn-sm yzr">Save</button></td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+                <div id="cardboxmed" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="contact-@j" role="tabpanel" aria-labelledby="contact">
+            @using (Ajax.BeginForm("AddInPatientVital", "InPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "VitalSuccessMethod", LoadingElementId = "progress" }, new { @class = "bg-white p-3" }))
+            {
+                <div class="row align-items-center vitaldata-@j">
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(Model => Model.InPatientvitaldata.hiddencode, new { @id = "hiddencode" })
+                    <div class="col-sm-4 col-md-4 col-lg-4">
+                        <div class="form-group mb-0">
+
+                            @if (Model.vital_para != null)
+                            {
+                                @Html.DropDownListFor(model => model.InPatientvitaldata.vital_para, new SelectList(Model.vital_para, "vital_code", "vital_name"), "Select Vital", new { @class = "form-control select requiredSelect", id = "vital_" + j, onchange= "drp_vital_onchange(this,'" + j + "')"  })
+                            }
+
+                            @*@Html.TextBoxFor(Model => Model.InPatientvitaldata.vital_para, new { @class = "form-control", @id = "VitalPara", placeholder = "Vital Para Name", @required = "required" })*@
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-4">
+                        <div class="input-group mb-0">
+                            @Html.TextBoxFor(Model => Model.InPatientvitaldata.vital_value, new { @class = "form-control", @id = "VitalValue_"+j, placeholder = " vital value", @required = "required" })
+                            <span class="input-group-text" id="VitalUnit_@j"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2">
+                        <div class="form-group mb-0">
+                            @Html.TextBoxFor(Model => Model.InPatientvitaldata.vital_time, new { @class = "form-control", @id = "Vitaltime", @type = "time", placeholder = "Time", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-1">
+                        <div class="form-group mb-0">
+                            <button class="btn green-gradient-btn btn-sm" type="submit" name="submit">Save</button>
+                        </div>
+                    </div>
+                    <div class="mt-2 col-sm-10 vitallistbind-@j">
+                        @if (Model.InpatientVitalList != null && Model.InpatientVitalList.Count > 0)
+                        {
+                            <table cellpadding="0" cellspacing="0" class="table table-bordered table-striped custom-table ">
+                                <thead>
+                                    <tr>
+                                        <th> ParaName</th>
+                                        <th> Value</th>
+                                        <th> Date </th>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var item in Model.InpatientVitalList)
+                                    {
+                                        <tr>
+                                            <td>@item.vital_para </td>
+                                            <td>@Html.DisplayFor(modelItem => item.vital_value)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.vital_date)</td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        }
+                        <div class="mt-2 vitalmsg-@j">
+                            @if (Model.statusmsg != null)
+                            {
+                                <div class="alert alert-success fade in show mb-0">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true" style="font-size:20px">×</span>
+                                    </button>    <strong>@Model.statusmsg</strong>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="tab-pane fade" id="suggestion-@j" role="tabpanel" aria-labelledby="suggestion">
+            @using (Ajax.BeginForm("AddInPatientdoctorsug", "InPatient", new AjaxOptions { HttpMethod = "POST", OnBegin = "SugOnbigin('" + j + "')", OnSuccess = "SugSuccessMethod", LoadingElementId = "progress" }, new { @class = "bg-white p-3" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="row  suggestiondata-@j">
+                    <div class="col-sm-5 col-md-5">
+                        <div class="row align-items-center">
+                            <div class="col-sm-9">
+                                <label style="color:#2069a9;"><b> Suggest Doctor :</b></label>
+                                <div class="form-group doclistbind-@j">
+                                    @Html.ValidationMessageFor(model => model.InPatientDoctorData.doctorcode, "", new { @class = "text-danger" })
+                                    @if (Model.doc_list != null)
+                                    {
+                                        @Html.DropDownListFor(model => model.InPatientDoctorData.doctorcode, new SelectList(Model.doc_list, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select requiredSelect", id = "sug_" + j })
+                                    }
+                                    @Html.HiddenFor(Model => Model.InPatientDoctorData.uniqrow, new { @id = "hiddenuniqrow" })
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group mb-0">
+                                    <button class="btn green-gradient-btn btn-sm" type="submit" name="submit">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 sugestdoctorbind-@j">
+                            @if (Model.SuggestDoctor_list != null && Model.SuggestDoctor_list.Count > 0)
+                            {
+                                <table cellpadding="0" cellspacing="0" class="table table-bordered table-striped custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th> Doctor</th>
+                                            <th> Assign Date</th>
+                                            <th> Added By </th>
+                                    </thead>
+                                    <tbody>
+
+                                        @foreach (var item in Model.SuggestDoctor_list)
+                                        {
+                                            <tr>
+                                                <td>@item.doctor_name <label style="display:block;"><b>@item.Hos_department_name</b></label></td>
+                                                <td>@Html.DisplayFor(modelItem => item.Assign_Date)</td>
+                                                <td>@Html.DisplayFor(modelItem => item.Added_By)</td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                        <div class="col-sm-12 sugmsg-@j">
+                            @if (Model.statusmsg != null)
+                            {
+                                <div class="alert alert-success fade in show">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true" style="font-size:20px">×</span>
+                                    </button>    <strong>@Model.statusmsg</strong>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-sm-7 col-md-7 sugestlistbind-@j">
+
+                        <label style="color:#2069a9;"><b>Doctor Suggestion :</b></label>
+                        @if (Model.doctorsuggestion != null && Model.doctorsuggestion.Count > 0)
+                        {
+
+                            <table cellpadding="0" cellspacing="0" class="table table-bordered table-striped custom-table">
+                                <thead>
+                                    <tr>
+                                        <th> Doctor</th>
+                                        <th>Suggestion</th>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var item in Model.doctorsuggestion)
+                                    {
+                                        <tr>
+                                            <td><b>@item.doctor_name</b> <label>@item.sugdate</label></td>
+                                            <td>@Html.DisplayFor(modelItem => item.suggestion)</td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                    <div class="col-sm-10 col-lg-8">
+                        <div id="cardboxsug" class="card-box" hidden>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

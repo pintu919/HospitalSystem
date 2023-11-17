@@ -1,0 +1,161 @@
+﻿@model HospitalManagement.Models.ChangeIPDoctorModel
+@{
+    ViewBag.Title = "ChangeIPDoctor";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-4 col-3">
+            <h4 class="page-title"> Assign new doctor to admited patient</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("FindDoctor", "DischargeProfile", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.TextBoxFor(model => model.AppointmentCode, new { @class = "form-control ", @placeholder = "Enter Patient Appointment Code", autocomplete = "off" })
+
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <button type="submit" class="btn skin-gradient-btn"><i class="fa fa-search"></i> Find</button>
+            </div>
+        </div>
+    }
+    <input type="hidden" value="@Model.Message" id="status" />
+    <div class="row bindnotsucess mt-3">
+        @if (Model.Message == "notsuccess")
+        {
+            <div class="col-md-6">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Warning!</strong> Your Appointment code does not exists or This appointed patient is realsed !!
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+        }
+    </div>
+    <div class="bindsucess">
+        @if (Model.Message == "success")
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <h4>Success!</h4>
+                        <p>Doctor, <strong>@Model.DoctorName </strong> already assign this Appointment if you want to change this new doctor then select doctor and confirm it !!</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.DropDownListFor(model => model.Doctor_Code, new SelectList(Model.Doctor_Assign_List_Data, "DoctorCode", "DoctorName"), "Select Doctor", new { @class = "form-control select requiredSelect" })
+                        @Html.HiddenFor(model => model.AppointmentCode)
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <a href="#" onclick="Confirm()" title="Confirmation for change doctor" class="btn skin-gradient-btn"><i class="fa fa-check-circle"></i>Confirm</a>
+                </div>
+                <div class="col-10">
+                    <div id="cardboxsucess" class="card-box" hidden>
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>
+
+<div id="new_alert_message" class="modal delete-modal fade" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class=" modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are You Sure you Want to change this doctor?</h4>
+                <div class="m-t-20">
+                    <a href="#" onclick="Continue()" title="Continue to change doctor" class="btn green-gradient-btn">Continue</a>
+                    <a href="#" class="btn red-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_IP").css("display", "block");
+        //$(".ChangeIPDoctor").addClass("active");
+
+        function SuccessMethod(data) {
+            debugger;
+            var sta = $(data).find("#status").val();
+            if (sta == "success") {
+                $(".bindsucess").empty();
+                $(".bindsucess").html($(data).find(".bindsucess").html());
+                $(".bindnotsucess").empty();
+                $("#Doctor_Code").select2();
+
+            }
+            if (sta == "notsuccess") {
+                $(".bindnotsucess").empty();
+                $(".bindnotsucess").html($(data).find(".bindnotsucess").html());
+                $(".bindsucess").empty();
+
+            }
+        }
+
+        var Confirm = function () {
+            debugger;
+            if ($("#Doctor_Code").val() == "" || $("#Doctor_Code").val() == null) {
+                $('#Doctor_Code').focus();
+                var htmlstr = "";
+                $('#cardboxsucess').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong> <span id='statusmsg'>Please Select Doctor !!!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardboxsucess").html(htmlstr);
+                return false;
+            }
+            $("#new_alert_message").modal('show');
+        }
+
+        var Continue = function () {
+            debugger;
+            var doctorcode = $("#Doctor_Code").val();
+            var appointmentcode = $("#AppointmentCode").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/DischargeProfile/ConfirmchangeDoctor",
+                data: { DoctorCode: doctorcode, AppointmentCode: appointmentcode },
+                success: function (result) {
+                    if (result == true) {
+                        $("#new_alert_message").modal('hide');
+                        var htmlstr = "";
+                        $('#cardboxsucess').removeAttr('hidden');
+                        htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> <span id='statusmsg'>New Doctor Change Successfully !!!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $("#cardboxsucess").html(htmlstr);
+                    }
+
+                }
+            })
+
+        }
+
+
+
+
+    </script>
+}

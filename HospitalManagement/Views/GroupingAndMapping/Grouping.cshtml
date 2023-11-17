@@ -1,0 +1,249 @@
+﻿@model HospitalManagement.Models.GroupingModel
+@{
+    ViewBag.Title = "Grouping";
+}
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-12">
+            <h4 class="page-title">Grouping And Mapping </h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("Add_UpdateGroupName", "GroupingAndMapping", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { @id = "GroupForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.GroupId, new { @id = "group_id" })
+        <div class="row align-items-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="form-group">
+                    @Html.TextBoxFor(model => model.GroupName, new { @class = "form-control", @id = "text_groupname", placeholder = "Enter GroupName" })
+                    @Html.ValidationMessageFor(m => m.GroupName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-8">
+                <div class="mb-4">
+                    <button class="btn btn-sm btn-success mt-2" id="change_button"> Add </button>
+                    <a href="javascript:void(0)" class="ml-2 mt-2 btn btn-sm red-gradient-btn" onclick="CancelBtn()">Cancel</a>
+                </div>
+            </div>
+            <div class="col-md-12 mt-2 BindStatus">
+            </div>
+        </div>
+    }
+    <div class="row">
+        <div class="col-12">
+            <div class="card-body card-topline-skin box-shadow">
+                <div class="row">
+                    <div class="col-lg-6 bind_grouplist">
+                    </div>
+                    <div class="col-lg-12 col-xl-6 col-md-10 BindMappingPart">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Grouping").addClass("active");
+
+        $(document).ready(function () {
+            GetGroupData();
+        });
+        function SuccessMethod(jsondata) {
+            debugger;
+            if (jsondata.Status == "sucess") {
+                $(".BindStatus").html("<div class='alert alert-success alert-dismissible fade show' role='alert'><span> GroupName is added sucess !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+                CancelBtn();
+            }
+            else if (jsondata.Status == "added") {
+                $(".BindStatus").html("<div class='alert alert-warning alert-dismissible fade show' role='alert'><span> Same groupname allrady added !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+            }
+            else {
+                $(".BindStatus").html("<div class='alert alert-danger alert-dismissible fade show' role='alert'><span> Error occured. GroupName is not added !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+            }
+            $(".bind_grouplist").html(jsondata.GroupGrid);
+            $(".BindMappingPart").empty();
+        }
+        function GetGroupData() {
+            debugger;
+            $("#progress").show();
+            url = "/GroupingAndMapping/Add_UpdateGroupName";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json',
+                async: false
+            }).done(function (jsondata) {
+                debugger;
+                $(".bind_grouplist").html(jsondata.GroupGrid);
+                $(".BindMappingPart").empty();
+                $("#progress").hide();
+            });
+        }
+        function EditGroup(GroupId, groupname) {
+            debugger;
+            $("#group_id").val(GroupId);
+            $("#text_groupname").val(groupname);
+            $("#change_button").text("Update");
+        }
+        function CancelBtn() {
+            debugger;
+            $("#GroupForm").trigger("reset");
+            $("#group_id").val(0);
+            $("#change_button").text("Add");
+        }
+        var ConfirmDelete = function (id) {
+            debugger;
+            if (confirm("Are you sure you want to delete ?. If yes then related groupname all services un-mapped.")) {
+                $("#progress").show();
+                debugger;
+                $.ajax({
+                    type: "POST",
+                    url: "/GroupingAndMapping/DeleteGroup",
+                    data: { Groupid: id },
+                    success: function (jsondata) {
+                        debugger;
+                        if (jsondata.Status == "sucess") {
+                            $(".BindStatus").html("<div class='alert alert-success alert-dismissible fade show' role='alert'><span> GroupName delete sucess !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+                        }
+                        else if (jsondata.Status == "notadd")
+                        {
+                            $(".BindStatus").html("<div class='alert alert-warning alert-dismissible fade show' role='alert'><span> Please unmapped services realted this group !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+                        }
+                        else {
+                            $(".BindStatus").html("<div class='alert alert-danger alert-dismissible fade show' role='alert'><span> Error occured. GroupName is not deleted !!</span><button type ='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div >");
+                        }
+                        $(".bind_grouplist").html(jsondata.GroupGrid);
+                        $(".BindMappingPart").empty();
+                        $("#progress").hide();
+                    }
+                })
+            }
+            else
+                return false;
+        }
+        var Mapptype; var MappgroupId;
+        function MappService(groupId, rowid, type) {
+            debugger;
+            $("#progress").show();
+            if (rowid > 0) {
+                $("#groupList_table").find('tbody').find('tr').removeClass("row_colour");
+                $("#RowSelected_" + rowid).addClass("row_colour");
+            }
+            if (type == '') {
+                type = $(".drp_services").val().trim();
+            }
+            Mapptype = type; MappgroupId = groupId;
+            $.ajax({
+                type: "POST",
+                url: "/GroupingAndMapping/GetMappedData",
+                data: { Groupid: groupId, Type: type },
+                success: function (jsondata) {
+                    debugger;
+                    $(".BindMappingPart").empty();
+                    $(".BindMappingPart").html(jsondata.GroupMapped);
+                    $(".drp_services").val(type);
+                    SetSearcha();
+                    $("#mapp_unmapp_type").val(type);
+                    $("#mapp_unmapp_groupid").val(groupId);
+                    $("#progress").hide();
+                }
+            })
+        }
+        function SetSearcha() {
+            //Search UnMappData
+            $('.UnMappSearchList').keyup(function () {
+                debugger;
+                var searchText = $(this).val().toLowerCase();
+                $('#Unmapplst_UL > li').each(function () {
+                    debugger;
+                    var currentLiText = $(this).text().trim().toLowerCase(),
+                        showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                    $(this).toggle(showCurrentLi);
+                });
+            });
+            //ENd
+            //Search MappData
+            $('.MappSearchList').keyup(function () {
+                debugger;
+                var searchText = $(this).val().toLowerCase();
+                $('#Mapplst_UL > li').each(function () {
+                    debugger;
+                    var currentLiText = $(this).text().trim().toLowerCase(),
+                        showCurrentLi = currentLiText.indexOf(searchText) !== -1;
+                    $(this).toggle(showCurrentLi);
+                });
+            });
+            //End
+        }
+        var MappValues = ""; var UnMappValues = "";
+        function MappSuccessMethod(jsondata) {
+            debugger;
+            $(".BindStatus").empty();
+            if (jsondata.Status == "sucess") {
+                var StatusMsg = jsondata.ActionType == "Mapp" ? "Selected Data Mapped Sucess!!" : "Selected Data UnMapped Sucess !!";
+                $(".BindStatus").html('<div class="alert alert-success alert-dismissible fade show" role="alert"><span>' + StatusMsg + '</span>' +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+
+                $(".BindMappingPart").empty();
+                $(".BindMappingPart").html(jsondata.GroupMapped);
+                $(".drp_services").val(Mapptype);
+                SetSearcha();
+                $("#mapp_unmapp_type").val(Mapptype);
+                $("#mapp_unmapp_groupid").val(MappgroupId);
+                MappValues = ""; UnMappValues = "";
+                $("#AddLeftValues").val(UnMappValues);
+                $("#AddrightValues").val(MappValues);
+                SetUnCheckAll();
+            }
+            else if (jsondata.Status == "add") {
+                $(".BindStatus").html('<div class="alert alert-warning alert-dismissible fade show" role="alert"><span>Please check at least one services !!</span>' +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            }
+            else if (jsondata.Status == "wrong") {
+                $(".BindStatus").html('<div class="alert alert-primary alert-dismissible fade show" role="alert"><span>You click wrong button !!</span>' +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            }
+            else {
+                var MsgStatus = jsondata.ActionType == "Mapp" ? "Error occured.Services are not Mapped with group name !!" : "Error occured.Services are not UnMapped with group name !!";
+                $(".BindStatus").html('<div class="alert alert-danger alert-dismissible fade show" role="alert"><span>' + MsgStatus + '</span>' +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            }
+        }
+        function MappCheckBox(Id, Type, li) {
+            debugger;
+            if (li.checked) { MappValues += (Id + "-" + Type).trim() + ","; }
+            else { MappValues = MappValues.replace((Id + "-" + Type).trim() + ",", ''); }
+            $("#AddrightValues").val(MappValues);
+        }
+        function UnMappCheckBox(Id, Type, li) {
+            debugger;
+            if (li.checked) { UnMappValues += (Id + "-" + Type) + ","; }
+            else { UnMappValues = UnMappValues.replace((Id + "-" + Type).trim() + ",", ''); }
+            $("#AddLeftValues").val(UnMappValues);
+        }
+        function SetUnCheckAll() {
+            debugger;
+            $('#Unmapplst_UL > li').each(function () {
+                debugger;
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    $(this).find('input[type="checkbox"]').prop('checked', false);
+                }
+            });
+            $('#Mapplst_UL > li').each(function () {
+                debugger;
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    $(this).find('input[type="checkbox"]').prop('checked', false);
+                }
+            });
+        }
+
+    </script>
+}
+
+

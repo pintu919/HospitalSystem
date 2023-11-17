@@ -1,0 +1,426 @@
+﻿@model HospitalManagement.Models.GeneralAccountEntry
+@{
+    ViewBag.Title = "GeneralAccountEntry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    :root {
+        --ct-bg: #fff;
+        --ct-btn-hover: #e8e8e8;
+        --ct-btn-active: #ddd;
+        --ct-btn-color: #555;
+        --ct-border-color: #d6e5f3;
+        --ct-border-radius: 5px;
+        --ct-tree-hover: #efefef;
+        --ct-selection: #418EFF;
+        --ct-padding: 8px;
+    }
+
+    .comboTreeWrapper {
+        position: relative;
+        text-align: left !important;
+    }
+
+    .comboTreeInputWrapper {
+        position: relative;
+    }
+
+    .comboTreeArrowBtn {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        top: 0px;
+        box-sizing: border-box;
+        border: 1px solid var(--ct-border-color);
+        border-radius: 0 var(--ct-border-radius) var(--ct-border-radius) 0;
+        background: var(--ct-border-color);
+        cursor: pointer;
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
+        width: 36px;
+        line-height: 38px;
+        text-align: center;
+    }
+
+        .comboTreeArrowBtn:hover {
+            background: var(--ct-btn-hover);
+        }
+
+        .comboTreeArrowBtn:active {
+            background: var(--ct-btn-active);
+        }
+
+    .comboTreeInputBox:focus + .comboTreeArrowBtn {
+        color: var(--ct-btn-color);
+        border-top: 1px solid var(--ct-selection);
+        border-right: 1px solid var(--ct-selection);
+        border-bottom: 1px solid var(--ct-selection);
+    }
+
+    .comboTreeArrowBtnImg {
+        font-size: 1rem;
+        color: #2069a9;
+    }
+
+    .comboTreeDropDownContainer {
+        display: none;
+        background: var(--ct-bg);
+        border: 1px solid var(--ct-border-color);
+        position: absolute;
+        width: 100%;
+        box-sizing: border-box;
+        z-index: 999;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+        .comboTreeDropDownContainer ul {
+            padding: 0px;
+            margin: 0;
+        }
+
+        .comboTreeDropDownContainer li {
+            list-style-type: none;
+            padding-left: 15px;
+        }
+
+            .comboTreeDropDownContainer li .selectable {
+                cursor: pointer;
+            }
+
+            .comboTreeDropDownContainer li .not-selectable {
+                cursor: not-allowed;
+            }
+
+            .comboTreeDropDownContainer li:hover {
+                background-color: var(--ct-tree-hover);
+            }
+
+                .comboTreeDropDownContainer li:hover ul {
+                    background-color: var(--ct-bg)
+                }
+
+            .comboTreeDropDownContainer li span.comboTreeItemTitle.comboTreeItemHover,
+            .comboTreeDropDownContainer label.comboTreeItemHover {
+                background-color: var(--ct-selection);
+                color: var(--ct-bg);
+                border-radius: 2px;
+            }
+
+        span.comboTreeItemTitle, .comboTreeDropDownContainer .selectAll {
+            display: block;
+            padding: 3px var(--ct-padding);
+        }
+
+        .comboTreeDropDownContainer label {
+            cursor: pointer;
+            width: 100%;
+            display: block;
+        }
+
+        .comboTreeDropDownContainer .comboTreeItemTitle input,
+        .comboTreeDropDownContainer .selectAll input {
+            position: relative;
+            top: 2px;
+            margin: 0px 4px 0px 0px;
+        }
+
+    .comboTreeParentPlus {
+        position: relative;
+        left: -12px;
+        top: 4px;
+        width: 4px;
+        float: left;
+        cursor: pointer;
+    }
+
+    .comboTreeInputBox {
+        padding: var(--ct-padding);
+        border-radius: var(--ct-border-radius);
+        border: 1px solid var(--ct-border-color);
+        width: 100%;
+        box-sizing: border-box;
+        padding-right: 24px;
+    }
+
+        .comboTreeInputBox:focus {
+            border: 1px solid var(--ct-selection);
+            outline-width: 0;
+        }
+
+    .multiplesFilter {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: 1px solid var(--ct-border-color);
+    }
+</style>
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Journal Account Entry</h4>
+        </div>
+        @*<div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/AccountHead/AccountHeadList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>*@
+    </div>
+
+    @using (Ajax.BeginForm("AddJournalEntry", "AccountHead", new AjaxOptions { HttpMethod = "POST", OnBegin = "OnBegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-md-12 p-0">
+                <div class="row align-items-center">
+                    <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                        <div class="form-group">
+                            <label>From:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                        <div class="form-group">
+                            @Html.ValidationMessageFor(model => model.ParentIdFrom, "", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.ParentIdFrom, new { @class = "getidsFrom" })
+                            <input type="text" class="form-control" id="justAnInputBoxFrom" placeholder="Select Head Type" />
+                        </div>
+                    </div>
+                    <div class="col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                        <div class="form-group">
+                            @Html.ValidationMessageFor(model => model.LedgerIdFrom, "", new { @class = "text-danger" })
+                            <select id="LedgerIdFrom" name="LedgerIdFrom" class="form-control" onchange="GetAmount()"><option value="0">--Select Ledger--</option></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                        <div class="form-group">
+                            <label>To:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                        <div class="form-group">
+                            @Html.ValidationMessageFor(model => model.ParentIdTo, "", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.ParentIdTo, new { @class = "getidsTo" })
+                            <input type="text" class="form-control" id="justAnInputBoxTo" placeholder="Select Head Type" />
+                        </div>
+                    </div>
+                    <div class="col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                        <div class="form-group">
+                            @Html.ValidationMessageFor(model => model.LedgerIdTo, "", new { @class = "text-danger" })
+                            <select id="LedgerIdTo" name="LedgerIdTo" class="form-control"><option value="0">--Select Ledger--</option></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-group bind_amount">
+                            <label>Amount</label>
+                            @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => Model.Amount, new { @class = "form-control", @readonly = "readonly" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label>Particulars</label>
+                            @Html.ValidationMessageFor(model => model.Particulars, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => Model.Particulars, new { @class = "form-control groupOfTexbox" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="text-center">
+                            <button class="btn skin-gradient-btn">Post</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="cardbox" class="mt-2" hidden>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card-box">
+                @if (Model.Status == 1)
+                {
+                    <h4 class="card-title">Alerts</h4>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> Your <a href="#" class="alert-link">Data</a> has been Add successfully.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                else if (Model.Status == 3)
+                {
+
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                else if (Model.Status == 2)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Please select Account Head TypeTo and Ledger Account ID To  
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                else if ((string)TempData["message"] != null)
+                {
+                    @TempData["message"].ToString()
+
+                }
+            </div>
+        </div>
+    </div>
+
+
+<div class="table-responsive bind_journaldata">
+    @if (Model.Journal_entry != null && Model.Journal_entry.Count > 0)
+    {
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Receipt No</th>
+                    <th>Receipt Date</th>
+                    <th>Account Name</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invjournal in Model.Journal_entry)
+                {
+                    <tr>
+                        <td>@invjournal.journal_ref</td>
+                        <td>@invjournal.journal_date</td>
+                        <td>@invjournal.acc_name</td>
+                        <td>@invjournal.payment_type</td>
+                        <td> @Math.Round(invjournal.cr_amount, 2)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    </div>
+  
+
+</div>
+@section scripts{
+    <script src="~/Scripts/comboTreePlugin_v1.js"></script>
+    <script type="text/javascript">
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_AccountData").css("display", "block");
+        //$(".GeneralAccountEntry").addClass("active");
+
+        function OnBegin() {
+           var particulars = $("#Particulars").val();
+            var Amount = $("#Amount").val();
+
+            if (parseFloat(particulars) > parseFloat(Amount)) {
+                alert("particular amount less than or equal to Amount");
+                $("#Particulars").focus();
+                return false;
+            }
+
+            if (parseFloat(particulars) == 0) {
+                alert("Enter particular amount grather than Zero");
+                $("#Particulars").focus();
+                return false;
+            }
+
+        }
+
+        function SuccessMethod(data) {
+            debugger;
+            $(".card-box").empty();
+            $(".card-box").html($(data).find(".card-box").html());
+            $(".bind_journaldata").empty();
+            $(".bind_journaldata").html($(data).find(".bind_journaldata").html());
+
+        }
+
+
+        debugger;
+        var data = @Html.Raw(System.Web.Helpers.Json.Encode(Model.HeadTypeLst));
+        $('#justAnInputBoxFrom').comboTree({
+            source: data,
+            collapse: true,
+            hiddeninput: '.getidsFrom',
+
+        });
+
+        $('#justAnInputBoxTo').comboTree({
+            source: data,
+            collapse: true,
+            hiddeninput: '.getidsTo',
+
+        });
+
+        $('.groupOfTexbox').keypress(function (event) {
+            return isNumber(event, this)
+        });
+
+        function isNumber(evt, element) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (
+                (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // Check minus and only once.
+                (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // Check dot and only once.
+                (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+
+        function GetAmount() {
+            debugger;
+            $("#progress").show();
+            var HeadFrom = $("#ParentIdFrom").val();
+            var LedgerFrom = $("#LedgerIdFrom").val();
+
+            if (HeadFrom == "") {
+                $("#justAnInputBoxFrom").focus();
+                return false;
+            }
+            if (LedgerFrom == "") {
+                $("#LedgerIdFrom").focus();
+                return false;
+            }
+            url = "/AccountHead/GetAccountAmount?HeadIdfrom=" + HeadFrom + " &LedgerIdFrom=" + LedgerFrom + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bind_amount").empty();
+                $(".bind_amount").html($(datahtml).find(".bind_amount").html());
+
+                $(".bind_journaldata").empty();
+                $(".bind_journaldata").html($(datahtml).find(".bind_journaldata").html());
+                $("#progress").hide();
+            });
+        }
+    </script>
+}
+

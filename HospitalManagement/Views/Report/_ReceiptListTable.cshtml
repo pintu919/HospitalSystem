@@ -1,0 +1,98 @@
+﻿@model HospitalManagement.Models.ReceiptModel
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive table-scrolling">
+            <table class="table table-striped table-bordered m-0 jquerydatatable">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Receipt Code</th>
+                        <th>Invoice Code</th>
+                        <th>Transacation Date</th>
+                        <th>Paymode</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>CollectedBy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{decimal TotalAmount = 0; }
+                    @foreach (var item in Model.RecList)
+                    {
+                        TotalAmount = TotalAmount + item.dr_amount;
+                        <tr>
+                            <td> @item.journal_ref</td>
+                            <td>
+                                @if (item.IsIP == 1)
+                                {
+                                    <a href="~/Invoice/IPInvoiceView/@item.UniqRow" target="_blank">@item.invoice_code</a>
+                                }
+                                else
+                                {
+                                    <a href="~/Invoice/InvoiceView/@item.UniqRow" target="_blank">@item.invoice_code</a>
+                                }
+                            </td>
+                            <td>@item.journal_date</td>
+                            <td>@item.paymode</td>
+                            <td>@item.payment_type</td>
+                            <td>@item.dr_amount </td>
+                            <td>@item.CollectBy</td>
+                        </tr>
+                    }
+                    <tr class="table-primary">
+                        <th colspan="5"> Total : </th>
+                        <th colspan="2"> @TotalAmount </th>
+                    </tr>
+                </tbody>               
+            </table>
+           
+        </div>
+    </div>
+</div>
+<div class="row m-t-20">
+    <div class="col-12 col-md-8 col-lg-6">
+        <h4> <b> Employee Wise Collection </b> </h4>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered m-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th> Employee Name </th>
+                        <th> Collected Amount </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        string EmpName = "";
+                        foreach (var item in Model.RecList.OrderByDescending(a => a.CollectBy))
+                        {
+                            int i = 1;
+                            decimal Total = 0;
+                            var List = Model.RecList.FindAll(d => d.CollectBy == item.CollectBy).ToList();
+                            if (item.CollectBy != EmpName)
+                            {
+                                EmpName = List.Count > 0 ? List[0].CollectBy : "";
+                                foreach (var h in List)
+                                {
+                                    Total += h.dr_amount;
+                                    if (i == List.Count)
+                                    {
+
+                                        <tr>
+                                            <td> @h.CollectBy </td>
+                                            <td> @Total </td>
+                                        </tr>
+                                    }
+                                    i++;
+                                }
+                            }
+                        }
+                    }
+                    <tr class="table-primary">
+                        <th> Total: </th>
+                        <th> @TotalAmount </th>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

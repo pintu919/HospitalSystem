@@ -1,0 +1,233 @@
+﻿@model HospitalManagement.Models.HMSDocotContract
+@{
+    ViewBag.Title = "DcotorProfile";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-7 col-6">
+            <h4 class="page-title">My Profile</h4>
+        </div>
+
+        @*<div class="col-sm-5 col-6 text-right">
+                <a href="edit-profile.html" class="btn skin-gradient-btn btn-sm float-right m-b-20"><i class="fa fa-pencil"></i> Edit Profile !</a>
+            </div>*@
+    </div>
+    <div class="row profile-sidebar">
+        @foreach (var item in Model.DoctorList)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-topline-skin" style="position: -webkit-sticky; position: -moz-sticky; position: -ms-sticky; position: -o-sticky; position: sticky;top: 55px; bottom: auto;">
+                    <div class="card-body">
+                        <div class="profile-view text-center">
+                            <div class="profile-img-wrap">
+                                <div class="profile-img">
+                                    <a href="#">
+                                        @if (item.doctor_image == null || item.doctor_image == "")
+                                        {
+                                            <img class="avatar" src="~/wwwroot/assets/img/user.jpg" alt="">
+                                        }
+                                        else
+                                        {
+                                            var img = System.Configuration.ConfigurationManager.AppSettings["getDocimgUrl"] + item.doctor_image;
+                                            <img class="avatar" src=@img alt="">
+                                        }
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="profile-basic">
+                                <h4 class="doctor-name text-ellipsis">@item.doctor_name</h4>
+                                <div class="doc-prof text-secondary">@item.department</div>
+                            </div>
+                            <div class="profile-desc-item">
+                                @item.address
+                                @item.state, @item.country.
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-unbordered doc_info">
+                            <li class="list-group-item">
+                                <span>Designation</span>
+                                <div class="profile-desc-item">@item.doctor_designation</div>
+                            </li>
+                            <li class="list-group-item">
+                                <span>Degree </span>
+                                <div class="profile-desc-item">@item.qualification</div>
+                            </li>
+                            <li class="list-group-item">
+                                <span>Gender </span>
+                                <div class="profile-desc-item pull-right">@item.gender</div>
+                            </li>
+                            <li class="list-group-item">
+                                <span>Mobile No. </span>
+                                <div class="profile-desc-item pull-right">@item.doctor_mobile</div>
+                            </li>
+                            <li class="list-group-item">
+                                <span>Email</span>
+                                <div class="profile-desc-item pull-right">@item.work_email</div>
+                            </li>
+                            <li class="list-group-item">
+                                <span>Institute </span>
+                                <div class="profile-desc-item pull-right">@item.institiute</div>
+                            </li>
+                        </ul>
+                        <!-- social-icon -->
+                        <ul class="profile-social-icon m-auto text-center">
+                            <li class="fb"><a href="#"><i class="fa fa-facebook"></i></a></li>
+                            <li class="tw"><a href="#"><i class="fa fa-twitter"></i></a></li>
+                            <li class="insta"><a href="#"><i class="fa fa-instagram"></i></a></li>
+                        </ul><!-- END social-icon -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-8">
+                <div class="inv_tab card-topline-skin">
+                    <ul class="nav nav-tabs nav-tabs-bottom">
+                        <li class="nav-item"><a class="nav-link active" href="#bottom-tab2" data-toggle="tab">Education</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about-cont" data-toggle="tab">About</a></li>
+                        @*<li class="nav-item"><a class="nav-link" href="#bottom-tab3" data-toggle="tab">View More</a></li>*@
+                    </ul>
+                    <div class="tab-content p-0">
+                        <div class="tab-pane show active" id="bottom-tab2">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="eduction_info_img mr-2">
+                                        <img src="/wwwroot/assets/img/appointment.png" />
+                                    </div>
+                                    <h3 class="card-title">Education Informations</h3>
+                                </div>
+                                <hr />
+                                <div class="experience-box">
+                                    <ul class="experience-list">
+                                        @foreach (var s in Model.DoctorEduList)
+                                        {
+                                            <li>
+                                                <div class="experience-user">
+                                                    <div class="before-circle"></div>
+                                                </div>
+                                                <div class="experience-content">
+                                                    <div class="timeline-content">
+                                                        <span class="name">@s.institute</span>
+                                                        <div>@s.degree</div>
+                                                        <span class="time">@s.passout_year</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="about-cont">
+                            <div class="card-body">
+                                @*<p>Dr. Charlotte Deo Leon is a neurosurgeon in East Patchogue,Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. He received his medical degree from Harvard Medical School and has been in practice for 21 years. He is one of 5 doctors at Brookhaven Memorial Hospital Medical Center and one of 9 at Southside Hospital who specialize in Neurological Surgery.</p>*@
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="eduction_info_img mr-2">
+                                                <img src="/wwwroot/assets/img/certificate.png" />
+                                            </div>
+                                            <h3 class="card-title">Experience</h3>
+                                        </div>
+                                        <hr>
+                                        <div class="experience-box">
+                                            <ul class="experience-list">
+                                                @foreach (var e in Model.DoctorExepList)
+                                                {
+                                                    <li>
+                                                        <div class="experience-user">
+                                                            <div class="before-circle"></div>
+                                                        </div>
+                                                        <div class="experience-content">
+                                                            <div class="timeline-content">
+                                                                <span class="name">@e.hos_name (@e.designation)</span>
+                                                                <span class="time">@e.from_date - @e.to_date</span>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                }
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="eduction_info_img mr-2">
+                                                <img src="/wwwroot/assets/img/specialist.png" />
+                                            </div>
+                                            <h3 class="card-title">Department & Specialties</h3>
+                                        </div>
+                                        <hr>
+                                        <div class="specialties-box">
+                                            <ul class="specialties-list">
+                                                <li>Breast Surgery</li>
+                                                <li>Colorectal Surgery</li>
+                                                <li>Endocrinology</li>
+                                                <li>Cardiology</li>
+                                                <li>Cosmetic Dermatology</li>
+                                                <li>Mole checks and monitoring</li>
+                                                <li>Clinical Neurophysiology</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="bottom-tab3">
+                            <div class="card-box mb-0">
+                                <h3 class="card-title">Conferences, Cources & Workshop Attended</h3>
+                                <hr>
+                                <div class="experience-box">
+                                    <ul class="experience-list">
+                                        <li>
+                                            <div class="experience-user">
+                                                <div class="before-circle"></div>
+                                            </div>
+                                            <div class="experience-content">
+                                                <div class="timeline-content">
+                                                    <a href="#/" class="name">Consultant Gynecologist</a>
+                                                    <span class="time">Jan 2014 - Present (4 years 8 months)</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="experience-user">
+                                                <div class="before-circle"></div>
+                                            </div>
+                                            <div class="experience-content">
+                                                <div class="timeline-content">
+                                                    <a href="#/" class="name">Consultant Gynecologist</a>
+                                                    <span class="time">Jan 2009 - Present (6 years 1 month)</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="experience-user">
+                                                <div class="before-circle"></div>
+                                            </div>
+                                            <div class="experience-content">
+                                                <div class="timeline-content">
+                                                    <a href="#/" class="name">Consultant Gynecologist</a>
+                                                    <span class="time">Jan 2004 - Present (5 years 2 months)</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Doctors").addClass("subdrop");
+        //$(".Submenu_Doctors").css("display", "block");
+        //$(".Submenu_Doctors").css("display", "block");
+        //$(".HMSDoctorContractList").addClass("active");
+
+    </script>
+    }

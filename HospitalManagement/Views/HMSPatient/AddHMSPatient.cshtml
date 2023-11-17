@@ -1,0 +1,362 @@
+﻿@model HospitalManagement.Models.HMSPatientModel
+@{
+    ViewBag.Title = "AddHMSPatient";
+}
+<link href="~/wwwroot/assets/css/select2.min.css" rel="stylesheet" />
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-21">
+            <h4 class="page-title">Add Patient</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/HMSPatient/HMSPatientList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddPatient", "HMSPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-md-12">
+                <form>
+                    <div class="row align-items-center">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>First Name <span class="text-danger">@Html.ValidationMessageFor(model => model.PatientFirstName, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.PatientFirstName, new { @class = "form-control" })
+                                <i class="fa fa-user"></i>
+                                @Html.HiddenFor(model => model.PatientCode, new { @id = "pacod" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Last Name <span class="text-danger">@Html.ValidationMessageFor(model => model.PatientLasttName, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.PatientLasttName, new { @class = "form-control" })
+                                <i class="fa fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Father's Name <span class="text-danger">@Html.ValidationMessageFor(model => model.PatientFatherName, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.PatientFatherName, new { @class = "form-control" })
+                                <i class="fa fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Mother's Name <span class="text-danger"> @Html.ValidationMessageFor(model => model.PatientMotherName, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.PatientMotherName, new { @class = "form-control" })
+                                <i class="fa fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Blood Group</label>
+                                @{
+                                    List<SelectListItem> ListBloodGroup = new List<SelectListItem>();
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "-- Select Blood Group --",
+                                        Value = "",
+                                        Selected = true
+                                    });
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "A+",
+                                        Value = "A+"
+                                    });
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "O+",
+                                        Value = "O+"
+
+                                    });
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "B+",
+                                        Value = "B+"
+
+                                    });
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "AB+",
+                                        Value = "AB+"
+
+                                    });
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "A-",
+                                        Value = "A-",
+                                    });
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "O-",
+                                        Value = "O-"
+
+                                    });
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "B-",
+                                        Value = "B-"
+
+                                    });
+                                    ListBloodGroup.Add(new SelectListItem
+                                    {
+                                        Text = "AB-",
+                                        Value = "AB-"
+
+                                    });
+                                }
+                                @Html.DropDownList("BloodGroup", ListBloodGroup, new { @class = "form-control" })
+                                <i class="fa fa-ambulance"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Email <span class="text-danger"> @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+                                <i class="fa fa-envelope"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Date of Birth   @Html.ValidationMessageFor(model => model.DateOfBirth, "", new { @class = "text-danger" })</label>
+                                @*<div class="cal-icon">*@
+                                @Html.TextBoxFor(model => model.DateOfBirth, new { @class = "form-control datetimepicker", placeholder = "(dd/mm/yyyy)", @id = "DateOfBirth", autocomplete = "off" })
+                                @*<i class="fa fa-calendar"></i>*@
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                @*</div>*@
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group gender-select">
+                                <label class="gen-label">Gender: @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })</label>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(model => model.Gender, "Male", new { @id = "Male" })
+                                        Male
+                                    </label>
+                                </div>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(model => model.Gender, "Female", new { @id = "Female" })
+                                        Female
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Age   @Html.ValidationMessageFor(model => model.Age, "", new { @class = "text-danger" })</label>
+                                        @Html.TextBoxFor(model => model.Age, new { @class = "form-control", @readonly = "readonly", @id = "Patientage" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        @Html.RadioButtonFor(model => model.PatVerify, "NID", new { @id = "NID" }) <label> NID </label>
+                                        @Html.RadioButtonFor(model => model.PatVerify, "BirthReg", new { @id = "BirthReg" }) <label> Birth Reg. No </label>
+                                        <div class="">
+                                            @Html.TextBoxFor(model => model.NID_Birthregno, new { @class = "form-control ", @id = "nidno" })
+                                            <i class="fa fa-registered"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Marital Status   </label>
+                                        @{
+                                            List<SelectListItem> listItemsMarital = new List<SelectListItem>();
+                                            listItemsMarital.Add(new SelectListItem
+                                            {
+                                                Text = "Single",
+                                                Value = "Single",
+                                                Selected = true
+                                            });
+                                            listItemsMarital.Add(new SelectListItem
+                                            {
+                                                Text = "Married",
+                                                Value = "Married"
+
+                                            });
+                                            listItemsMarital.Add(new SelectListItem
+                                            {
+                                                Text = "Divorced",
+                                                Value = "Divorced"
+
+                                            });
+                                            listItemsMarital.Add(new SelectListItem
+                                            {
+                                                Text = "Widow",
+                                                Value = "Widow"
+
+                                            });
+                                        }
+                                        @Html.DropDownList("MaritalStatus", listItemsMarital, new { @class = "form-control select" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Address  @Html.ValidationMessageFor(model => model.PresentAddress, "", new { @class = "text-danger" })</label>
+                                        @Html.TextAreaFor(model => model.PresentAddress, new { @class = "form-control", @rows = "3" })
+                                        <i class="fa fa-map-marker"></i>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label> Spouse Name<span class="text-danger">@Html.ValidationMessageFor(model => model.SpouseName, "", new { @class = "text-danger" })</span></label>
+                                        @Html.TextBoxFor(model => model.SpouseName, new { @class = "form-control" })
+                                        <i class="fa fa-user"></i>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Profession  @Html.ValidationMessageFor(model => model.PatientProfessions, "", new { @class = "text-danger" })</label>
+                                        @Html.TextBoxFor(model => model.PatientProfessions, new { @class = "form-control" })
+                                        <i class="fa fa-id-card"></i>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="form-group">
+                                        <label>Country</label>
+                                        @Html.ValidationMessageFor(model => model.CountryCode, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.CountryCode, new SelectList(Model.CountryLst, "country_code", "country_name"), "Select Country", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData('state')", @id = "country" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="form-group statebnd">
+                                        <label>State/Province</label>
+                                        @Html.ValidationMessageFor(model => model.StateCode, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.StateCode, new SelectList(Model.StateLst, "state_code", "statename"), "Select State", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData('district')", @id = "state" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="form-group districtbnd">
+                                        <label>District</label>
+                                        @Html.ValidationMessageFor(model => model.DistrictCode, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.DistrictCode, new SelectList(Model.DistrictLst, "district_code", "district"), "Select District", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData('city')", @id = "district" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6 col-lg-3">
+                                    <div class="form-group citybnd">
+                                        <label>City</label>
+                                        @Html.ValidationMessageFor(model => model.CityCode, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.CityCode, new SelectList(Model.CityLst, "city_code", "cityname"), "Select City", new { @class = "form-control select requiredSelect", @id = "city" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="form-group ">
+                                <label>Phone  @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" }) </label>
+                                @Html.TextBoxFor(model => model.Phone, new { @class = "form-control", })
+                                <i class="fa fa-phone"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label>Postal Code </label>
+                                @Html.TextBoxFor(model => model.ZipCode, new { @class = "form-control" })
+                                <i class="fa fa-file-zip-o"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label></label>
+                                <div class="profile-upload">
+                                    <div class="upload-img">
+                                        <img id="blah" alt="your image" src="~/wwwroot/assets/img/user.jpg">
+                                    </div>
+                                    <div class="upload-input">
+                                        @Html.EditorFor(model => model.Photo, new { htmlAttributes = new { @class = "form-control", name = "postedFile", @id = "imageUploadForm", onchange = "readURL(this);", @type = "file" } })
+                                        @Html.ValidationMessageFor(model => model.Photo, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="mr-3">Status :</label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 1, new { @id = "Active" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 0, new { @id = "Inactive" })
+                                        Inactive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="m-t-20 text-center">
+                                <button class="btn skin-gradient-btn submit-btn">Create Patient</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="Regpatient" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog modal-md modal-dialog-centered">
+                            <div class="modal-content">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                                <div class="modal-body m-3">
+                                    <h4 class="text-center" style="color: #0c479f;">Below Patient already register for this mobile number. Are you sure want to continue register for this number : ?</h4>
+                                    <table id="example2" class="table table-bordered mt-3">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Patient </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                Relation Type
+                                                @Html.TextBoxFor(model => model.Relation, new { @class = "form-control", @required = "required" })
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn red-gradient-btn">Continue</button>&nbsp;
+                                        <a href="#" onclick="closepopup()" class="btn skyblue-gradient-btn" data-dismiss="modal">Close</a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="cardbox" class="mt-2" hidden>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+@section scripts{
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script src="~/Scripts/Patient/AddPatient.js"></script>
+    <script type="text/javascript">
+
+        //$(".Patients").addClass("subdrop");
+        //$(".Submenu_Patients").css("display", "block");
+        //$(".Submenu_Patients").css("display", "block");
+        //$(".AddHMSPatient").addClass("active");
+
+    </script>
+}
+

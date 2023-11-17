@@ -1,0 +1,947 @@
+﻿@model HospitalManagement.Models.TestAndInvestigationModel
+@using HospitalManagement.Models;
+@{
+    ViewBag.Title = "HosCollectionRegentItem";
+}
+
+<style>
+    img {
+        display: inline;
+        visibility: visible;
+    }
+</style>
+<link href="~/wwwroot/assets/css/bootstrap-multiselect.css" rel="stylesheet" />
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Hospital Lab Collection</h4>
+        </div>
+    </div>
+    <div class="row inv_tab mt-2">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" href="#solid-justified-tab1" data-toggle="tab">OPD/IP Lab Collection</a></li>
+                <li id="tab2click" class="nav-item"><a class="nav-link" href="#solid-justified-tab2" data-toggle="tab">Out Side Patient Lab Collection</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane show active" id="solid-justified-tab1">
+                    @using (Ajax.BeginForm("Filterinvcollection", "TestAndInvestigation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", LoadingElementId = "progress" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            @*<div class="col-sm-6 col-md-3">
+                                    <div class="form-group form-focus select-focus">
+                                        <label class="focus-label">Investigation Type</label>
+                                        @{
+                                            List<SelectListItem> listIteminvtype = new List<SelectListItem>();
+                                            listIteminvtype.Add(new SelectListItem
+                                            {
+                                                Text = "Pathology",
+                                                Value = "pathology",
+                                                Selected = true
+
+                                            });
+                                            listIteminvtype.Add(new SelectListItem
+                                            {
+                                                Text = "Radiology",
+                                                Value = "radiology"
+                                            });
+
+                                        }
+                                        @Html.DropDownList("invtype", listIteminvtype, new { @class = "form-control floating" })
+                                    </div>
+                                </div>*@
+
+                            <div class="col-sm-6 col-md-3 col-xl-2">
+                                <div class="form-group form-focus select-focus">
+                                    <label class="focus-label">Day</label>
+                                    <select class="form-control" id="Days" onchange="GetDropdownData()">
+                                        @*<option>Select</option>*@
+                                        <option>Today</option>
+                                        <option>Last Week</option>
+                                        <option>Custom</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3 col-xl-2 collapse" id="colpfrom">
+                                <div class="form-group form-focus">
+                                    <label class="focus-label">From Date</label>
+                                    <input id="datetimepicker11" class="form-control datetimepicker  floating" autocomplete="off">
+                                    @Html.HiddenFor(model => model.fromdate)
+                                    @*<i class="fa fa-calendar"></i>*@
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3 col-xl-2 collapse" id="colpto">
+                                <div class="form-group form-focus">
+                                    <label class="focus-label">To Date</label>
+                                    <input id="datetimepicker12" class="form-control datetimepicker  floating" autocomplete="off">
+                                    @Html.HiddenFor(model => model.todate)
+                                    @*<i class="fa fa-calendar"></i>*@
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-md-3 col-xl-2">
+                                <div class="form-group form-focus select-focus">
+                                    <label class="focus-label">Status</label>
+                                    @{
+                                        List<SelectListItem> listItemstatus = new List<SelectListItem>();
+
+                                        listItemstatus.Add(new SelectListItem
+                                        {
+                                            Text = "Pending",
+                                            Value = "pending"
+                                        });
+                                        listItemstatus.Add(new SelectListItem
+                                        {
+                                            Text = "Collected",
+                                            Value = "collected"
+                                        });
+                                    }
+                                    @Html.DropDownList("status", listItemstatus, new { @class = "form-control floating" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3 col-xl-1">
+                                <button class="btn skin-bg-gradient btn-block submit-btn"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    }
+                    <div class="row bindtable card-topline-skin border m-0">
+                        <div class="col-md-12">
+                            <div class="table-responsive mt-2">
+                                <table class="table table-border table-striped custom-table mb-0" id="example1">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Patient Name</th>
+                                            <th hidden>appointment_datetime</th>
+                                            <th>Age</th>
+                                            <th>Doctor Name</th>
+                                            <th>Appointment</th>
+                                            <th>PrintBarcode</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.RegisterAppointmentlst != null && Model.RegisterAppointmentlst.Count > 0)
+                                        {
+                                            foreach (var item in Model.RegisterAppointmentlst)
+                                            {
+                                                int i = 0;
+                                                <tr>
+                                                    <td class="plusicon text-center">
+                                                        <img src="~/Image/plus.png" />
+                                                        <div style="display: none" class="table-responsive">
+                                                            <div>
+                                                                <span class="font-weight-600">Note:-</span>
+                                                                <span class="text-danger">
+                                                                    Before click print barcode button please belowe checkbox  must be checked  for generate barcode.
+                                                                </span>
+                                                            </div>
+                                                            <table cellpadding="0" cellspacing="0" class="get_@item.appointment_code table table-bordered table-striped custom-table ChildGrid">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Investigation Id</th>
+                                                                        <th>Investigation Name</th>
+                                                                        <th>Collection</th>
+                                                                        <th>Type</th>
+                                                                        <th>Action</th>
+                                                                        <th>Barcode</th>
+                                                                        <th>Status</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                @{
+                                                                    List<investigationparaamount> inv_price = new List<investigationparaamount>();
+                                                                    <tbody>
+                                                                        @if (Model.investigationPriceList != null && Model.investigationPriceList.Count > 0)
+                                                                        {
+                                                                            inv_price = Model.investigationPriceList.FindAll(A => A.appoinment_code == item.appointment_code).ToList();
+                                                                            if (inv_price.Count > 0)
+                                                                            {
+                                                                                foreach (var price in inv_price)
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td>@price.investigation_investigationid</td>
+                                                                                        <td>@price.investigationmaster_name</td>
+                                                                                        <td>
+                                                                                            @{
+                                                                                                List<SelectListItem> lst = new List<SelectListItem>();
+
+                                                                                                if (price.sup_lst != null && price.sup_lst.Count > 0)
+                                                                                                {
+                                                                                                    foreach (var sup in @price.sup_lst)
+                                                                                                    {
+                                                                                                        lst.Add(new SelectListItem { Text = sup.SupplierName, Value = Convert.ToString(sup.SupplierId), Selected = price.supplierid == sup.SupplierId ? true : false });
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                            @Html.DropDownList("price.supplierid", lst, new { @class = "form-control required", @disabled = "disabled", @onchange = "callChangefunc1(this.value)" })
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            @if (price.invtype == "pathology")
+                                                                                            {
+                                                                                                <span class="badge badge-light-secondary">@price.invtype</span>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <span class="badge badge-light-primary">@price.invtype</span>
+                                                                                            }
+                                                                                        </td>
+                                                                                        @if (price.price == 0)
+                                                                                        {
+                                                                                            <td>
+                                                                                                <span class="custom-badge status-red">
+                                                                                                    Not available here
+                                                                                                </span>
+                                                                                            </td>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            if (price.invcollectionitem == 1)
+                                                                                            {
+                                                                                                <td>
+                                                                                                    <div class="table-action">
+                                                                                                        <span class="custom-badge status-blue"> Added </span>
+                                                                                                    </div>
+                                                                                                </td>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <td id=@price.appoinment_code@i>
+                                                                                                    <a class="btn green-gradient-btn btn-sm" onclick="addCollection('@price.invtype','@item.patient_name','@price.service_id','@price.investigationmaster_id','@price.appoinment_code','@price.appoinment_code@i','@i@price.appoinment_code@i')">Add Collection</a>
+                                                                                                </td>
+                                                                                            }
+                                                                                        }
+                                                                                        <td class="Checkbox_@i@price.appoinment_code@i">
+                                                                                            @if (price.invtype != "radiology" && price.invcollectionitem == 1)
+                                                                                            {
+                                                                                                <input type="checkbox" />
+                                                                                            }
+                                                                                        </td>
+                                                                                        <td id="@i@price.appoinment_code@i">
+                                                                                            @if (price.invcollectionitem == 0)
+                                                                                            {
+                                                                                                <span class="custom-badge status-yellow">Pending</span>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <span class="custom-badge status-green">Collected</span>
+                                                                                            }
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    i++;
+                                                                                }
+                                                                            }
+                                                                            else if (inv_price.Count == 0 || inv_price == null)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td colspan="999" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                                                                                </tr>
+                                                                            }
+                                                                        }
+                                                                    </tbody>
+
+                                                                }
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @{
+                                                            var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                                            if (item.patient_profile != "" && item.patient_profile != null)
+                                                            {
+                                                                PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.patient_profile;
+                                                            }
+                                                        }
+                                                        <img class="avatar" src="@PatProfile" alt="User Image"><h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.patient_name </a><span class="d-block"> @item.patient_code</span> <span class="d-block text-secondary"> @item.pateint_mobile</span> </h2>
+                                                    </td>
+                                                    <td hidden>@Html.DisplayFor(model => item.appointment_datetime)</td>
+                                                    <td><h2>@item.gender <span class="text-secondary">@item.patient_age</span></h2></td>
+                                                    <td><h2>@item.doctor_name<span class="d-block text-secondary">@item.department_name</span></h2></td>
+                                                    <td><h2>@item.appointment_date @item.appointment_time <span class="d-block text-secondary"> @item.appointment_code</span></h2></td>
+                                                    <td id="Barcode_@item.appointment_code">
+                                                        @if (inv_price.Count > 0 && inv_price.FindAll(d => d.invtype != "radiology").ToList().Count > 0 && inv_price.FindAll(d => d.invcollectionitem == 1).ToList().Count > 0)
+                                                        {
+                                                            <a class="btn green-gradient-btn btn-sm" onclick="PrintBarcode('@item.appointment_code','@item.patient_name')">Print</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a class="btn green-gradient-btn btn-sm disabled">Print</a>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (item.isstatus == 1)
+                                                        {
+                                                            <span class="badge badge-success">Collected</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-warning">Pending</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="tab-pane" id="solid-justified-tab2">
+                    @using (Ajax.BeginForm("Filteropdinvcollection", "TestAndInvestigation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethodopd", LoadingElementId = "progress" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-sm-6 col-md-3 col-xl-2">
+                                <div class="form-group form-focus select-focus">
+                                    <label class="focus-label">Day</label>
+                                    <select class="form-control" id="OPDays" onchange="GetDropdownDataOP()">
+                                        @*<option>Select</option>*@
+                                        <option>Today</option>
+                                        <option>Last Week</option>
+                                        <option>Custom</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3 col-xl-2 collapse" id="colpfromOP">
+                                <div class="form-group form-focus">
+                                    <label class="focus-label">From Date</label>
+                                    <input id="datetimepicker13" class="form-control datetimepicker  floating" autocomplete="off">
+                                    @Html.HiddenFor(model => model.fromdateop)
+                                    @*<i class="fa fa-calendar"></i>*@
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3 col-xl-2 collapse" id="colptoOP">
+                                <div class="form-group form-focus">
+                                    <label class="focus-label">To Date</label>
+                                    <input id="datetimepicker14" class="form-control datetimepicker  floating" autocomplete="off">
+                                    @Html.HiddenFor(model => model.todateop)
+                                    @*<i class="fa fa-calendar"></i>*@
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3 col-xl-2">
+                                <div class="form-group form-focus select-focus">
+                                    <label class="focus-label">Status</label>
+                                    @{
+                                        List<SelectListItem> listItemstatus = new List<SelectListItem>();
+
+                                        listItemstatus.Add(new SelectListItem
+                                        {
+                                            Text = "Pending",
+                                            Value = "pending"
+                                        });
+                                        listItemstatus.Add(new SelectListItem
+                                        {
+                                            Text = "Collected",
+                                            Value = "collected"
+                                        });
+                                    }
+                                    @Html.DropDownList("status", listItemstatus, new { @class = "form-control floating", @id = "opdstatus" })
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-3 col-xl-1">
+                                <button class="btn skin-gradient-btn btn-block submit-btn"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    }
+                    <div class="row bindtableop card-topline-skin  border m-0">
+                        <div class="col-md-12">
+                            <div class="table-responsive mt-2">
+                                <table class="table table-border table-striped custom-table mb-0" id="example2">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            @*<th>Appointment Id</th>*@
+                                            <th>Patient Name</th>
+                                            <th hidden>appointment_datetime</th>
+                                            <th>Age</th>
+                                            <th>Invoice</th>
+                                            <th>Referral Dr.</th>
+                                            <th>PrintBarcode</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.OP_InvestigationCollection != null && Model.OP_InvestigationCollection.Count > 0)
+                                        {
+                                            foreach (var item in Model.OP_InvestigationCollection)
+                                            {
+                                                int i = 0;
+                                                <tr>
+                                                    <td class="plusicon text-center">
+                                                        <img src="~/Image/plus.png" />
+                                                        <div style="        display: none" class="table-responsive">
+                                                            <div>
+                                                                <span class="font-weight-600">Note:-</span>
+                                                                <span class="text-danger">
+                                                                    Before click print barcode button please belowe checkbox  must be checked  for generate barcode.
+                                                                </span>
+                                                            </div>
+                                                            <table cellpadding="0" cellspacing="0" class="get_@item.invoice_code table table-bordered table-striped custom-table ChildGrid">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Test Id</th>
+                                                                        <th>Investigation Name</th>
+                                                                        <th>Collection</th>
+                                                                        <th>Type</th>
+                                                                        <th>Action</th>
+                                                                        <th>Barcode</th>
+                                                                        <th>Status</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                @{ List<OP_investigationItem> inv_price = new List<OP_investigationItem>();
+                                                                    <tbody>
+                                                                        @if (Model.OP_InvestigationItems != null && Model.OP_InvestigationItems.Count > 0)
+                                                                        {
+                                                                            inv_price = Model.OP_InvestigationItems.FindAll(A => A.invoice_code == item.invoice_code).ToList();
+                                                                            if (inv_price.Count > 0)
+                                                                            {
+                                                                                foreach (var price in inv_price)
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td>@price.test_id</td>
+                                                                                        <td>@price.investigation_name</td>
+                                                                                        <td>
+                                                                                            @{
+                                                                                                List<SelectListItem> lst = new List<SelectListItem>();
+
+                                                                                                foreach (var sup in @price.sup_lst)
+                                                                                                {
+                                                                                                    lst.Add(new SelectListItem { Text = sup.SupplierName, Value = Convert.ToString(sup.SupplierId), Selected = price.supplierid == sup.SupplierId ? true : false });
+                                                                                                }
+                                                                                            }
+                                                                                            @Html.DropDownList("price.supplierid", lst, new { @class = "form-control required", @disabled = "disabled", @onchange = "callChangefunc1(this.value)" })
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            @if (price.invtype == "pathology")
+                                                                                            {<span class="badge badge-light-secondary">@price.invtype</span>}
+                                                                                        else
+                                                                                        { <span class="badge badge-light-primary">@price.invtype</span>}
+                                                                                        </td>
+                                                                                        @if (price.Amount == 0)
+                                                                                        {
+                                                                                            <td>
+                                                                                                <span class="custom-badge status-red">
+                                                                                                    Not available here
+                                                                                                </span>
+                                                                                            </td>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            if (price.invcollectionitem == 1)
+                                                                                            {
+
+                                                                                                <td>
+                                                                                                    <div class="table-action">
+                                                                                                        <span class="custom-badge status-blue"> Added </span>
+                                                                                                    </div>
+                                                                                                </td>
+
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <td id=@price.invoice_code@i>
+                                                                                                    <a class="btn green-gradient-btn btn-sm" onclick="addCollection_OP('@price.invtype','@item.patient_name','@price.service_id', '@price.investigation_id','@price.invoice_code','@price.invoice_code@i','@i@price.invoice_code@i')">Add Collection</a>
+                                                                                                </td>
+                                                                                            }
+                                                                                        }
+                                                                                        <td class="Checkbox_@i@price.invoice_code@i">
+                                                                                            @if (price.invtype != "radiology" && price.invcollectionitem == 1)
+                                                                                            {
+                                                                                                <input type="checkbox" />
+                                                                                            }
+                                                                                        </td>
+                                                                                        <td id="@i@price.invoice_code@i">
+                                                                                            @if (price.invcollectionitem == 0)
+                                                                                            {
+                                                                                                <span class="custom-badge status-yellow">Pending</span>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <span class="custom-badge status-green">Collected</span>
+                                                                                            }
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    i++;
+                                                                                }
+                                                                            }
+                                                                            else if (inv_price.Count == 0 || inv_price == null)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td colspan="3" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                                                                                </tr>
+                                                                            }
+                                                                        }
+                                                                        else if (Model.OP_InvestigationItems == null || Model.OP_InvestigationItems.Count == 0)
+                                                                        {
+                                                                            <tr>
+                                                                                <td colspan="3" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+
+                                                                }
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                    @*<td>@item.appointment_code</td>*@
+                                                    <td>
+                                                        @{
+                                                            var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                                            if (item.patient_profile != "" && item.patient_profile != null)
+                                                            {
+                                                                PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.patient_profile;
+                                                            }
+                                                        }
+                                                        <img class="avatar" src="@PatProfile" alt="User Image"><h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.patient_name </a><span class="d-block"> @item.patient_code</span> <span class="d-block text-secondary"> @item.pateint_mobile</span> </h2>
+                                                    </td>
+                                                    <td hidden>@Html.DisplayFor(model => item.cdate)</td>
+                                                    <td><h2>@item.gender <span class="text-secondary">@item.patient_age</span></h2></td>
+                                                    <td>
+                                                        <h2>
+                                                            @item.invoice_code
+                                                            <span class="d-block text-secondary"> @item.inv_date</span>
+                                                        </h2>
+                                                    </td>
+                                                    <td>@item.referal_doctor</td>
+                                                    <td id="Barcode_@item.invoice_code">
+                                                        @if (inv_price.Count > 0 && inv_price.FindAll(d => d.invtype != "radiology").ToList().Count > 0 && inv_price.FindAll(d => d.invcollectionitem == 1).ToList().Count > 0)
+                                                        {
+                                                            <a class="btn green-gradient-btn btn-sm" onclick="PrintBarcode('@item.invoice_code','@item.patient_name')">Print</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a class="btn green-gradient-btn btn-sm disabled">Print</a>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (item.isstatus == 1)
+                                                        {
+                                                            <span class="badge badge-success">Collected</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-warning">Pending</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Hos_Collection" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div id="bindCollection" class="modal-content">
+            <div class="modal-body ">
+                <div class="text-center">
+                    <img src="~/wwwroot/assets/img/aler_img.gif" alt="" width="60" height="56">
+                    <h5>Message</h5>
+
+                </div>
+                <div class="row m-t-20">
+                    <div class="col-lg-10 m-auto">
+                        <table>
+                            <tbody>
+                                @if (Model.hospitalcollection != null)
+                                {
+                                    @Html.HiddenFor(m => m.hospitalcollection[0].Status, new { @id = "hdnstatus" })
+
+                                    <tr>
+                                        <td>
+                                            <ul>
+                                                @foreach (var col in Model.hospitalcollection)
+                                                {
+                                                    <li> @col.Message</li>
+                                                }
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="m-t-20 text-center">
+                    <a href="#" class="btn skyblue-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardboxResetPass" class="card-box">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*@Html.Partial("_CollectionOperationModel", Model)*@
+@section scripts{
+    <script src="~/wwwroot/assets/js/bootstrap-multiselect.js"></script>
+    <script src="~/wwwroot/assets/js/date-eu.js"></script>
+    <script type="text/javascript">
+
+        //$(".InvestigationStation").addClass("subdrop");
+        //$(".Submenu_InvestigationStation").css("display", "block");
+        //$(".Submenu_InvestigationStation").css("display", "block");
+        //$(".HosCollectionRegentItem").addClass("active");
+
+        $(document).ready(function () {
+            debugger;
+
+            $('#example1').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+            });
+
+        });
+
+
+        function addCollection(inv_type,patient_name, service_id, investigationmaster_id, appoinment_code, appointmentid, appointmentid1) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/TestAndInvestigation/AddRegentItem",
+                data: '{service_id:"' + service_id + '", Investigationid:"' + investigationmaster_id + '", Appointmentcode: "' + appoinment_code + '" }',
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                success: function (data) {
+                    debugger;
+                    $("#bindCollection").empty();
+                    $("#bindCollection").html($(data).find("#bindCollection").html());
+                    var status = $("#hdnstatus").val();
+                    if (parseInt(status) == 1) {
+                        if (inv_type != "radiology") {
+                            $("#Barcode_" + appoinment_code).html("<a class='btn green-gradient-btn btn-sm' onclick='PrintBarcode(\"" + appoinment_code + "\",\"" + patient_name + "\")'>Print</a>");
+                            $(".Checkbox_" + appointmentid1).html('<input type="checkbox" />');
+                        }
+                        $("#" + appointmentid + "").remove();
+                        $("#" + appointmentid + "").html("<span class='custom-badge status-blue'> Added</span >");
+                        $("#" + appointmentid1 + "").remove();
+                        $("#" + appointmentid1 + "").html("<span class='badge badge-warning'>Collected</span>");
+                    }
+                    else {
+                        $("#Hos_Collection").modal('show');
+                    }
+                }
+            });
+        }
+
+
+        //function showModal() {
+        //    debugger;
+        //    $('#Collection_data').modal('show');
+        //    $('.listbox').multiselect({
+        //        includeSelectAllOption: true
+        //    });
+        //}
+
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr><td></td><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next().remove();
+        });
+        function SuccessMethodcol(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "1") {
+                var id = $("#appointment_id").val();
+                $("#" + id + "").remove();
+                $("#" + id + "").html("<span class='custom-badge status-blue'>Added</span>");
+                //$('#Collection_data').modal('hide');
+            }
+
+        }
+
+        $("#tab2click").click(function () {
+            $('.loadingimg').css('display', 'block');
+            //$("#opdinvtype").val('pathology');
+            $("#opdstatus").val('pending');
+            url = "/TestAndInvestigation/HosCollectionRegentItem_OP";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bindtableop").empty();
+                $(".bindtableop").html($(datahtml).find(".bindtableop").html());
+                $(".select2").select2();
+                $('#example2').DataTable({
+                    "paging": true,
+                    "order": [[2, "desc"]],
+                    "scrollCollapse": true,
+                    "searching": true,
+                    "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                    "bInfo": true
+                });
+            });
+
+        });
+        function PrintBarcode(code, patient_name) {
+            debugger;
+            var test_id = ""; var inv_name = ""; var Data = [];
+            var list = $(".get_" + code)[0];
+            $(list).find('tbody > tr').each(function (idx) {
+                var lstdata = $(list).find('tbody > tr')[idx];
+                var invtype = $(lstdata).find('td:eq(3)').text().trim();
+                var ischecked = false;
+                if ($(".get_" + code).length > 1)
+                    ischecked = $($($($(".get_" + code)[1]).find('tbody > tr')[idx]).find('td:eq(5)')).find('input[type="checkbox"]').is(':checked');
+                else
+                    ischecked = $($(lstdata).find('td:eq(5)')).find('input[type="checkbox"]').is(':checked');
+
+                if (invtype != "radiology" && ischecked) {
+                    test_id = $(lstdata).find('td:eq(0)').text();
+                    inv_name = $(lstdata).find('td:eq(1)').text();
+                    Data.push({ PatientName: patient_name, TestUniqId: test_id, InvName: inv_name });
+                }
+            });
+            if (Data.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                    url: "/TestAndInvestigation/GenerateBarCode",
+                    data: JSON.stringify(Data),
+                    success: function (arr) {
+                        debugger;
+                        printImage(arr);
+                    }
+                });
+            }
+            else {
+                alert("you must be checked checkbox at least one investigation.")
+            }
+        }
+        function printImage(array) {
+            debugger;
+            var w = 900; var h = 500;
+            var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+            var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+            width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+            var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+            var top = ((height / 2) - (h / 2)) + dualScreenTop;
+
+            var printWindow = window.open('', 'Print Investigation BarCode', 'scrollbars=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+            printWindow.document.write('<html><head><title>Print Window</title>');
+
+            printWindow.document.write('</head><body>');
+            $.each(array, function (index, value) {
+                printWindow.document.write('<img style="margin: 10px;" src=' + value + '>');
+            });
+            printWindow.document.write('<br/><img style="margin: 20px;" width="16%" src="/wwwroot/assets/img/print.jpg" class="printMe" alt="Print" title="Print"></a>');
+            printWindow.document.write('</body></html>');
+            printWindow.document.write('<script src="/wwwroot/assets/js/jquery-1.12.4.js"><\/sc' + 'ript>');
+            printWindow.document.write('<script>$(".printMe").click(function () { debugger; $(".printMe").css("display","none"); window.print();  window.close();}); <\/sc' + 'ript>');
+            printWindow.document.close();
+        }
+        function addCollection_OP(inv_type,patient_name, service_id, investigation_id, invoice_code, invid, invid1) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/TestAndInvestigation/AddRegentItem_OP",
+                data: '{service_id:"' + service_id + '", investigation_id:"' + investigation_id + '", invoice_code: "' + invoice_code + '" }',
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                success: function (data) {
+                    debugger;
+                    $("#bindCollection").empty();
+                    $("#bindCollection").html($(data).find("#bindCollection").html());
+                    var status = $("#hdnstatus").val();
+                    if (parseInt(status) > 0) {
+                        if (inv_type != "radiology") {
+                            $("#Barcode_" + invoice_code).html("<a class='btn green-gradient-btn btn-sm' onclick='PrintBarcode(\"" + invoice_code + "\",\"" + patient_name + "\")'>Print</a>");
+                            $(".Checkbox_" + invid1).html('<input type="checkbox" />');
+                        }
+                        $("#" + invid + "").remove();
+                        $("#" + invid + "").html("<span class='custom-badge status-blue'> Added</span >");
+                        $("#" + invid1 + "").remove();
+                        $("#" + invid1 + "").html("<span class='badge badge-warning'>Collected</span>");
+                    }
+                    else {
+                        $("#Hos_Collection").modal('show');
+                    }
+                }
+            });
+        }
+        function sucessmethod(data) {
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $('#example1').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+            });
+        }
+        function sucessmethodopd(data) {
+            $(".bindtableop").empty();
+            $(".bindtableop").html($(data).find(".bindtableop").html());
+            $('#example2').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+            });
+        }
+
+        function GetDropdownData(type) {
+            var day = $("#Days").val() == 'Select Day' ? 'Select Day' : $("#Days").val();
+            var firstDay = new Date();
+            var lastDay = new Date();
+
+            if ($('#Days').val() == 'Select') {
+                firstDay = "";
+                lastDay = "";
+                $('#fromdate').val(firstDay);
+                $('#todate').val(lastDay);
+            }
+
+            if ($('#Days').val() == 'Today') {
+                firstDay = new Date().toDateString();
+                lastDay = new Date().toDateString();
+                $('#fromdate').val(firstDay);
+                $('#todate').val(lastDay);
+            }
+            if ($('#Days').val() == 'Last Week') {
+                var curr = new Date; // get current date
+                var first = curr.getDate(); //- curr.getDay(); // First day is the day of the month - the day of the week
+                var last = first - 6; // last day is the first day + 6
+                firstDay = new Date(curr.setDate(first)).toUTCString();
+                lastDay = new Date(curr.setDate(last)).toUTCString();
+                $('#fromdate').val(lastDay);
+                $('#todate').val(firstDay);
+            }
+            if ($('#Days').val() == 'Custom') {
+                $('#colpfrom').removeClass('collapse');
+                $('#colpto').removeClass('collapse');
+            }
+            else {
+                $('#colpfrom').addClass('collapse');
+                $('#colpto').addClass('collapse');
+            }
+
+        }
+        $('#datetimepicker11').on('dp.change', function (e) {
+            debugger;
+            var firstDay = new Date();
+            if ($('#datetimepicker11').val() != null && $('#datetimepicker11').val() != "") {
+                var from = $("#datetimepicker11").val().split("/")
+                var f = new Date(from[2], from[1] - 1, from[0])
+                firstDay = f.toDateString();
+                $('#fromdate').val(firstDay);
+            }
+            else {
+                alert("Please Enter from date");
+                return false;
+            }
+        });
+        $('#datetimepicker12').on('dp.change', function (e) {
+            debugger;
+            var lastDay = new Date();
+            if ($('#datetimepicker12').val() != null && $('#datetimepicker12').val() != "") {
+                var to = $("#datetimepicker12").val().split("/")
+                var t = new Date(to[2], to[1] - 1, to[0])
+                lastDay = t.toDateString();
+                $('#todate').val(lastDay);
+            }
+            else {
+                alert("Please Enter from date");
+                return false;
+            }
+        });
+
+        function GetDropdownDataOP(type) {
+            var day = $("#OPDays").val() == 'Select Day' ? 'Select Day' : $("#OPDays").val();
+            var firstDay = new Date();
+            var lastDay = new Date();
+
+            if ($('#OPDays').val() == 'Select') {
+                firstDay = "";
+                lastDay = "";
+                $('#fromdateop').val(firstDay);
+                $('#todateop').val(lastDay);
+            }
+
+            if ($('#OPDays').val() == 'Today') {
+                firstDay = new Date().toDateString();
+                lastDay = new Date().toDateString();
+                $('#fromdateop').val(firstDay);
+                $('#todateop').val(lastDay);
+            }
+            if ($('#OPDays').val() == 'Last Week') {
+                var curr = new Date; // get current date
+                var first = curr.getDate(); //- curr.getDay(); // First day is the day of the month - the day of the week
+                var last = first - 6; // last day is the first day + 6
+                firstDay = new Date(curr.setDate(first)).toUTCString();
+                lastDay = new Date(curr.setDate(last)).toUTCString();
+                $('#fromdateop').val(lastDay);
+                $('#todateop').val(firstDay);
+            }
+            if ($('#OPDays').val() == 'Custom') {
+                $('#colpfromOP').removeClass('collapse');
+                $('#colptoOP').removeClass('collapse');
+            }
+            else {
+                $('#colpfromOP').addClass('collapse');
+                $('#colptoOP').addClass('collapse');
+            }
+
+        }
+        $('#datetimepicker13').on('dp.change', function (e) {
+            var firstDay = new Date();
+            if ($('#datetimepicker13').val() != null && $('#datetimepicker13').val() != "") {
+                var from = $("#datetimepicker13").val().split("/")
+                var f = new Date(from[2], from[1] - 1, from[0])
+                firstDay = f.toDateString();
+                $('#fromdateop').val(firstDay);
+            }
+            else {
+                alert("Please Enter from date");
+                return false;
+            }
+        });
+        $('#datetimepicker14').on('dp.change', function (e) {
+            var lastDay = new Date();
+            if ($('#datetimepicker14').val() != null && $('#datetimepicker14').val() != "") {
+                var to = $("#datetimepicker14").val().split("/")
+                var t = new Date(to[2], to[1] - 1, to[0])
+                lastDay = t.toDateString();
+                $('#todateop').val(lastDay);
+            }
+            else {
+                alert("Please Enter from date");
+                return false;
+            }
+        });
+
+
+
+    </script>
+}
+

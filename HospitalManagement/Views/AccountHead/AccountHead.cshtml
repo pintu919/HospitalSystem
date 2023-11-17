@@ -1,0 +1,260 @@
+﻿@model HospitalManagement.Models.AccountHeadModel
+@{
+    ViewBag.Title = "AccountHead";
+}
+<style type="text/css">
+    :root {
+        --ct-bg: #fff;
+        --ct-btn-hover: #e8e8e8;
+        --ct-btn-active: #ddd;
+        --ct-btn-color: #555;
+        --ct-border-color: #d6e5f3;
+        --ct-border-radius: 5px;
+        --ct-tree-hover: #efefef;
+        --ct-selection: #418EFF;
+        --ct-padding: 8px;
+    }
+
+    .comboTreeWrapper {
+        position: relative;
+        text-align: left !important;
+    }
+
+    .comboTreeInputWrapper {
+        position: relative;
+    }
+
+    .comboTreeArrowBtn {
+        position: absolute;
+        right: 0px;
+        bottom: 0px;
+        top: 0px;
+        box-sizing: border-box;
+        border: 1px solid var(--ct-border-color);
+        border-radius: 0 var(--ct-border-radius) var(--ct-border-radius) 0;
+        background: var(--ct-border-color);
+        cursor: pointer;
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
+        width: 36px;
+        line-height: 38px;
+        text-align: center;
+    }
+
+        .comboTreeArrowBtn:hover {
+            background: var(--ct-btn-hover);
+        }
+
+        .comboTreeArrowBtn:active {
+            background: var(--ct-btn-active);
+        }
+
+    .comboTreeInputBox:focus + .comboTreeArrowBtn {
+        color: var(--ct-btn-color);
+        border-top: 1px solid var(--ct-selection);
+        border-right: 1px solid var(--ct-selection);
+        border-bottom: 1px solid var(--ct-selection);
+    }
+
+    .comboTreeArrowBtnImg {
+        font-size: 1rem;
+        color: #2069a9;
+    }
+
+    .comboTreeDropDownContainer {
+        display: none;
+        background: var(--ct-bg);
+        border: 1px solid var(--ct-border-color);
+        position: absolute;
+        width: 100%;
+        box-sizing: border-box;
+        z-index: 999;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+        .comboTreeDropDownContainer ul {
+            padding: 0px;
+            margin: 0;
+        }
+
+        .comboTreeDropDownContainer li {
+            list-style-type: none;
+            padding-left: 15px;
+        }
+
+            .comboTreeDropDownContainer li .selectable {
+                cursor: pointer;
+            }
+
+            .comboTreeDropDownContainer li .not-selectable {
+                cursor: not-allowed;
+            }
+
+            .comboTreeDropDownContainer li:hover {
+                background-color: var(--ct-tree-hover);
+            }
+
+                .comboTreeDropDownContainer li:hover ul {
+                    background-color: var(--ct-bg)
+                }
+
+            .comboTreeDropDownContainer li span.comboTreeItemTitle.comboTreeItemHover,
+            .comboTreeDropDownContainer label.comboTreeItemHover {
+                background-color: var(--ct-selection);
+                color: var(--ct-bg);
+                border-radius: 2px;
+            }
+
+        span.comboTreeItemTitle, .comboTreeDropDownContainer .selectAll {
+            display: block;
+            padding: 3px var(--ct-padding);
+        }
+
+        .comboTreeDropDownContainer label {
+            cursor: pointer;
+            width: 100%;
+            display: block;
+        }
+
+        .comboTreeDropDownContainer .comboTreeItemTitle input,
+        .comboTreeDropDownContainer .selectAll input {
+            position: relative;
+            top: 2px;
+            margin: 0px 4px 0px 0px;
+        }
+
+    .comboTreeParentPlus {
+        position: relative;
+        left: -12px;
+        top: 4px;
+        width: 4px;
+        float: left;
+        cursor: pointer;
+    }
+
+    .comboTreeInputBox {
+        padding: var(--ct-padding);
+        border-radius: var(--ct-border-radius);
+        border: 1px solid var(--ct-border-color);
+        width: 100%;
+        box-sizing: border-box;
+        padding-right: 24px;
+    }
+
+        .comboTreeInputBox:focus {
+            border: 1px solid var(--ct-selection);
+            outline-width: 0;
+        }
+
+    .multiplesFilter {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: 1px solid var(--ct-border-color);
+    }
+</style>
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Add Account Head</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/AccountHead/AccountHeadList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+
+    @using (Ajax.BeginForm("AddAccountHead", "AccountHead", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-md-12 p-0">
+                <div class="row align-items-center">
+                    <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label>Head Type</label>
+                            @Html.ValidationMessageFor(model => model.ParentId, "", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.ParentId, new { @class = "getids" })
+                            <input type="text" class="form-control" id="justAnInputBox" placeholder="Select" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <label>Head Name <span class="text-danger">@Html.ValidationMessageFor(model => model.HeadName, "", new { @class = "text-danger" })</span></label>
+                            @Html.TextBoxFor(model => model.HeadName, new { @class = "form-control" })
+                            <i class="fa fa-user"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-lg-12 col-xl-6 col-md-12">
+                        <div class="form-group">
+                            <label class="mr-3">Status : </label>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="Active">
+                                    @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "Active" })
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="Inactive">
+                                    @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                    Inactive
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-left">
+                            <button class="btn skin-gradient-btn">Add</button>
+                            @*<a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSPatient/HMSPatientList">  <i class="fa fa-arrow-left"></i> Back To List</a>*@
+                        </div>
+                    </div>
+                </div>
+                <div id="cardbox" class="mt-2" hidden>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@section scripts{
+    <script src="~/Scripts/comboTreePlugin.js"></script>
+    <script type="text/javascript">
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_AccountData").css("display", "block");
+        //$(".AccountHeadList").addClass("active");
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Not Saved!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+        debugger;
+        var data = @Html.Raw(System.Web.Helpers.Json.Encode(Model.HeadTypeLst));
+        $('#justAnInputBox').comboTree({
+            source: data,
+            collapse: true,
+            hiddeninput: '.getids',
+
+        });
+    </script>
+}
+
+
+
+

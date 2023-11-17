@@ -1,0 +1,416 @@
+﻿@model HospitalManagement.Models.InPatientInvestigationRefund
+@{
+    ViewBag.Title = "IPInvestigationRefund";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">IP Investigation Refund</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("filterIPInvestigationRefund", "Payables", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row filter-row">
+               
+                    <div class="col-12 col-sm-12 col-md-5">
+                        <div class="input-group mb-3">
+                            <span id="patmsg" class="msg_billing" hidden> (<small class="text-danger">Note: Please enter valid patient !!! </small>)</span>
+                            @Html.TextBoxFor(model => model.PatientName, new { @class = "form-control", placeholder = "Enter keyword related to patient" })
+                            @Html.HiddenFor(model => model.PatientCode)
+                            <div id="patdanger" class="input-group-append" hidden><button class="btn  btn-danger" type="submit"><i class="fa fa-close"></i></button></div>
+                            <div id="patsucess" class="input-group-append" hidden><button class="btn  btn-success" type="submit"><i class="fa fa-check"></i></button></div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-2">
+                        <div class="form-group">
+                            <button class="btn skin-bg-gradient btn-block submit-btn">Search</button>
+                        </div>
+                    </div>
+               
+                
+            </div>
+        }
+    <div class="row  m-0">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling bindtable">
+                <table class="table mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th></th>
+                            <th>Date</th>
+                            <th>InvoiceCode</th>
+                            <th>Patient Name</th>
+                            <th>Total Amount</th>
+                            <th>Pending Amount</th>
+                            <th hidden>Paid Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model.ref_patient_details)
+                        {
+
+                            var tbl_uniq_id = item.InvoiceCode;
+                            <tr>
+                                <th class="plusicon text-center">
+                                    <img src="~/Image/plus.png" class="plusimg" title="" />
+                                </th>
+                                <td>@item.Date</td>
+                                <td>@item.InvoiceCode</td>
+                                <td>@item.PatientName</td>
+                                <td>@item.TotalAmount</td>
+                                <td>@item.PendingAmount</td>
+                                @*<td hidden>@item.PaidAmount</td>*@
+                                <td style="width:5%;"><input class="uncheck_@item.InvoiceCode" onchange="CheckedAll('@item.InvoiceCode', this)" type="checkbox" /> </td>
+                            </tr>
+                            <tr class="d-none">
+                                <th colspan="999">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered datatable mb-0" id="InvoiceAllTr_@tbl_uniq_id">
+                                            <thead>
+                                                <tr>
+                                                    <th> Date</th>
+                                                    <th>AppointmentCode</th>
+                                                    <th>Investigation Name</th>
+                                                    <th>Amount</th>
+
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.ref_investigation_list != null)
+                                                {
+                                                    var servicelst = Model.ref_investigation_list.FindAll(d => d.InvoiceCode == item.InvoiceCode && d.AppointmentCode == item.AppointmentCode).ToList();
+                                                    foreach (var g in servicelst)
+                                                    {
+                                                        <tr>
+                                                            <td>@g.Date</td>
+                                                            <td>@g.AppointmentCode</td>
+                                                            <td>@g.InvestigationName</td>
+                                                            <td>@g.Amount</td>
+                                                            <td hidden>@g.InvestigationMasterId</td>
+                                                            <td hidden>@g.InvoiceCode</td>
+                                                            <td hidden>@g.dr_inpatient_id</td>
+                                                            <td> <input class="checkbox_@g.dr_inpatient_id" onchange="CheckBoxSet('@g.AppointmentCode', @g.InvestigationMasterId, this,'@tbl_uniq_id',@g.dr_inpatient_id)" type="checkbox" /></td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </th>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @using(Ajax.BeginForm("SaveIPRefundable", "Payables", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ReceiveSuccessMethod", OnBegin = "OnbeginMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                <div hidden>
+                    <table>
+                        <tbody id="investigation_id_lst">
+                        </tbody>
+                    </table>
+                </div>
+                @*@Html.HiddenFor(m => m.FromDate, new { @id = "Pay_FromDate" })
+                    @Html.HiddenFor(m => m.ToDate, new { @id = "Pay_ToDate" })*@
+                @Html.HiddenFor(m => m.ChannelId, new { @id = "Pay_ChannelId" })
+                @Html.HiddenFor(m => m.PaymentTypeId, new { @id = "Pay_PaymentTypeId" })
+                @*@Html.HiddenFor(m => m.comission_agentid, new { @id = "Pay_Commission_AgentId" })*@
+                <table class="table table-bordered mt-3">
+                    <tbody>
+                        <tr class="table-primary">
+                            <th class="fw-500">Select Payment Type :</th>
+                            <th>
+                                @if (Model.PaymentType_List != null)
+                                {
+                                    @Html.DropDownListFor(model => model.PaymentTypeId, new SelectList(Model.PaymentType_List, "Id", "PaymentType"), "Select Payment Type", new { @onchange = "GetPaymentTypeChannel('')", @class = "form-control select requiredSelect" })
+                                }
+                            </th>
+                            <th class="fw-500">Select Payment Channel :</th>
+                            <th>
+                                @if (Model.paymentType_Channel_list != null)
+                                {
+                                    <div class="bindChanneltype">
+                                        @Html.DropDownListFor(model => model.ChannelId, new SelectList(Model.paymentType_Channel_list, "Id", "ChannelName"), "Select Payment Channel", new { @onchange = "GetPaymentTypeChannel('setaccount_id')", @class = "form-control floating requiredSelect" })
+                                    </div>
+                                }
+                            </th>
+                            <th class="fw-500">Total Amount </th>
+                            <th>
+                                @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control", @id = "SetTotaldisableamount", @readonly = "readonly" })
+                            </th>
+                            <th><button class="btn btn-sm pink-gradient-btn">Pay</button></th>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+
+            <div class="BindStatus col-md-12 mt-2">
+                    @if (Model.Status == "sucess")
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <span> Selected  service's amount is refund sucess !!</span>
+                            <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
+                                <span aria-hidden='true'>&times;</span>
+                            </button>
+                        </div>
+                    }
+                    else if (Model.Status == "fail")
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role='alert'>
+                            <span>Error occured. Selected  service's amount is not refund !!</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden='true'>&times;</span>
+                            </button>
+                        </div>
+                    }
+                </div>
+
+        </div>
+    </div>
+
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Payables").addClass("subdrop");
+        //$(".Submenu_Payables").css("display", "block");
+        //$(".Submenu_Payables").css("display", "block");
+        //$(".IPInvestigationRefund").addClass("active");
+
+        //$(".Report").addClass("subdrop");
+        //$(".Submenu_Report").css("display", "block");
+        //$(".ComissionAgentReport").addClass("active");
+        var myarray = []; var TotalAMt = 0; var indx = 0;
+        
+        function CheckedAll(Month, ths) {
+            debugger;
+            indx = 0;
+            var appointment_code = "", invoice_code = ""; var investigation_id = 0, dr_inpatient_id = 0, amount = 0;
+            if ($(ths).is(":checked")) {
+                $("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]').each(function () {
+                    if (!this.checked) {
+                        $('.' + $("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]')[indx].className).prop("checked", true);
+                        appointment_code = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(1).text().trim();
+                        invoice_code = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(5).text().trim();
+                        investigation_id = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(4).text().trim();
+                        dr_inpatient_id = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(6).text().trim();
+                        amount = parseFloat($($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(3).text().trim());
+                        ManageCheckBoxData(true, appointment_code, investigation_id, invoice_code, dr_inpatient_id, amount);
+                        indx++;
+                    }
+                });
+            }
+            else {
+                $("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]').each(function () {
+                    if (this.checked) {
+                        $('.' + $("#InvoiceAllTr_" + Month).find('tbody tr td input[type="checkbox"]')[indx].className).prop("checked", false);
+                        appointment_code = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(1).text().trim();
+                        invoice_code = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(5).text().trim();
+                        investigation_id = $($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(4).text().trim();
+                        dr_inpatient_id = parseFloat($($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(6).text().trim());
+                        amount = parseFloat($($("#InvoiceAllTr_" + Month).find('tbody tr')[indx]).find('td').eq(3).text().trim());
+                        ManageCheckBoxData(false, appointment_code, investigation_id, invoice_code, dr_inpatient_id, amount);
+                        indx++;
+                    }
+                });
+            }
+        }
+        function CheckBoxSet(appointment_code, investigation_id, row, invoice_code, dr_inpatient_id) {
+            debugger;
+            ManageCheckBoxData($(row).is(":checked"), appointment_code, investigation_id, invoice_code, dr_inpatient_id, parseFloat($(row).closest('tr').find('td').eq(3).text().trim()));
+            if ($("#InvoiceAllTr_" + invoice_code).find('tbody tr td input[type="checkbox"]').length == myarray.length) {
+                $(".uncheck_" + invoice_code).prop('checked', true);
+            }
+            else {
+                $(".uncheck_" + invoice_code).prop('checked', false);
+            }
+        }
+        function ManageCheckBoxData(ischecked, appointment_code, investigation_id, invoice_code, dr_inpatient_id, amount) {
+
+            if (ischecked) {
+                debugger;
+                TotalAMt += amount;
+                myarray.push({
+                    invoice_code: invoice_code,
+                    appointment_code: appointment_code,
+                    investigation_id: investigation_id,
+                    dr_inpatient_id: dr_inpatient_id,
+                    amount: amount,
+                });
+            }
+            else {
+                for (var k = 0; k < myarray.length; k++) {
+                    if (myarray[k].invoice_code == invoice_code && myarray[k].appointment_code == appointment_code && myarray[k].investigation_id == investigation_id && myarray[k].dr_inpatient_id == dr_inpatient_id) {
+                        TotalAMt = TotalAMt - myarray[k].amount;
+                        myarray.splice(k, 1);
+                        break;
+                    }
+                }
+            }
+            $("#investigation_id_lst").html("");
+            for (var j = 0; j < myarray.length; j++) {
+                $("#investigation_id_lst").append('<tr><td><input type="text" name="investigationId_lst[' + j + '].invoice_code" value=' + myarray[j].invoice_code + '></td> <td><input type="text" name="investigationId_lst[' + j + '].appointment_code" value=' + myarray[j].appointment_code + '></td><td><input type="text"  name="investigationId_lst[' + j + '].investigation_id" value=' + myarray[j].investigation_id + '></td><td><input type="text" name="investigationId_lst[' + j + '].dr_inpatient_id" value=' + myarray[j].dr_inpatient_id + '></td><td><input type="text" name="investigationId_lst[' + j + '].amount" value=' + myarray[j].amount + '></td></tr>')
+            }
+            $("#SetTotaldisableamount").val(TotalAMt);
+        }
+
+        function OnbeginMethod() {
+            debugger;
+            var rowCount = $('#investigation_id_lst>tr').length;
+            if (rowCount == 0) {
+                alert("Please select atleast one Investigation !!");
+                return false;
+            }
+            if ($("#Pay_PaymentTypeId").val() == "" || $("#Pay_PaymentTypeId").val() == 0) {
+                alert("Please select Payment Type !!");
+                return false;
+            }
+            if ($("#Pay_ChannelId").val() == "" || $("#Pay_ChannelId").val() == 0) {
+                alert("Please Select Payment Channel !!");
+                return false;
+            }
+            if ($("#SetTotaldisableamount").val() == 0) {
+                $("#SetTotalPayableAmount").focus();
+                return false;
+            }
+        }
+        function ReceiveSuccessMethod(data) {
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $(".BindStatus").html($(data).find(".BindStatus").html());
+            $("#Pay_FromDate").val($("#FromDate").val());
+            $("#Pay_ToDate").val($("#ToDate").val());
+            $("#SetTotaldisableamount").val(0);
+            $("#Pay_PaymentTypeId").val("");
+            $("#Pay_ChannelId").val("");
+            myarray = [];  TotalAMt = 0;  indx = 0;
+        }
+        function GetPaymentTypeChannel(type) {
+            debugger;
+            var PaymentTypeId = $("#PaymentTypeId").val()
+            if (type == "setaccount_id") {
+                $("#Pay_ChannelId").val($("#ChannelId").val());
+                return false;
+            }
+            if (PaymentTypeId != null && parseInt(PaymentTypeId) > 0) {
+                $("#Pay_PaymentTypeId").val(PaymentTypeId);
+                url = "/Payables/getPaymentTypeChannel_refund?PaymentTypeId=" + PaymentTypeId + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    debugger;
+                    $('.bindChanneltype').removeAttr('hidden');
+                    $(".bindChanneltype").empty();
+                    $(".bindChanneltype").html($(datahtml).find(".bindChanneltype").html());
+                });
+            }
+            else {
+                $("#Pay_PaymentTypeId").val(0);
+                $("#Pay_ChannelId").val(0);
+                $('.bindChanneltype').attr('hidden', true);
+                $("#ChannelId option").remove();
+            }
+        }
+
+
+        //Assign Click event to Plus Image for LabName.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        $("body").on("click", "img[src*='minus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+                                   //End
+
+
+        $("#PatientName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/BillingService/GatePatient',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            arr.patient_firstname = "No Record Found";
+                            arr.patient_code = "";
+                            data.push(arr);
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                            $("#PatientName").val("");
+                            $("#PatientCode").val("");
+                            $('#patdanger').removeAttr('hidden');
+                            $('#patsucess').attr('hidden', true);
+                            $('#patmsg').removeAttr('hidden');
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    $('#patmsg').attr('hidden', true);
+                    $("#PatientCode").val(i.item.patient_code);
+                    $("#PatientName").val(i.item.value);
+                    $('#patsucess').removeAttr('hidden');
+                    $('#patdanger').attr('hidden', true);
+                }
+            },
+            minLength: 3,
+        }).bind("keyup.autocomplete", function (event) {
+            if (event.keyCode == $.ui.keyCode.BACKSPACE || event.keyCode == $.ui.keyCode.DELETE) {
+                $("#PatientName").val("");
+                $("#PatientCode").val("");
+                $('#patdanger').removeAttr('hidden');
+                $('#patsucess').attr('hidden', true);
+            };
+        });
+
+        function sucessmethod(data) {
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+           
+
+        }
+
+    </script>
+}
+
+

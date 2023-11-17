@@ -1,0 +1,215 @@
+﻿@model HospitalManagement.Models.ComissionPaymentSlipModel
+@{
+    ViewBag.Title = "ComissionPaymentSlip";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title"> Comission Payment Slip</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("GetComissionPaymentSlip", "Comission", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-4">
+                <div class="form-group form-focus">
+                    <label class="focus-label"><small> Action Type</small></label>
+                    @Html.DropDownListFor(model => model.ActType, new List<SelectListItem>
+                    {
+                      new SelectListItem{ Text="AgentWise", Value = "agentwise" },
+                      new SelectListItem{ Text="DoctorWise", Value = "doctorwise" },
+                    }, new { @class = "select floating", @onchange = "GetDropdownData()" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4 Drp_BindAgentLists">
+                <div class="form-group form-focus">
+                    <label class="focus-label"><small> Select Commissiners</small></label>
+                    @Html.DropDownListFor(model => model.Id, new SelectList(Model.DropDownData, "Value", "Text"), "-- Select Commissiners --", new { @class = "form-control requiredSelect", @id = "agentname" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="form-group form-focus">
+                    <label class="focus-label"><small> Type </small></label>
+                    @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+                    @Html.DropDownListFor(model => model.Type, new List<SelectListItem>
+                    {
+                   new SelectListItem{ Text="-- Select Type --", Value = "" },
+                      new SelectListItem{ Text="InPatientWise", Value = "InPatientWise" },
+                      new SelectListItem{ Text="OPDPatientWise", Value = "OPDPatientWise" },
+                      new SelectListItem{ Text="OuterPatientWise", Value = "OuterPatientWise" },
+                    }, new { @class = "select floating" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="form-group form-focus">
+                    <label class="focus-label"><small> FromDate </small></label>
+                    @Html.ValidationMessageFor(model => model.FromDate, "", new { @class = "text-danger" })
+                    @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating", @id = "datetimepicker1", autocomplete = "off", type = "Date" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="form-group form-focus">
+                    <label class="focus-label"><small> ToDate </small></label>
+                    @Html.ValidationMessageFor(model => model.ToDate, "", new { @class = "text-danger" })
+                    @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating", @id = "datetimepicker2", autocomplete = "off", type = "Date" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-2">
+                <div class="form-group">
+                    <button class="btn btn-sm btn-success">Search</button>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="row mb-5 PtintButton" hidden>
+        <div class="col-12 text-center">
+            <div class="btn-group btn-group-sm mb-3 float-right ">
+                <button class="btn btn-white" onclick="PrintSlip('PrintDivision')"><i class="fa fa-print fa-lg"></i> Print</button>
+            </div>
+        </div>
+    </div>
+    <div class="row table-scrolling m-0" id="PrintDivision">
+        <div class="col-md-12 printData mt-5" hidden>
+            <div class="row">
+                <div class="col-md-4 mb-5">
+                    <span style="font-weight:600"> Action Type : </span> <span id="Print_data_actiontype"> </span>
+                </div>
+                <div class="col-md-4 mb-5">
+                    <span style="font-weight:600"> Commissiner : </span> <span id="Print_data_agent"> </span>
+                </div>
+                <div class="col-md-4 mb-5">
+                    <span style="font-weight:600"> Type : </span> <span id="Print_data_type"> </span>
+                </div>
+                <div class="col-md-4">
+                    <span style="font-weight:600"> FromDate : </span> <span id="Print_data_fromdate"> </span>
+                </div>
+                <div class="col-md-4">
+                    <span style="font-weight:600"> ToDate : </span> <span id="Print_data_todate"> </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 mt-10">
+            <table class="table mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Commissiners Name</th>
+                        <th>Patient</th>
+                        <th>InvoiceCode</th>
+                        <th>Receipt</th>
+                        <th>Amount</th>
+                        <th>ComissionDate</th>
+                    </tr>
+                </thead>
+                <tbody class="BindGridData">
+                    @if (Model.ComissionPaySlipLists != null)
+                    {
+                        decimal Amount = 0; int i = 0;
+                        foreach (var item in Model.ComissionPaySlipLists)
+                        {
+                            Amount += item.amount;
+                            <tr>
+                                <td class="employee-img">
+                                    <h2>
+                                        @item.Name
+                                        <span class="d-block">  @item.Mobile</span>
+                                    </h2>
+                                </td>
+                                <td class="employee-img">
+                                    @{string img = "/wwwroot/assets/img/user.jpg";
+                                        if (item.photo != "" && item.photo != null)
+                                        {
+                                            img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.photo;
+                                        }
+                                    }
+                                    <img width="28" height="28" src="@img" class="m-r-10" alt="">
+                                    <h2>
+                                        @item.PatientName
+                                        <span class="d-block">  @item.patient_code</span>
+                                    </h2>
+                                </td>
+                                <td>
+                                    @item.invoice_code
+                                </td>
+                                <td>@item.journal_ref</td>
+                                <td>@Math.Round(item.amount, 2)</td>
+                                <td>@item.CreatedDate</td>
+                            </tr>
+                            i++;
+                        }
+                        <tr class="table-primary">
+                            <th></th>
+                            <th colspan="2" class="text-center">Counts(@i)</th>
+                            <th class="text-right" style="font-weight: 600; font-size:15px;">Total Amount :</th>
+                            <th class="text-left" style="font-weight:600; font-size:15px;" colspan="2">@Math.Round(Amount, 2)</th>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        function GetDropdownData() {
+            debugger;
+            $(".PtintButton").attr("hidden", true);
+            var ActType = $("#ActType").val()
+            url = "/Comission/OnChangeEvent?Type=" + ActType + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".Drp_BindAgentLists").empty();
+                $(".Drp_BindAgentLists").html($(datahtml).find(".Drp_BindAgentLists").html());
+            });
+        }
+        function SuccessMethod(datahtml) {
+            debugger;
+            $(".BindGridData").empty();
+            $(".BindGridData").html($(datahtml).find(".BindGridData").html());
+            $(".PtintButton").removeAttr("hidden", true);
+        }
+        //Print Data
+        function PrintSlip(divName) {
+            debugger;
+            $(".printData").removeAttr("hidden", true);
+            //Set print heading value
+            $("#Print_data_actiontype").text($("#ActType option:selected").text());
+            $("#Print_data_agent").text($("#agentname option:selected").val() == "" ? "All" : $("#agentname option:selected").text());
+            $("#Print_data_type").text($("#Type").val());
+            $("#Print_data_fromdate").text($("#datetimepicker1").val());
+            $("#Print_data_todate").text($("#datetimepicker2").val());
+            //End Header
+
+            var contents = $("#" + divName).html();
+            var frame1 = $('<iframe />');
+            frame1[0].name = "frame1";
+            frame1.css({ "width": "100%" });
+            $("body").append(frame1);
+            var frameDoc = frame1[0].contentWindow ? frame1[0].contentWindow : frame1[0].contentDocument.document ? frame1[0].contentDocument.document : frame1[0].contentDocument;
+            frameDoc.document.open();
+            //Create a new HTML document.
+            frameDoc.document.write('<html>');
+            frameDoc.document.write('<body>');
+            //Append the external CSS file.
+            frameDoc.document.write('<link href="/wwwroot/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />')
+            frameDoc.document.write('<link href="/wwwroot/assets/css/font-awesome.min.css" rel="stylesheet" type="text/css" />')
+            frameDoc.document.write('<link href="/wwwroot/assets/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />')
+            frameDoc.document.write('<link href="/wwwroot/assets/css/style.css" rel="stylesheet" type="text/css" />');
+            //Append the DIV contents.
+            frameDoc.document.write(contents);
+            frameDoc.document.write('</body></html>');
+            frameDoc.document.close();
+            setTimeout(function () {
+                window.frames["frame1"].focus();
+                window.frames["frame1"].print();
+                frame1.remove();
+            }, 500);
+            $(".printData").attr("hidden", true);
+        }
+    </script>
+}

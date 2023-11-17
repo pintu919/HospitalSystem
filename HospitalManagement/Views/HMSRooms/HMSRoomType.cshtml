@@ -1,0 +1,497 @@
+﻿@model HospitalManagement.Models.RoomTypeModel
+@{
+    ViewBag.Title = "HMSRoomType";
+
+}
+<link href="~/wwwroot/assets/css/bootstrap-tagsinput.css" rel="stylesheet" />
+<style type="text/css">
+    .tag {
+        background-color: #eee;
+        border-radius: 3px 0 0 3px;
+        color: #999;
+        display: inline-block;
+        height: 26px;
+        line-height: 26px;
+        padding: 0 20px 0 23px;
+        position: relative;
+        margin: 0 10px 10px 0;
+        text-decoration: none;
+        -moz-transition: color 0.2s;
+        -ms-transition: color 0.2s;
+        -o-transition: color 0.2s;
+        -webkit-transition: color 0.2s;
+        transition: color 0.2s;
+        font-size: 12px;
+    }
+
+        .tag:hover:after {
+            border-left-color: #2069a9;
+        }
+        .tag:before {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: inset 0 1px rgb(0 0 0 / 25%);
+            content: '';
+            height: 6px;
+            left: 10px;
+            position: absolute;
+            width: 6px;
+            top: 10px;
+        }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Add Room Type</h4>
+        </div>
+    </div>
+
+    @using (Ajax.BeginForm("AddRoomType", "HMSRooms", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="row  employee-form m-0">
+            <div class="col-lg-12">
+                <form>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Ward Type</label>
+                                @*@Html.ValidationMessageFor(model => model.CountryCode, "", new { @class = "text-danger" })*@
+                                @Html.DropDownListFor(model => model.WardId, new SelectList(Model.WardTypeList, "ward_id", "ward_type"), "Select WardType", new { @class = "form-control requiredSelect", @id = "wardtype" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label> AC/NonAc Rooms<span class="text-danger">@Html.ValidationMessageFor(model => model.Roomfacility, "", new { @class = "text-danger" })</span></label>
+                                @{
+                                    List<SelectListItem> listRoomfacility = new List<SelectListItem>();
+                                    listRoomfacility.Add(new SelectListItem
+                                    {
+                                        Text = "AC Room",
+                                        Value = "AC Room"
+                                    });
+                                    listRoomfacility.Add(new SelectListItem
+                                    {
+                                        Text = "Non AC Room",
+                                        Value = "Non AC Room",
+
+                                    });
+                                }
+                                @Html.DropDownList("Roomfacility", listRoomfacility, "Select Ac/NonAc", new { @class = "form-control requiredSelect", @id = "roomfacility" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Number Of Rooms<span class="text-danger"> @Html.ValidationMessageFor(model => model.NoofRoom, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.NoofRoom, new { @class = "form-control", @rows = "2", data_role = "tagsinput", @id = "noofrooms" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Prefix <small class="text-red">(for bed)</small> <span class="text-danger">@Html.ValidationMessageFor(model => model.prefix, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.prefix, new { @class = "form-control", @maxlength = "3", @style = "text-transform:uppercase", onkeypress = "return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123)" })
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>No.Of Beds <small class="text-red">(for one room)</small> <span class="text-danger">@Html.ValidationMessageFor(model => model.NoofBed, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.NoofBed, new { @type = "number", @class = "form-control", @id = "noofbeds" })
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Start with Serial <small class="text-red">(for bed)</small> <span class="text-danger">@Html.ValidationMessageFor(model => model.start_serial, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.start_serial, new { @type = "number", @min = "1", @max = "9999", @class = "form-control" })
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Per Day Rent <small class="text-red">(for one bed)</small> <span class="text-danger">@Html.ValidationMessageFor(model => model.PerDayRent, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.PerDayRent, new { @class = "form-control", @id = "perdayamount" })
+                                <i class="fa fa-money"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Facility</label>
+                                @Html.ValidationMessageFor(model => model.Facility, "", new { @class = "text-danger" })
+                                @Html.TextAreaFor(model => model.Facility, new { @class = "form-control", @id = "facility" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Status : </label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 1, new { @id = "active" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.Ctrl, 0, new { @id = "Inactive" })
+                                        InActive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="text-center">
+                                <button type="submit" class="btn skin-gradient-btn submit-btn">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="cardbox" class="" hidden>
+
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.RoomTypeList != null && Model.RoomTypeList.Count > 0)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0" id="roomtypetbl">
+                        <thead>
+                            <tr>
+                                @*<th class="collapse">#</th>*@
+                                <th>Ward Type</th>
+                                <th>Room Facility</th>
+                                <th>NO Of Rooms</th>
+                                <th>Bed Prefix</th>
+                                <th>NO Of Beds</th>
+                                <th>Start Bed Serial</th>
+                                <th>Per Day Rent</th>
+                                <th class="collapse">Facility</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int i = 1;}
+                            @foreach (var item in Model.RoomTypeList)
+                            {
+                                <tr id="row_@i">
+                                    @*<td class="collapse">@i</td>*@
+                                    <td>@Html.HiddenFor(modelItem => item.ward_id) @item.ward_type</td>
+                                    <td>@item.room_facility</td>
+                                    <td>@item.no_of_room</td>
+                                    <td>@item.prefix</td>
+                                    <td>@item.no_of_bed</td>
+                                    <td>@item.start_with_serial</td>
+                                    <td>  <label for="name" class="control-label"><p style="margin-bottom:0;" class="text-info_@(i)">@item.per_day_rent</p></label></td>
+                                    <td class="collapse"> @item.facility</td>
+
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="badge badge-danger">Deactive</span></td>
+                                    }
+                                    <td class="text-center">
+                                        @*<a href="javascript:;" onclick="EditRoomType(@i)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>*@
+                                        <button id="edit_@i" class="action-icon btn skyblue-gradient-btn" href="#" title="Edit" onclick="EditRoomDetail(@i)" data-toggle="modal"><i class="fa fa-pencil"></i></button>
+                                        <button id="save_@i" class="action-icon btn blue-gradient-btn" href="#" title="Update" onclick="UpdateRoom(@i,@item.ward_id,'@item.room_facility','@item.no_of_room')" data-toggle="modal" hidden><i class="fa fa-floppy-o"></i></button>
+                                        <button id="cancel_@i" class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@i,@item.ward_id,'@item.room_facility','@item.no_of_room')" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></button>
+
+
+                                    </td>
+
+                                </tr>
+                                i++;
+
+                            }
+
+                        </tbody>
+                    </table>
+                    @*<input type="hidden" id="message" value=@Model.RoomTypeList[0].message />*@
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="delete_room" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to delete this Room?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteRoomType()" class="btn red-gradient-btn">Delete</button>
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardboxdelroom" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="update_room" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to change price this Room?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="UpdateRoomDetail()" class="btn red-gradient-btn">Update</button>
+                    <a href="#" class="btn green-gradient-btn" onclick="CloseRoomType()">Close</a>
+                </div>
+                <div id="cardboxupdateroom" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Alert_message" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class=" modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Alert Message</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="~/wwwroot/assets/img/sent.png" alt="" width="50" height="46">
+                <h5 class="text-danger m-t-20" id="alt_message"></h5>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<input type="hidden" id="hdnrawid" />
+<input type="hidden" id="hdnwardid" />
+<input type="hidden" id="hdnroom_facility" />
+<input type="hidden" id="hdnno_of_room" />
+<input type="hidden" id="oldamount" />
+@section scripts{
+    <script src="~/wwwroot/assets/js/bootstrap-tagsinput.js"></script>
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_ManageRoom").css("display", "block");
+        //$(".HMSRoomType").addClass("active");
+
+        //function minmax(value) {
+        //    debugger;
+        //    if (value == 0 && value != "") {
+        //        return 1;
+        //    }
+        //    else {
+        //         return value;
+        //    }
+        //}
+
+        $(document).ready(function () {
+            $("#roomtypetbl").dataTable({
+            });
+        });
+
+        function EditRoomDetail(row) {
+            debugger;
+            var text = $('.text-info_' + row).text() == "" ? 0 : $('.text-info_' + row).text();
+            var attrid = "attribute_" + row;
+            var input = $('<input id=' + attrid + ' type="number" class="form-control" value="' + text + '" />')
+            $('.text-info_' + row).text('').append(input);
+            $('#oldamount').val(text);
+            $('#edit_' + row).attr('hidden', true);
+            $('#cancel_' + row).attr('hidden', true);
+            $('#save_' + row).removeAttr('hidden');
+            //input.select();
+
+            //input.blur(function () {
+            //    debugger;
+            //    var text = $('#' + attrid).val() == "" ? 0 : $('#' + attrid).val();
+
+            //});
+        }
+        function UpdateRoom(id, ward_id, room_facility, no_of_room) {
+            debugger;
+            $("#hdnrawid").val(id);
+            $("#hdnwardid").val(ward_id);
+            $("#hdnroom_facility").val(room_facility);
+            $("#hdnno_of_room").val(no_of_room);
+            $("#update_room").modal('show');
+        }
+        function CloseRoomType() {
+            debugger;
+            var row = $("#hdnrawid").val();
+            var attrid = "attribute_" + row;
+            // var text = $('#' + attrid).val() == "" ? 0 : $('#' + attrid).val();
+            $('#save_' + row).attr('hidden', true);
+            $('#edit_' + row).removeAttr('hidden');
+            $('#cancel_' + row).removeAttr('hidden');
+            $('#' + attrid).parent().text($('#oldamount').val());
+            $('#' + attrid).remove();
+            $("#update_room").modal('hide');
+        }
+        function UpdateRoomDetail() {
+            debugger;
+            var row = $("#hdnrawid").val();
+            var ward_id = $("#hdnwardid").val();
+            var room_facilty = $("#hdnroom_facility").val();
+            var no_of_room = $("#hdnno_of_room").val();
+            var attrid = "attribute_" + row;
+            var text = $('#' + attrid).val() == "" ? 0 : $('#' + attrid).val();
+
+            if (parseFloat(text) <= 0) {
+                //$('#' + attrid).val('0.00');
+                $('#' + attrid).parent().text($('#oldamount').val());
+                $('#' + attrid).remove();
+                $("#update_room").modal('hide');
+                $('#alt_message').text('Please enter Rent grater than Zero !!!');
+                $("#Alert_message").modal('show');
+                $('#save_' + row).attr('hidden', true);
+                $('#edit_' + row).removeAttr('hidden');
+                $('#cancel_' + row).removeAttr('hidden');
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/HMSRooms/UpdateRoomType",
+                data: { WardId: ward_id, Roomfacility: room_facilty, Noofroom: no_of_room, RoomRent: text },
+                success: function (result) {
+                    if (result == true) {
+                        $('#save_' + row).attr('hidden', true);
+                        $('#edit_' + row).removeAttr('hidden');
+                        $('#cancel_' + row).removeAttr('hidden');
+                        $('#' + attrid).parent().text(text);
+                        $('#' + attrid).remove();
+                        $("#update_room").modal('hide');
+                    }
+                    else {
+                        var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'> Related this room patient is admitted so yo can not delete. After release patient you can able to delete. </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $('#cardboxupdateroom').removeAttr('hidden');
+                        $("#cardboxupdateroom").html(htmlstr);
+                    }
+                }
+            })
+
+
+        }
+
+
+
+        function SuccessMethod(data) {
+            debugger;
+            $(".bindtable").html($(data).find(".bindtable").html());
+            var htmlstr = "";
+            if ($("#message").val() == "same") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Alrady Exists !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            else if ($("#message").val() == "update") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'> Record Update Success !! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            else if ($("#message").val() == "notupdate") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Not Updated !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            else if (parseInt($("#message").val()) > 0) {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Added Success !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            else if (parseInt($("#message").val()) == 0) {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Unable to Record Save !!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div> ";
+            }
+            $("#wardtype").val('');
+            $("#roomfacility").val('');
+            $('#noofrooms').tagsinput('removeAll');
+            $("#noofbeds").val('');
+            $("#perdayamount").val('');
+            $("#facility").val('');
+            $("#active").prop('checked', true);
+
+            $("#cardbox").empty();
+            $("#cardbox").html(htmlstr);
+        }
+
+
+
+        //function EditRoomType(val) {
+        //    debugger;
+        //    $('#noofrooms').tagsinput('removeAll');
+        //    $("#wardtype").val($("#row_" + val).find("td:eq(0)").find('#item_ward_id').val());
+        //    $("#roomfacility").val($("#row_" + val).find("td:eq(1)").text());
+        //    $("#noofrooms").tagsinput('add', $("#row_" + val).find("td:eq(2)").text());
+        //    $("#noofbeds").val($("#row_" + val).find("td:eq(3)").text());
+        //    $("#perdayamount").val($("#row_" + val).find("td:eq(4)").text());
+        //    $("#facility").val($("#row_" + val).find("td:eq(5)").text());
+        //    if ($("#row_" + val).find("td:eq(6)").text().trim() == "Active") {
+        //        $("#active").prop('checked', true);
+        //    }
+        //    else {
+        //        $("#Inactive").prop('checked', true)
+        //    }
+        //}
+
+        var ConfirmDelete = function (id, ward_id, room_facility, no_of_room) {
+            debugger;
+            $("#hdnrawid").val(id);
+            $("#hdnwardid").val(ward_id);
+            $("#hdnroom_facility").val(room_facility);
+            $("#hdnno_of_room").val(no_of_room);
+            $("#delete_room").modal('show');
+        }
+
+        var DeleteRoomType = function () {
+            debugger;
+            var rawid = $("#hdnrawid").val();
+            var WardId = $("#hdnwardid").val();
+            var roomfacility = $("#hdnroom_facility").val();
+            var noofroom = $("#hdnno_of_room").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSRooms/DeleteRoomType",
+                data: { WardId: WardId, Roomfacility: roomfacility, Noofroom: noofroom },
+                success: function (result) {
+                    if (result == true) {
+                        $("#delete_room").modal("hide");
+                        $("#row_" + rawid).remove();
+                    }
+                    else {
+                        var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'> Related this room patient is admitted so yo can not delete. After release patient you can able to delete. </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $('#cardboxdelroom').removeAttr('hidden');
+                        $("#cardboxdelroom").html(htmlstr);
+                    }
+                }
+            })
+        }
+
+    </script>
+}
+
+
+

@@ -1,0 +1,532 @@
+﻿@model HospitalManagement.Models.BillingServiceModel
+@{
+    ViewBag.Title = "BillingService";
+}
+<style>
+
+    #invSellingCost {
+        pointer-events: none;
+    }
+
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<div class="content">
+    <div class="row appointment-form align-items-center m-0">
+        <div class="col-md-5">
+            <div class="form-group">
+                <label style="color:black">Patient</label>
+                @Html.ValidationMessageFor(model => model.PatientCode, "", new { @class = "text-danger" })
+                @Html.TextBoxFor(model => model.PatientCode, new { @class = "form-control requiredSelect", placeholder = "Enter Patient Code, Mobile OR Patient Name" })
+                <i class="fa fa-pencil"></i>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="form-group">
+                <label style="color:black">Referal Doctor Name</label>
+                @Html.ValidationMessageFor(model => model.ReferalDoctorName, "", new { @class = "text-danger" })
+                @Html.TextBoxFor(model => model.ReferalDoctorName, new { @class = "form-control requiredSelect", placeholder = "Enter Referal Doctor Name " })
+                <i class="fa fa-pencil"></i>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <a href="#" onclick="ConfirmaddService()" title="Remove" class="btn skin-gradient-btn">Add Service</a>
+        </div>
+        <div id="cardbox" hidden></div>
+    </div><div class="row align-items-center">
+        <div class="col-sm-4 col-3">
+            <h4 class="page-title"> Add Billing Service</h4>
+        </div>
+    </div>
+    
+    @using (Ajax.BeginForm("AddBillingServiceItemInvoice", "BillingService", new AjaxOptions { HttpMethod = "POST",  OnSuccess = "SuccessMethodBilling", LoadingElementId = "progress" }))
+    {
+
+        <div class="row mt-3 bindserviceitem">
+            @{
+
+                decimal subTotal = 0;
+
+            }
+
+            @if (Model.BillingServiceItemlst != null && Model.BillingServiceItemlst.Count > 0)
+            {
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-border table-striped custom-table datatable mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Patient Name</th>
+                                    <th>Service Name</th>
+                                    <th>Service Type</th>
+                                    <th>Selling cost</th>
+                                    <th>Discount</th>
+                                    <th data-orderable="false">IS Realtime</th>
+                                    <th data-orderable="false">Status</th>
+                                    <th data-orderable="false" class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.BillingServiceItemlst.Count; i++)
+                                {
+
+                                    subTotal += Convert.ToDecimal(Model.BillingServiceItemlst[i].selling_price);
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(Model => Model.BillingServiceItemlst[i].id)
+                                            @Html.HiddenFor(Model => Model.BillingServiceItemlst[i].id)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(Model => Model.BillingServiceItemlst[i].patient_name)
+                                            @Html.HiddenFor(Model => Model.BillingServiceItemlst[i].patient_code)
+                                        </td>
+                                        <td>@Html.DisplayFor(Model => Model.BillingServiceItemlst[i].service_name)</td>
+                                        <td>@Html.DisplayFor(Model => Model.BillingServiceItemlst[i].type)</td>
+                                        <td>@Html.DisplayFor(Model => Model.BillingServiceItemlst[i].selling_price)</td>
+                                        <td>@Html.DisplayFor(Model => Model.BillingServiceItemlst[i].discount)</td>
+                                        @if (Model.BillingServiceItemlst[i].is_realtime == 1)
+                                        {
+                                            <td><b><i class="fa fa-circle text-success"></i> True</b></td>
+                                        }
+                                        @if (Model.BillingServiceItemlst[i].is_realtime == 0)
+                                        {
+                                            <td><b><i class="fa fa-circle text-danger"></i>False </b></td>
+                                        }
+                                        @if (Model.BillingServiceItemlst[i].ctrl == 1)
+                                        {
+                                            <td><b><i class="fa fa-circle text-success"></i>Active</b></td>
+                                        }
+                                        @if (Model.BillingServiceItemlst[i].ctrl == 0)
+                                        {
+                                            <td><b><i class="fa fa-circle text-danger"></i>Dactive</b></td>
+                                        }
+                                        <td class="text-center">
+                                            <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@Model.BillingServiceItemlst[i].id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-remove"></i></a>
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 text-right"><button class="btn skin-gradient-btn btn-sm" type="submit" name="submit"><i class="fa fa-plus"></i> Save</button></div>
+                <div class="col-sm-6 text-left"><lable class="biling_total_lable">Total Amount :</lable><b>@Math.Round(subTotal, 2)</b></div>
+
+            }
+        </div>
+        @*<div class="row">
+                <div class="col-sm-6 text-left"><button class="btn skin-gradient-btn btn-sm" type="submit" name="submit"><i class="fa fa-plus"></i> Save</button></div>
+                <div class="col-sm-6 text-right">Total Amount:@Model.total_selling_price</div>
+            </div>*@
+        <!-- Billing Service Item -->
+                }
+        @using (Ajax.BeginForm("AddServices", "BillingService", new AjaxOptions { HttpMethod = "POST", OnBegin ="ONbeginEvent", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div id="BillingService_model" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-lg  modal-dialog-centered">
+                    <div id="bindBillingService" class="modal-content">
+                        <div class="content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Billing Service(<span id="pat_code"></span>)</h4>
+
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="form-group text-center">
+                                                <label class="d-inline-block">Service: </label>
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label" for="product_active">
+                                                        @Html.RadioButtonFor(model => model.ServiceType, "Investigation", new { @id = "Investigation" })
+                                                        Investigation
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label" for="product_inactive">
+                                                        @Html.RadioButtonFor(model => model.ServiceType, "OtherService", new { @id = "OtherService" })
+                                                        Other Service
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="Invwise" class="row" hidden>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="focus-label">Category</label>
+
+                                                @Html.DropDownListFor(model => model.CategoryCode, new SelectList(Model.Investigationgrouplst, "investigationgroup_code", "investigationgroup_name"), "Select Category", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData()", @id = "Categorycode" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 bindtbl">
+                                            <div class="form-group">
+                                                <label class="focus-label">Sub Category</label>
+
+                                                @Html.DropDownListFor(model => model.investingation_id, new SelectList(Model.SubInvgrouplst, "investigationmaster_id", "invstigationmaster_name"), "Select Sub Category", new { @class = "form-control select requiredSelect", onchange = "Getcost()" })
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="other_services" class="row" hidden>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="focus-label">Other Service</label>
+
+                                                @Html.DropDownListFor(model => model.Service_id, new SelectList(Model.BillingServicelst, "id", "service_name"), "Select Service", new { @class = "form-control select requiredSelect", onchange = "Getcost()" })
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="service_cost" class="row bindcost" hidden>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="focus-label">Price</label>
+                                                @*<label>@Model.sellingCost</label>*@
+                                                @Html.TextBoxFor(model => model.SellingCost, new { @class = "form-control", @readonly = "readonly", @id = "invSellingCost" })
+                                                @Html.HiddenFor(model => model.is_realtime)
+                                            </div>
+                                        </div>
+                                        @if (Model.is_realtime == 0 && Model.ServiceType == "Investigation")
+                                        {
+                                            <div class="col-md-6">
+
+                                                <div class="form-group">
+                                                    <label class="focus-label">Discount</label>
+                                                    @Html.TextBoxFor(model => model.Discount, new { @class = "form-control groupOfTexbox",onchange="TestOnTextChange()" })
+
+
+                                                </div>
+
+                                            </div>
+                                        }
+                                        @if (Model.is_realtime == 1)
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="focus-label">Service Name</label>
+                                                    @*<label>@Model.sellingCost</label>*@
+                                                    @Html.TextBoxFor(model => Model.ServiceName, new { @class = "form-control" })
+
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="focus-label">Cost</label>
+                                                    @*<label>@Model.sellingCost</label>*@
+                                                    @Html.TextBoxFor(model => Model.Cost, new { @class = "form-control groupOfTexbox" })
+
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="focus-label">Selling Price</label>
+                                                    @*<label>@Model.sellingCost</label>*@
+                                                    @Html.TextBoxFor(model => Model.SellingCost, new { @class = "form-control groupOfTexbox" })
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="focus-label">Remark</label>
+                                                    @*<label>@Model.sellingCost</label>*@
+                                                    @Html.TextAreaFor(model => Model.Remark, new { @class = "form-control" })
+
+                                                </div>
+                                            </div>
+
+                                        }
+                                        @Html.HiddenFor(model => model.PatientCode)
+                                        @Html.HiddenFor(model => model.MinSellingCost)
+                                        <div class="col-md-12 m-t-20 text-center">
+                                            <button id="btnAddservice" class="btn skin-gradient-btn btn-sm" type="submit" name="submit"><i class="fa fa-plus"></i> Add Service Item</button>
+
+                                        </div>
+                                        <div id="cardboxservice" class="card-box" hidden>
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <!-- Billing Service Item -->
+    </div>
+
+@section scripts{
+    <script type="text/javascript">
+        var url = "";
+        var ConfirmaddService = function () {
+            $("#Investigation").prop("checked", true);
+            $('#Invwise').removeAttr('hidden');
+            $('#other_services').attr('hidden', true);
+            $('#service_cost').attr('hidden', true);
+
+
+            if ($("#PatientCode").val() != '') {
+                $("#pat_code").text($("#PatientCode").val());
+                $("#pat_code").val($("#PatientCode").val());
+                $("#BillingService_model").modal('show');
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong> <a href='#' class='alert-link'></a> <span id='statusmsg'>Please Enter valid Patient !!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardbox").html(htmlstr);
+
+                return;
+            }
+
+        }
+        $('#Investigation').change(function () {
+            debugger;
+            $('#Invwise').removeAttr('hidden');
+            $('#other_services').attr('hidden', true);
+            $('#service_cost').attr('hidden', true);
+            $("#other_services").find('input:text,input:file,select,textarea').val('');
+
+        });
+
+        $('#OtherService').change(function () {
+            $('#other_services').removeAttr('hidden');
+            $('#Invwise').attr('hidden', true);
+            $('#service_cost').attr('hidden', true);
+            $("#Invwise").find('input:text,input:file,select,textarea').val('');
+            $("#service_cost").find('input:text,input:file,select,textarea').val('');
+        });
+
+        function GetDropdownData() {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            var catval = "";
+            catval = $('#Categorycode').val();
+            url = "/BillingService/GetSubInvestigationPara?categorycode=" + catval + " &patientcode=" + $("#PatientCode").val() + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bindtbl").empty();
+                $(".bindtbl").html($(datahtml).find(".bindtbl").html());
+
+            });
+
+        }
+
+        function Getcost() {
+            debugger;
+            var serviceid = 0
+            var type = "";
+            if ($('#Investigation').prop('checked') == true) {
+                $('#service_cost').removeAttr('hidden');
+                serviceid = $('#investingation_id').val();
+                type = 'investigation';
+            }
+            if ($('#OtherService').prop('checked') == true) {
+                $('#service_cost').removeAttr('hidden');
+                serviceid = $('#Service_id').val();
+                type = 'services'
+            }
+
+            if (serviceid == '' || serviceid == 0) {
+                $('#service_cost').attr('hidden', true);
+                $("#service_cost").find('input:text,input:file,select,textarea').val('');
+                return;
+            }
+
+            url = "/BillingService/GetServiceCost?ServiceId=" + serviceid + " &Type=" + type + " &patientcode=" + $("#PatientCode").val() + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bindcost").empty();
+                $(".bindcost").html($(datahtml).find(".bindcost").html());
+                $('#service_cost').removeAttr('hidden');
+                $('.groupOfTexbox').keypress(function (event) {
+                    return isNumber(event, this)
+                });
+            });
+
+        }
+
+        $("#PatientCode").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/BillingService/GatePatient',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+                                return { label: item.patient_firstname, value: item.patient_code };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            arr.patient_firstname = "No Record Found";
+                            arr.patient_code = "";
+                            data.push(arr);
+                            response($.map(data, function (item) {
+                                return { label: item.patient_firstname, value: item.patient_code };
+                            }))
+                            $("#PatientCode").val("");
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    debugger;
+                    $("#PatientCode").val(i.item.value);
+                    debugger;
+                    $('.loadingimg').css('display', 'block');
+                    var url = "";
+                    url = "/BillingService/GetPatientBillingItem?PatientCode=" + $("#PatientCode").val() + "";
+                    $.ajax({
+                        url: url,
+                        datatype: 'json',
+                        ContentType: 'application/json;utf-8'
+                    }).done(function (datahtml) {
+                        $('.loadingimg').css('display', 'none');
+                        $(".bindserviceitem").empty();
+                        $(".bindserviceitem").html($(datahtml).find(".bindserviceitem").html());
+
+                    });
+
+                }
+
+
+            },
+            minLength: 3,
+        });
+
+
+        function isNumber(evt, element) {
+
+            var charCode = (evt.which) ? evt.which : event.keyCode
+
+            if (
+                (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // Check minus and only once.
+                (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // Check dot and only once.
+                (charCode < 48 || charCode > 57))
+                return false;
+
+            return true;
+        }
+
+    function ONbeginEvent() {
+
+         $("#btnAddservice").css({ "cursor": "not-allowed", "pointer-events": "none", "opacity": "0.65", "box-shadow": "none" });
+    }
+
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            var url = "";
+            if (data == "Record Added Successfully!") {
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+
+                url = "/BillingService/GetPatientBillingItem?PatientCode=" + $("#PatientCode").val() + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $(".bindserviceitem").empty();
+                    $(".bindserviceitem").html($(datahtml).find(".bindserviceitem").html());
+
+                });
+
+            }
+            else if (data == "Record Not Saved!") {
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Allrady Exists!") {
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Please enter all require item!!") {
+                $('#cardboxservice').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#btnAddservice").css({ "cursor": "pointer", "pointer-events": "", "opacity": "", "box-shadow": "" });
+            $("#cardboxservice").html(htmlstr);
+
+            }
+
+     function SuccessMethodBilling(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "1") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Added Successfully!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "0") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Record Not Saved!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "2") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Please Fill Data!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Error occured!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+            }
+
+    function TestOnTextChange() {
+        debugger;
+        var sellingcost = $("#invSellingCost").val();
+        var discount = $("#Discount").val();
+        var mincost = $("#MinSellingCost").val();
+
+        var doscountamount = (sellingcost * discount) / 100;
+
+        if ((sellingcost-doscountamount)< mincost ) {
+            var htmlstr = "";
+            $("#Discount").val(0);
+            $('#cardboxservice').removeAttr('hidden');
+            htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>Discount amount greater than amount of minmum seling amount so please enter discount less than amount of minmum selling amount minmum selling amount is:" + mincost + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            $("#cardboxservice").html(htmlstr);
+            return;
+        }
+       
+
+    }
+
+
+    </script>
+}
+
+
+

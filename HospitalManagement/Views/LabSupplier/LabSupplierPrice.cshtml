@@ -1,0 +1,153 @@
+﻿@model HospitalManagement.Models.LabSupplierPrice
+@{
+    ViewBag.Title = "LabSupplierPrice";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Add Lab Supplier Investigation Price</h4>
+        </div>
+    </div>
+
+    <div class="row filter-row">
+        <div class="col-sm-6 col-md-6">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Select Lab Supplier</label>
+                @Html.DropDownListFor(model => model.supplier_id, new SelectList(Model.Sup_LabList, "supplier_id", "lab_name"), "Select LabName", new { @class = "form-control  requiredSelect", @id = "supplierlist", onchange = "GetDropdownData('selectLab')" })
+
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-6">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Select Investigation GroupName</label>
+                @Html.DropDownListFor(model => model.investigationgroup_code, new SelectList(Model.InvGroupList, "investigationgroup_code", "investigationgroup_name"), "Select InvestigationGroup Name", new { @class = "form-control  requiredSelect", onchange = "GetDropdownData('investigationlist')", @id = "Categorycode" })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            @using (Ajax.BeginForm("AddSupplierInvestigationPrice", "LabSupplier", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.supplier_id, new { @id = "supId" })
+                <div class="table-responsive table-scrolling p-t-30">
+                    <table class="table table-border table-striped custom-table dataTable  mb-0" id="tblinvprice">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Investigation Name</th>
+                                @*<th>Investigation Cost</th>*@
+                                <th hidden>Procedue</th>
+                                <th>Investigation Fees</th>
+                                <th> Active/InActive </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bindtbl">
+                            @if (Model.InvpriceList != null && Model.InvpriceList.Count > 0)
+                            {
+                                for (int i = 0; i < Model.InvpriceList.Count; i++)
+                                {
+                            <tr>
+                                @Html.HiddenFor(Model => Model.InvpriceList[i].id)
+                                @Html.HiddenFor(Model => Model.InvpriceList[i].investigationmaster_id)
+                                <td>@Html.CheckBoxFor(Model => Model.InvpriceList[i].IsSelected, new { @class = "selectClass" })</td>
+                                <td>@Model.InvpriceList[i].invstigationmaster_name</td>
+                                @*<td>@Html.TextBoxFor(Model => Model.InvpriceList[i].inv_cost, new { @class = "form-control" })</td>*@
+                                <td hidden>@Html.TextBoxFor(Model => Model.InvpriceList[i].invstigationmaster_Procedure, new { @class = "form-control" })</td>
+                                <td>@Html.TextBoxFor(Model => Model.InvpriceList[i].Amount, new { @class = "form-control" })</td>
+                                <td>@Html.CheckBoxFor(Model => Model.InvpriceList[i].ctrl, new { @class = "statusclass" }) Active/Inactive</td>
+                            </tr>
+                                }
+                            }
+                            else if (Model.InvpriceList == null || Model.InvpriceList.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="4" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-12">
+                    <div class="m-t-20 text-center">
+                        <button class="btn skin-gradient-btn submit-btn" name="submit">Save</button>
+                    </div>
+                </div>
+                <div id="cardbox" class="card-box" hidden>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".LabSupplierMaster").addClass("subdrop");
+        //$(".Submenu_LabSupplierMaster").css("display", "block");
+        //$(".Submenu_LabSupplierMaster").css("display", "block");
+        //$(".LabSupplierPrice").addClass("active");
+
+        function GetDropdownData(type) {
+            debugger;
+
+            $('#supId').val($("#supplierlist").val());
+            if (type == "investigationlist") {
+                if ($("#supplierlist").val() == "" || $("#supplierlist").val() == null) {
+                    alert("Please select LabName !");
+                    $('#Categorycode').val("");
+                    return false;
+                }
+                var catval = $('#Categorycode').val();
+                if (catval == "" || catval == null) {
+                    var html = "<tr><td colspan='4' style='text-align:center'><div><img src='/wwwroot/assets/img/no-result.png' /></div></td></tr>";
+                    $(".bindtbl").empty();
+                    $(".bindtbl").html(html);
+                    return false;
+                }
+                $('.loadingimg').css('display', 'block');
+                url = "/LabSupplier/GetSupInvestigationPara?categorycode=" + catval + "&&Supplier_Id=" + $("#supplierlist").val() + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $('.loadingimg').css('display', 'none');
+                    $(".bindtbl").empty();
+                    $(".bindtbl").html($(datahtml).find(".bindtbl").html());
+                });
+            }
+            else if (type == "selectLab") {
+                $('#Categorycode').val("");
+                //if ($("#supplierlist").val() == "" || $("#supplierlist").val() == null) {
+                var html = "<tr><td colspan='4' style='text-align:center'><div><img src='/wwwroot/assets/img/no-result.png' /></div></td></tr>";
+                $(".bindtbl").empty();
+                $(".bindtbl").html(html);
+                //}
+            }
+        }
+
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Record Not Saved!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "Select atleast one record") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strong>Note!</strong>  <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            
+            $("#cardbox").html(htmlstr);
+        }
+    </script>
+}

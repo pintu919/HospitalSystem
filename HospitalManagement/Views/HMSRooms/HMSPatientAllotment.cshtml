@@ -1,0 +1,88 @@
+﻿@model HospitalManagement.Models.RoomTypeModel
+@{
+    ViewBag.Title = "HMSPatientAllotment";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Patient Room Allotment</h4>
+        </div>
+    </div>
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.PatientAllotmentList != null && Model.PatientAllotmentList.Count > 0)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0" id="roomallot_lsttable">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Patient Name</th>
+                                <th hidden></th>
+                                <th>Doctor Name</th>
+                                <th>Ward Type</th>
+                                <th>Room No</th>
+                                <th>Bed No</th>
+                                <th>Status</th>
+                                <th class="">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.PatientAllotmentList)
+                            {
+                                <tr id="row_@item.admit_id">
+                                    <td class="collapse"> @item.admit_id</td>
+                                    <td>
+                                        <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.patientname </a><span class="d-block">@item.patient_code</span> </h2>
+                                    @*@item.patientname <span class="d-block text-secondary">@item.patient_code</span>*@
+                                    </td>
+                                    <td hidden>@item.admit_id</td>
+                                    <td>@item.doctorname</td>
+                                    <td>@item.roomtype</td>
+                                    <td>@item.room_no</td>
+                                    <td>@item.bed_prefix</td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="badge badge-success">Deactive</span></td>
+                                    }
+                                    <td class="">
+                                        <a href="javascript:;" onclick="submit(@item.admit_id)" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.admit_id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <input type="hidden" id="message" value=@Model.PatientAllotmentList[0].message />
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".InPatient").addClass("subdrop");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".HMSPatientAllotment").addClass("active");
+
+          $(document).ready(function () {
+           $("#roomallot_lsttable").dataTable({
+                "order": [[2, "desc"]],
+            });
+            
+        });
+
+        function submit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/HMSRooms/RoomAllotment', '_self') });
+        }
+    </script>
+}
+

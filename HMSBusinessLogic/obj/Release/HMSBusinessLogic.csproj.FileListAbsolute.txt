@@ -1,0 +1,4 @@
+E:\NewProject\HospitalManagement\HMSBusinessLogic\obj\Release\HMSBusinessLogic.csprojAssemblyReference.cache
+E:\NewProject\HospitalManagement\HMSBusinessLogic\obj\Release\HMSBusinessLogic.csproj.CoreCompileInputs.cache
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Release\HMSBusinessLogic.csproj.AssemblyReference.cache
+D:\Currently Working Project\eClinicStagingHP\HMSBusinessLogic\obj\Release\HMSBusinessLogic.csproj.CoreCompileInputs.cache

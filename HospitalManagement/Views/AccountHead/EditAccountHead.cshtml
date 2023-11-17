@@ -1,0 +1,105 @@
+﻿@model HospitalManagement.Models.AccountHeadModel
+@{
+    /**/
+
+    ViewBag.Title = "EditAccountHead";
+}
+
+<style type="text/css">
+    #ParentId {
+        pointer-events: none;
+    }
+</style>
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Edit Account Head</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/AccountHead/AccountHeadList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("EditAccHead", "AccountHead", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-md-12 p-0">
+                    <div class="row align-items-center">
+                        <div class="col-sm-6 col-md-6 col-lg-3 col-xl-3">
+                            <div class="form-group">
+                                <label>Head Type</label>
+                                @Html.ValidationMessageFor(model => model.ParentId, "", new { @class = "text-danger" })
+                                @Html.DropDownListFor(model => model.ParentId, new SelectList(Model.HeadTypeList, "head_id", "head_name"), "Select HeadType", new { @class = "form-control requiredSelect",@readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-9 col-xl-5">
+                            <div class="form-group">
+                                <label>Head Name <span class="text-danger">@Html.ValidationMessageFor(model => model.HeadName, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.HeadName, new { @class = "form-control" })
+                                @Html.HiddenFor(model=>model.HeadId)
+                                <i class="fa fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-lg-12 col-xl-3 col-md-12">
+                            <div class="form-group text-left mb-0">
+                                <label class="mr-3">Status : </label>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_active">
+                                        @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "Active" })
+                                        Active
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="product_inactive">
+                                        @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                        Inactive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-1 col-lg-3 col-md-3 col-sm-3 col-6">
+                            <div class="text-center">
+                                <button class="btn skin-gradient-btn btn-block">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cardbox" class="mt-2" hidden>
+
+                    </div>
+               
+            </div>
+        </div>
+    }
+</div>
+@section scripts{
+    <script>
+
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_AccountData").css("display", "block");
+        //$(".AccountHeadList").addClass("active");
+
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "Record Update Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong> Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+
+            }
+            else if (data == "Record Does Not Update Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+      
+    </script>
+}
+
+

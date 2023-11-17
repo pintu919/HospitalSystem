@@ -1,0 +1,186 @@
+﻿@model List<HospitalManagement.Models.MainPurchase>
+@{
+    /**/
+
+    ViewBag.Title = "AddHosPurchaseItemNew";
+}
+
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Add Hospital Purchase Item</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/HMSLab/HosPurchaseItemInvoiceList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    <div class="row employee-form m-0">
+       
+            @using (Ajax.BeginForm("AddHosPurchase", "HMSLab", new AjaxOptions { HttpMethod = "POST", LoadingElementId = "ajxloader", OnSuccess = "Sucessmethod" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <!-- Experience -->
+              
+
+
+                        @*<h4 class="card-title">Add Hospital Purchase Item</h4>*@
+                        <div class="experience-info">
+                            @if (Model[0].purchaseItem.Count > 0 || Model[0].purchaseItem != null)
+                            {
+                                //int j = 0;
+                                for (int i = 0; i < Model[0].purchaseItem.Count; i++)
+                                {
+                                    <div class="row form-row experience-cont">
+                                        <div class="col-12 col-md-10 col-lg-12">
+                                            <div class="row form-row">
+                                                <div class="col-12 col-md-6 col-lg-2">
+                                                    <div class="form-group">
+                                                        <label>Regent Item</label>
+                                                        @Html.DropDownListFor(model => model[0].purchaseItem[i].ReagentId, new SelectList(Model[0].purchaseItem[i].Reg_List, "Value", "Text"), "Select Regent", new { @class = "form-control  requiredSelect", @id = "regent" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 col-lg-1">
+                                                    <div class="form-group">
+                                                        <label>Qty</label>
+
+                                                        @Html.TextBoxFor(model => model[0].purchaseItem[i].Qty, new { @class = "form-control", type = "number", min = "1", autocomplete = "off" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 col-lg-2">
+                                                    <div class="form-group">
+                                                        <label>Product Expiry</label>
+                                                        @Html.TextBoxFor(model => model[0].purchaseItem[i].ProductExpiry, new { @class = "form-control datetimepicker required", autocomplete = "off" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 col-lg-2">
+                                                    <div class="form-group">
+                                                        <label>Quantity Per Unit</label>
+                                                        @Html.TextBoxFor(model => model[0].purchaseItem[i].QtyPerUnit, new { @class = "form-control", type = "number", min = "1", autocomplete = "off" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 col-lg-2">
+                                                    <div class="form-group">
+                                                        <label>Amount</label>
+                                                        @Html.TextBoxFor(model => model[0].purchaseItem[i].Amount, new { @class = "form-control", type = "number", min = "1", autocomplete = "off" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 col-lg-2">
+                                                    <div class="form-group">
+                                                        <label>Validity Days</label>
+                                                        @Html.TextBoxFor(model => model[0].purchaseItem[i].ValidityDays, new { @class = "form-control", type = "number", min = "1", autocomplete = "off" })
+                                                    </div>
+                                                </div>
+                                                @if (Model[0].purchaseItem.Count > 1)
+                                                {
+                                                    <div class="col-12 col-md-2 col-lg-1">
+                                                        <label class="d-sm-none d-none">&nbsp;</label>
+                                                        <a href="#" class="btn btn-danger trash">
+                                                            <i class="fa fa-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                //foreach (var item in Model[0].purchaseItem)
+                                //{
+
+                                //}
+                                //j++;
+                            }
+                        </div>
+                        <div class="add-more">
+                            <a href="javascript:void(0);" class="add-experience"><i class="fa fa-plus-circle"></i> Add More</a>
+                        </div>
+                        <div class="row mt-10  form-row">
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label>Supplier</label>
+                                    @Html.TextBoxFor(model => model[0].supplier, new { @class = "form-control", type = "text", autocomplete = "off" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label>Invoice RefNo</label>
+                                    @Html.TextBoxFor(model => model[0].InvoiceRefNo, new { @class = "form-control", autocomplete = "off" })
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <div class="form-group">
+                                    <label>Purchase Date</label>
+                                    @Html.TextBoxFor(model => model[0].PurchaseDate, new { @class = "form-control datetimepicker", autocomplete = "off" })
+                                    @Html.HiddenFor(model => model[0].PICode)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="submit-section submit-btn-bottom">
+                            <button type="submit" class="btn skin-gradient-btn">
+                                <span id="ajxloader" style="display:none;">
+                                    <i class="fa fa-refresh fa-spin"></i>
+                                </span>Save
+                            </button>
+                        </div>
+               
+                <!-- /Experience -->
+
+            }
+        
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/wwwroot/assets/js/profile-settings.js"></script>
+
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".HosPurchaseItemInvoiceList").addClass("active");
+
+        function Sucessmethod(data) {
+            var strhtml = "";
+            if (data == "1") {
+                strhtml = "<div class='alert alert-success alert-dismissible fade show' role='alert'>" +
+                    "<strong>Success!</strong> Purchase Item  Added Sucess !!" +
+                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    "</div>";
+            }
+            else if (data == "0") {
+                strhtml = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>" +
+                    "<strong>Error!</strong> An Error Occured !!"
+                "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    "</div>";
+            }
+            $("#StatusHtmlMessage").html(strhtml);
+        }
+                                                            //$(document).ready(function () {
+                                                            //      $("#regent").select2();
+
+                                                            //});
+                                                            //function SuccessMethod(data) {
+                                                            //    debugger;
+                                                            //    var htmlstr = "";
+                                                            //    if (data == "Record Added Successfully!") {
+                                                            //        $('#cardbox').removeAttr('hidden');
+                                                            //        htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                                                            //    }
+                                                            //    else if (data == "Record Not Saved!") {
+                                                            //        $('#cardbox').removeAttr('hidden');
+                                                            //        htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                                                            //    }
+                                                            //    else if (data == "Record Allrady Exists!") {
+                                                            //        $('#cardbox').removeAttr('hidden');
+                                                            //        htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                                                            //    }
+
+                                                            //    $("#cardbox").html(htmlstr);
+                                                            //}
+    </script>
+}

@@ -1,0 +1,479 @@
+﻿@model HospitalManagement.Models.CliniqModel
+@{
+    ViewBag.Title = "EditClinicProfile";
+}
+<link href="~/wwwroot/assets/css/select2.min.css" rel="stylesheet" />
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title"> Edit Clinic/Hospital</h4>
+        </div>
+    </div>
+
+    @using (Ajax.BeginForm("UpdateClinic", "HMSClinic", new AjaxOptions { HttpMethod = "POST", OnBegin = "ajaxbegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" },new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="row patient-form m-0">
+            <div class="col-12">
+                <form>
+                    <div class="row align-items-center">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Hospital/Clinic Name <span class="text-danger">@Html.ValidationMessageFor(model => model.CliniqName, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.CliniqName, new { @class = "form-control" })
+                                @Html.HiddenFor(model => model.CliniqCode, new { @id = "Hoscod" })
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Registration Number <span class="text-danger">@Html.ValidationMessageFor(model => model.Cliniq_RegNo, "", new { @class = "text-danger" })</span></label>
+                                @Html.TextBoxFor(model => model.Cliniq_RegNo, new { @class = "form-control", disabled = "disabled" })
+                                @Html.HiddenFor(model => model.Cliniq_RegNo)
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>Profile</label>
+                                <div class="profile-upload">
+                                    <div class="upload-img">
+                                        @if (Model.cliniclogo == "" || Model.cliniclogo == null)
+                                        {
+                                            var im = System.Configuration.ConfigurationManager.AppSettings["gethosdefaultimg"]+"default_hplogo.png";
+                                            <img id="blah" alt="your image" src="@im"  style="max-width:50px;">
+                                        }
+                                        else
+                                        {
+                                            @Html.HiddenFor(model => model.cliniclogo, new { @id = "Set_Logo" })
+                                            var img = System.Configuration.ConfigurationManager.AppSettings["gethosimgUrl"] + Model.cliniclogo;
+                                            <img id="blah" alt="your image" src="@img" style="max-width:50px;">
+                                        }
+                                        @*<img id="blah" alt="your image" src="~/wwwroot/assets/img/user.jpg">*@
+                                    </div>
+                                    <div class="upload-input">
+                                        @Html.EditorFor(model => model.cliniclogo, new { htmlAttributes = new { @class = "form-control", name = "postedFile", @id = "imageUploadForm", onchange = "readURL(this);", @type = "file" } })
+                                        @Html.ValidationMessageFor(model => model.cliniclogo, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h4 class="card-title">Address Details</h4>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Country</label>
+                                        @Html.ValidationMessageFor(model => model.CountryCode, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.CountryCode, new SelectList(Model.CountryLst, "country_code", "country_name"), "Select Country", new { @class = "form-control requiredSelect", onchange = "GetDropdownData('state')", @id = "country" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group statebnd">
+                                        <label>State/Province</label>
+                                        @Html.ValidationMessageFor(model => model.StateCode, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.StateCode, new SelectList(Model.StateLst, "state_code", "statename"), "Select State", new { @class = "form-control requiredSelect", onchange = "GetDropdownData('district')", @id = "state" })
+
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group districtbnd">
+                                        <label>District</label>
+                                        @Html.ValidationMessageFor(model => model.DistrictCode, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.DistrictCode, new SelectList(Model.DistrictLst, "district_code", "district"), "Select District", new { @class = "form-control requiredSelect", onchange = "GetDropdownData('city')", @id = "district" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group citybnd">
+                                        <label>City</label>
+                                        @Html.ValidationMessageFor(model => model.CityCode, "", new { @class = "text-danger" })
+                                        @Html.DropDownListFor(model => model.CityCode, new SelectList(Model.CityLst, "city_code", "cityname"), "Select City", new { @class = "form-control requiredSelect", @id = "city" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Area/Landmark <span class="text-danger">@Html.ValidationMessageFor(model => model.Cliniq_landmark, "", new { @class = "text-danger" })</span></label>
+                                        @Html.TextBoxFor(model => model.Cliniq_landmark, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Address <span class="text-danger">@Html.ValidationMessageFor(model => model.Cliniq_Addr, "", new { @class = "text-danger" })</span></label>
+                                        @Html.TextAreaFor(model => model.Cliniq_Addr, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Postal Code <span class="text-danger">@Html.ValidationMessageFor(model => model.zip, "", new { @class = "text-danger" })</span></label>
+                                        @Html.TextBoxFor(model => model.zip, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                            <h4 class="card-title"> Contact Details</h4>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Phone Number </label>
+                                        @Html.TextBoxFor(model => model.Telephone, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Mobile Number <span class="text-danger">@Html.ValidationMessageFor(model => model.Cliniq_phone, "", new { @class = "text-danger" })</span></label>
+                                        @Html.TextBoxFor(model => model.Cliniq_phone, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Emergency No <span class="text-danger">@Html.ValidationMessageFor(model => model.Cliniq_emergency_no, "", new { @class = "text-danger" })</span></label>
+                                        @Html.TextBoxFor(model => model.Cliniq_emergency_no, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Email <span class="text-danger">@Html.ValidationMessageFor(model => model.Cliniq_email, "", new { @class = "text-danger" })</span></label>
+                                        @Html.TextBoxFor(model => model.Cliniq_email, new { @class = "form-control", disabled = "disabled" })
+                                        @Html.HiddenFor(model => model.Cliniq_email)
+                                    </div>
+                                </div>
+                            </div>
+                            <h4 class="card-title">Hosting Url</h4>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(model => model.hosting_url, new { @class = "form-control",@readonly = "readonly" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <h4 class="card-title">Timing Details </h4>
+                            <div class="row align-items-center">
+                                <div class="col-md-12" onclick="dailyopen()">
+                                    @Html.CheckBoxFor(m => m.Daily, new { htmlAttributes = new { @class = "form-control" } })
+                                    24 Hours/Daily
+                                </div>
+                                <div class="col-md-6">
+
+                                </div>
+                                <div class="col-md-6">
+                                    OR
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label>Off Day</label>
+                                        @Html.TextBoxFor(model => model.Cliniq_off_day, new { @class = "form-control", @id = "offday", data_val = "false" })
+                                    </div>
+                                </div>
+                                <div class="col-md-7">
+
+                                </div>
+                                <!--Day 1-->
+                                <div class="col-md-1" onclick="checkuncheck(1)">
+                                    @Html.CheckBoxFor(m => m.Day1, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Day : 1</label>
+                                        @Html.TextBox("Sunday", "Sunday", new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Open Time : </label>
+
+                                        @Html.TextBoxFor(model => model.Day1_Cliniq_open_time, new { @class = "form-control", @type = "time", disabled = Model.Day1 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day1_Cliniq_open_time)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Close Time : </label>
+                                        @Html.TextBoxFor(model => model.Day1_Cliniq_close_time, new { @class = "form-control", @type = "time", disabled = Model.Day1 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day1_Cliniq_close_time)
+                                    </div>
+                                </div>
+                                <!--Day 2-->
+                                <div class="col-md-1" onclick="checkuncheck(2)">
+                                    <div class="form-group">
+                                        @Html.CheckBoxFor(m => m.Day2, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Day:2</label>
+                                        @Html.TextBox("Monday", "Monday", new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Open Time:</label>
+                                        @Html.TextBoxFor(model => model.Day2_Cliniq_open_time, new { @class = "form-control", @type = "time", disabled = Model.Day2 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day2_Cliniq_open_time)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Close Time:</label>
+                                        @Html.TextBoxFor(model => model.Day2_Cliniq_close_time, new { @class = "form-control", @type = "time", disabled = Model.Day2 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day2_Cliniq_close_time)
+                                    </div>
+                                </div>
+                                <!--Day 3-->
+                                <div class="col-md-1" onclick="checkuncheck(3)">
+                                    <div class="form-group">
+                                        @Html.CheckBoxFor(m => m.Day3, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Day:3</label>
+                                        @Html.TextBox("Tuesday", "Tuesday", new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Open Time:</label>
+                                        @Html.TextBoxFor(model => model.Day3_Cliniq_open_time, new { @class = "form-control", @type = "time", disabled = true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day3_Cliniq_open_time)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Close Time:</label>
+                                        @Html.TextBoxFor(model => model.Day3_Cliniq_close_time, new { @class = "form-control", @type = "time", disabled = true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day3_Cliniq_close_time)
+                                    </div>
+                                </div>
+                                <!--Day 4-->
+                                <div class="col-md-1" onclick="checkuncheck(4)">
+                                    <div class="form-group">
+                                        @Html.CheckBoxFor(m => m.Day4, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Day:4</label>
+                                        @Html.TextBox("Wednesday", "Wednesday", new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Open Time:</label>
+                                        @Html.TextBoxFor(model => model.Day4_Cliniq_open_time, new { @class = "form-control", @type = "time", data_val = "false", disabled = Model.Day4 == true ? false : true })
+                                        @Html.HiddenFor(model => model.Day4_Cliniq_open_time)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Close Time:</label>
+                                        @Html.TextBoxFor(model => model.Day4_Cliniq_close_time, new { @class = "form-control", @type = "time", disabled = Model.Day4 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day4_Cliniq_close_time)
+                                    </div>
+                                </div>
+                                <!--Day 5-->
+                                <div class="col-md-1" onclick="checkuncheck(5)">
+                                    <div class="form-group">
+                                        @Html.CheckBoxFor(m => m.Day5, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Day:5</label>
+                                        @Html.TextBox("Thursday", "Thursday", new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Open Time:</label>
+                                        @Html.TextBoxFor(model => model.Day5_Cliniq_open_time, new { @class = "form-control", @type = "time", disabled = Model.Day5 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day5_Cliniq_open_time)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Close Time:</label>
+                                        @Html.TextBoxFor(model => model.Day5_Cliniq_close_time, new { @class = "form-control", @type = "time", disabled = Model.Day5 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day5_Cliniq_close_time)
+                                    </div>
+                                </div>
+                                <!--Day 6-->
+                                <div class="col-md-1" onclick="checkuncheck(6)">
+                                    <div class="form-group">
+                                        @Html.CheckBoxFor(m => m.Day6, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Day:6</label>
+                                        @Html.TextBox("Friday", "Friday", new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Open Time:</label>
+                                        @Html.TextBoxFor(model => model.Day6_Cliniq_open_time, new { @class = "form-control", @type = "time", disabled = Model.Day6 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day6_Cliniq_open_time)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Close Time:</label>
+                                        @Html.TextBoxFor(model => model.Day6_Cliniq_close_time, new { @class = "form-control", @type = "time", disabled = Model.Day6 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day6_Cliniq_close_time)
+                                    </div>
+                                </div>
+                                <!--Day 7-->
+                                <div class="col-md-1" onclick="checkuncheck(7)">
+                                    <div class="form-group">
+                                        @Html.CheckBoxFor(m => m.Day7, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Day:7</label>
+                                        @Html.TextBox("Saturday", "Saturday", new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Open Time:</label>
+                                        @Html.TextBoxFor(model => model.Day7_Cliniq_open_time, new { @class = "form-control", @type = "time", disabled = Model.Day7 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day7_Cliniq_open_time)
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Close Time:</label>
+                                        @Html.TextBoxFor(model => model.Day7_Cliniq_close_time, new { @class = "form-control", @type = "time", disabled = Model.Day7 == true ? false : true, data_val = "false" })
+                                        @Html.HiddenFor(model => model.Day7_Cliniq_close_time)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 text-center m-t-20">
+                            <button  class="btn skin-gradient-btn submit-btn">Save</button>
+                        </div>
+                        <div id="cardbox" class="card-box" hidden>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts{
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#country").select2();
+            //// $("#state").select2();
+            ////$("#district").select2();
+            ////$("#city").select2();
+        });
+
+        function GetDropdownData(Type) {
+            $('.loadingimg').css('display', 'block');
+            var url = "";
+            if (Type == "state")
+                url = "/HMSPatient/GetDatabyCode?code=" + $("#country").val() + "&Type=" + Type + "";
+            else if (Type == "district")
+                url = "/HMSPatient/GetDatabyCode?code=" + $("#state").val() + "&Type=" + Type + "";
+            else if (Type == "city")
+                url = "/HMSPatient/GetDatabyCode?code=" + $("#district").val() + "&Type=" + Type + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                if (Type == "state") {
+                    $(".statebnd").empty();
+                    $(".statebnd").html($(datahtml).find(".statebnd").html());
+                    $("#state").select2();
+                }
+                else if (Type == "district") {
+                    $(".districtbnd").empty();
+                    $(".districtbnd").html($(datahtml).find(".districtbnd").html());
+                    $("#district").select2();
+                }
+                else if (Type == "city") {
+                    $(".citybnd").empty();
+                    $(".citybnd").html($(datahtml).find(".citybnd").html());
+                    $("#city").select2();
+                }
+                $('#loadingmessage').hide();
+            });
+            }
+
+     function checkuncheck(day, type) {
+
+        var IsCheck = $('#Day' + day).is(':checked');
+        if (IsCheck) {
+            $('#Day' + day + '_Cliniq_open_time').prop("disabled", false);
+            $('#Day' + day + '_Cliniq_close_time').prop("disabled", false);
+        }
+        else {
+            $('#Day' + day + '_Cliniq_open_time').prop("disabled", true);
+            $('#Day' + day + '_Cliniq_close_time').prop("disabled", true);
+        }
+    }
+    function SetChecked() {
+
+        $.each([1, 2, 3, 4, 5, 6, 7], function (index, value) {
+            checkuncheck(value);
+        });
+    }
+
+    function ajaxbegin() {
+            var file = $("#imageUploadForm").get(0).files;
+            var data = new FormData;
+            data.append("ImageFile", file[0]);
+        }
+        function SuccessMethod(data) {
+            var htmlstr = "";
+            if (data == "Record Update Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Does Not Update Sucessfully!!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+
+
+            $("#cardbox").html(htmlstr);
+        }
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#blah')
+                    .attr('src', e.target.result)
+                    .width(50)
+                    .height(50);
+            };
+            reader.readAsDataURL(input.files[0]);
+
+            //var file = $("#imageUploadForm").get(0).files;
+            var data = new FormData;
+            data.append("ImageFile", input.files[0]);
+        }
+            }
+     function dailyopen() {
+
+        $('#offday').val('');
+        $('#offday').prop("disabled", $('#Daily').is(':checked'));
+    };
+
+    </script>
+}
+

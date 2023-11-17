@@ -1,0 +1,278 @@
+﻿@model HospitalManagement.Models.SupplierGroupModel
+@{
+    ViewBag.Title = "SupplierGroupEntry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Supplier Group Entry</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Stock/StockSupplier" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    <div class="row employee-form m-0">
+        <div class="col-lg-12 p-0">
+            @using (Ajax.BeginForm("Add_Update_Store_Supplier_Group", "Stock", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-6 col-xl-6">
+                        @if (Model.stockcategory_List != null)
+                        {
+                            <div class="form-group">
+                                @Html.TextBoxFor(model => model.group_name, new { @class = "form-control", placeholder = "Enter keyword related to Stock item" })
+                                @Html.HiddenFor(model => model.item_id)
+                                @Html.HiddenFor(model => model.SupplierId)
+                                @Html.HiddenFor(model=>model.Id)
+                            </div>
+                        }
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-xl-3">
+                        <div class="form-group">
+                            <label class="display-block">Status</label>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="active">
+                                    @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "active" })
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="Inactive">
+                                    @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                    InActive
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-lg-2 col-xl-2">
+                        <div class="form-group">
+                            <button type="submit" class="btn skin-gradient-btn submit-btn" id="update_insertbtn_set">Add</button>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="cardbox_status" class="">
+                        @{
+                            if (Model.ResponseMsg != null)
+                            {
+                                if (Model.ResponseMsg.StatusId == "1")
+                                {
+                                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                                        <strong>Success!</strong> Your <a href="#" class="alert-link">action</a> has been successful.
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                }
+                                else if (Model.ResponseMsg.StatusId == "0")
+                                {
+                                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                        <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                }
+                                else if (Model.ResponseMsg.StatusId == "2")
+                                {
+                                    <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                                        <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.grouplist_data != null)
+                {
+                    <table class="table table-border table-striped custom-table mb-0" id="emptable">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th class="collapse">item_id</th>
+                                <th>Group Name</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.grouplist_data)
+                            {
+                            <tr id="row_@item.Id">
+                                <td class="collapse">@item.Id</td>
+                                <td class="collapse">@item.item_id</td>
+                                <td>@item.group_name </td>
+                                <td>@item.category_name</td>
+                                @if (item.ctrl == 1)
+                                {
+                                    <td><span class="badge badge-success">Active</span></td>
+                                }
+                                @if (item.ctrl == 0)
+                                {
+                                    <td><span class="badge badge-danger">Deactive</span></td>
+                                }
+                                <td class="text-center">
+                                    <a href="javascript:void(0)" onclick="EditStoreSupplierGroup(@item.Id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                                    <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.Id)"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div id="delete_StockSuppliergroup" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure you want to delete this Supplier?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteSupplierGroup()" class="btn red-gradient-btn">Delete</button>
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hdnstoresuppliergroupid" />
+@section scripts{
+    <script type="text/javascript">
+        debugger;
+        $(".Stock").addClass("subdrop");
+        $(".Submenu_Stock").css("display", "block");
+        $(".SupplierGroupEntry").addClass("active");
+        $(document).ready(function () {
+            $("#emptable").dataTable({
+                "order": [[0, "desc"]]
+            });
+        });
+
+        function SuccessMethod(datahtml) {
+            debugger;
+            $(".bindtable").empty();
+            $("#cardbox_status").empty();
+            $(".bindtable").html($(datahtml).find(".bindtable").html());
+            $("#emptable").dataTable({
+                "order": [[0, "desc"]]
+            });
+            $("#Id").val(0);
+            $("#group_name").val('');
+            $("#category_id").val('');
+            $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+            $("#update_insertbtn_set").html("Add");
+        }
+
+        $("#group_name").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/Stock/GetStockItem',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        debugger;
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+                                return { label: item.item_name, value: item.item_name, item_id: item.id };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            response($.map(data, function (item) {
+                                return { label: item.item_name, value: item.item_name, item_id: item.id };
+                            }))
+                            $("#group_name").val("");
+                            $("#item_id").val("");
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                debugger;
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+                    $('#cardbox').attr('hidden', true);
+                    $("#item_id").val(i.item.item_id);
+                    $("#group_name").val(i.item.value);
+                }
+            },
+            minLength: 2,
+        }).bind("keyup.autocomplete", function (event) {
+            if (event.keyCode == $.ui.keyCode.BACKSPACE || event.keyCode == $.ui.keyCode.DELETE) {
+                $("#item_id").val("");
+                $("#group_name").val("");
+            };
+        });
+
+        function EditStoreSupplierGroup(val) {
+            debugger;
+            $("#Id").val(parseInt($("#row_" + val).find("td:eq(0)").text()));
+            $("#item_id").val(parseInt($("#row_" + val).find("td:eq(1)").text()));
+            $("#group_name").val($("#row_" + val).find("td:eq(2)").text());
+            if ($("#row_" + val).find("td:eq(4)").text().trim() == "Active") {
+                $("#active").prop('checked', true);
+            }
+            else {
+                $("#Inactive").prop('checked', true)
+            }
+            $("#update_insertbtn_set").html("Update");
+        }
+
+        var ConfirmDelete = function (Id) {
+            debugger;
+            $("#hdnstoresuppliergroupid").val(Id);
+            $("#delete_StockSuppliergroup").modal('show');
+        }
+        var DeleteSupplierGroup = function () {
+            debugger;
+            var Id = $("#hdnstoresuppliergroupid").val();
+            $.ajax({
+                type: "POST",
+                url: "/Stock/DeleteStoreSupplierGroup",
+                data: { GroupId: Id },
+                success: function (result) {
+                    if (result == true) {
+                        $("#delete_StockSuppliergroup").modal("hide");
+                        $("#row_" + Id).remove();
+                    }
+                }
+            })
+        }
+
+    </script>
+}
+

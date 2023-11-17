@@ -1,0 +1,455 @@
+﻿@model HospitalManagement.Models.LabPayableModel
+@{
+    ViewBag.Title = "LabPayable";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">
+                Lab Payable Report
+            </h4>
+        </div>
+    </div>
+    <div class="row filter-row">
+        <div class="col-12">
+            @using (Ajax.BeginForm("SearchLabCost", "Payables", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row align-items-center">
+                    @*<div class="col-sm-6 col-md-6 col-xl-2">
+                        <div class="form-group">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_active">
+                                    @Html.RadioButtonFor(model => model.IsPaid, "Pending", new { @type = "radio" })
+                                    Pending
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_inactive">
+                                    @Html.RadioButtonFor(model => model.IsPaid, "Paid", new { @type = "radio" })
+                                    Paid
+                                </label>
+                            </div>
+                        </div>
+                    </div>*@
+                    <div class="col-sm-6 col-md-6 col-xl-3">
+                        <div class="form-group form-focus select-focus">
+                            <label class="focus-label">Select LabSupplier</label>
+                            @if (Model.SupplierLabList != null)
+                            {
+                                @Html.DropDownListFor(model => model.LabSupplierId, new SelectList(Model.SupplierLabList, "supplier_id", "lab_name"), new { @class = "form-control floating select" })
+                            }
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-xl-3">
+                        <div class="form-group form-focus">
+                            <label class="focus-label">From</label>
+                            @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating datetimepicker" })
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-xl-3">
+                        <div class="form-group form-focus">
+                            <label class="focus-label">To</label>
+                            @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating datetimepicker" })
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-xl-1">
+                        <button class="btn skin-gradient-btn mb-3" style="padding: 10px; font-size: 16px;">
+                        <i class="fa fa-search"></i>
+                            @*Search*@
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling">
+                <table class="table mb-0 bindtable">
+                    <thead>
+                        @foreach (var item in Model.LabPayablelst.OrderByDescending(h => h.LabName).ToList())
+                        {
+                            var mthnameList = Model.MonthPayablelst.FindAll(d => d.SupplierId == item.SupplierId).ToList();
+                            <tr>
+                                <th class="plusicon text-center w-40">
+                                    <img src="~/Image/plus.png" class="plusimg" title="" />
+                                </th>
+                                <th class="w-59half">@item.LabName</th>
+                                <th>@item.cost</th>
+                                @*<th> <input type="checkbox" onchange="CheckBoxSet(@item.SupplierId,this)" id="LabnameCheck" /> </th>*@
+                                <th class="w-10">
+                                    @if (item.IsCheck)
+                                    {
+                                        <input type="checkbox" disabled="disabled" checked name="check[]" />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" id="LabnameCheck_@item.SupplierId" onchange="CheckBoxSet(@item.SupplierId,this)" />
+                                    }
+                                </th>
+                            </tr>
+                            <tr class="d-none">
+                                <th colspan="999">
+                                    <div class="table-responsive">
+                                        <table class="table mb-0 m-auto">
+                                            @foreach (var m in mthnameList)
+                                            {
+                                                <tr>
+                                                    <td class="text-center w-40 plusicon">
+                                                        <img src="~/Image/add.png" class="plusimg" style="max-width:16px !important;" title="" />
+                                                    </td>
+                                                    <td  class="w-59half">@m.MonthYear</td>
+                                                    <td>@m.cost</td>
+                                                    @*<td>
+                                                            <input class="checkbox_@item.SupplierId" onchange="SetSubCheckBox(@item.SupplierId,this,'@m.MonthYear','','MonthYear')" type="checkbox" id="MonthCheck" name="check[]" />
+                                                        </td>*@
+                                                    <td class="w-9half">
+                                                        @if (m.IsCheck)
+                                                        {
+                                                            <input type="checkbox" disabled="disabled" checked name="check[]" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <input class="checkbox_@item.SupplierId" onchange="CheckBoxSet(@item.SupplierId,this)" type="checkbox" id="MonthCheck_@item.SupplierId" name="check[]" />
+                                                        }
+                                                    </td>
+                                                </tr>
+                                                <tr class="d-none">
+                                                    <th colspan="999" class="border-0">
+                                                        <div class="table-responsive">
+                                                            <table class="table mb-0 m-auto">
+                                                                @{
+                                                                    var datehWiseLst = Model.DatePayablelst.FindAll(d => d.MonthYear == m.MonthYear && d.SupplierId == m.SupplierId).ToList();
+                                                                }
+
+                                                                <tbody>
+                                                                    @foreach (var moth in datehWiseLst)
+                                                                    {
+                                                                        <tr class="table-warning  border-0">
+                                                                            <th class="text-center w-40 plusicon border-0">
+                                                                                <img src="~/Image/ext_plus.png" class="plusimg" style="max-width:16px !important;" title="" />
+
+                                                                            </th>
+                                                                            <th  class="w-59half border-0">@moth.Date</th>
+                                                                            <th class="border-0">@moth.cost</th>
+                                                                            @*<th><input class="checkbox_@item.SupplierId" onchange="SetSubCheckBox(@item.SupplierId, this, '','@moth.Date','DateWise')" type="checkbox" id="DateWiseCheck_@m.MonthYear@m.SupplierId" name="check[]" /></th>*@
+                                                                            <th class="w-9 border-0">
+                                                                                @if (moth.IsCheck)
+                                                                                {
+                                                                                    <input type="checkbox" disabled="disabled" checked name="check[]" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input class="checkbox_@item.SupplierId" onchange="CheckBoxSet(@item.SupplierId, this)" type="checkbox" id="DateWiseCheck_@m.SupplierId" name="check[]" />
+                                                                                }
+                                                                            </th>
+                                                                        </tr>
+                                                                        <tr class="d-none">
+                                                                            <th colspan="999" class="border-0">
+                                                                                <div class="table-responsive">
+                                                                                    <table class="table table-bordered mb-0 m-auto">
+                                                                                        <thead class="thead-light">
+                                                                                            <tr>
+                                                                                                <th class="w-50">InvestigationName</th>
+                                                                                                <th>Invoice Code</th>
+                                                                                                <th>Amount</th>
+                                                                                                <th>Receipt No.</th>
+                                                                                                <th class="w-8half"></th>
+                                                                                            </tr>
+                                                                                        </thead>
+                                                                                        @{var datewiselst = Model.InvoicePayablelst.FindAll(d => d.Date == moth.Date && d.SupplierId == moth.SupplierId).ToList();}
+                                                                                        <tbody>
+                                                                                            @foreach (var d in datewiselst)
+                                                                                            {
+                                                                                            <tr class="">
+                                                                                                <td>@d.ServiceName</td>
+                                                                                                <td>@d.invoice_code</td>
+                                                                                                <td>@d.cost</td>
+                                                                                                <td hidden>@d.Id</td>
+                                                                                                <td class="w-20">
+                                                                                                  
+                                                                                                        <span class="fw-500"> @d.journal_ref </span>
+                                                                                                </td>
+                                                                                                <td class="">
+                                                                                                    @if (d.journal_ref == null || d.journal_ref == "")
+                                                                                                    {
+                                                                                                        <input type="checkbox" class="checkbox_allcheck checkbox_@item.SupplierId" onchange="SetPrice()" name="check[]" />
+                                                                                                    }
+                                                                                                    else
+                                                                                                    {
+                                                                                                        <input type="checkbox" class="ml-1" disabled="disabled" checked name="check[]" />
+                                                                                                    }
+                                                                                                </td>
+                                                                                                @*<td><input type="checkbox" onchange="SetSubCheckBox(@item.SupplierId, this)" class="checkbox_@item.SupplierId" name="check[]" /></td>*@
+                                                                                                @*<td><input type="checkbox" onchange="CheckBoxSet(@item.SupplierId, this)" class="checkbox_@item.SupplierId" name="check[]" /></td>*@
+                                                                                            </tr>
+                                                                                            }
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                            </th>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </div>
+                                </th>
+                            </tr>
+                        }
+                    </thead>
+                </table>
+                <table class="table table-bordered mt-3">
+                    @using (Ajax.BeginForm("SaveCostPayables", "Payables", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", OnBegin = "OnbeginMethod", LoadingElementId = "progress" }))
+                    {
+                        @Html.AntiForgeryToken()
+                    <tbody>
+                        @Html.HiddenFor(model => model.IDs, new { @id = "get_ids" })
+                        @Html.HiddenFor(m => m.FromDate, new { @id = "Pay_FromDate" })
+                        @Html.HiddenFor(m => m.ToDate, new { @id = "Pay_ToDate" })
+                        @Html.HiddenFor(m => m.LabSupplierId, new { @id = "Pay_SupplierId" })
+                        @Html.HiddenFor(m => m.ChannelId, new { @id = "Pay_ChannelId" })
+                        @Html.HiddenFor(m => m.PaymentTypeId, new { @id = "Pay_PaymentTypeId" })
+                        <tr class="table-primary">
+                            <th class="fw-500">Select Payment Type :</th>
+                            <th>
+                                @if (Model.PaymentType_List != null)
+                                {
+
+                                    @*<label>Select Head: </label>*@
+                                    @Html.DropDownListFor(model => model.PaymentTypeId, new SelectList(Model.PaymentType_List, "Id", "PaymentType"), "Select Payment Type", new { @onchange = "GetPaymentTypeChannel('')", @class = "form-control select requiredSelect" })
+
+                                }
+                            </th>
+                            <th class="fw-500">Select Payment Channel :</th>
+                            <th>
+                                @if (Model.paymentType_Channel_list != null)
+                                {
+                                    <div class="bindChanneltype">
+                                        @*<label>Select Account: </label>*@
+                                        @Html.DropDownListFor(model => model.ChannelId, new SelectList(Model.paymentType_Channel_list, "Id", "ChannelName"), "Select Payment Channel", new { @onchange = "GetPaymentTypeChannel('setaccount_id')", @class = "form-control floating requiredSelect" })
+                                    </div>
+                                }
+                            </th>
+                            <th class="fw-500">Total Amount </th>
+                            <th>
+                                @Html.TextBoxFor(m => m.TotalAmount, new { @id = "SetTotalPayableAmount", @class = "form-control", @disabled = "disabled" })
+                            </th>
+                            <th><button class="btn btn-sm pink-gradient-btn">  Pay </button></th>
+                        </tr>
+                    </tbody>
+                    }
+                </table>
+
+            </div>
+        </div>
+        <div class="BindStatus col-md-12 mt-2">
+            @if (Model.Status == "sucess")
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span> Selected lab service's cost is payed sucess !!</span>
+                    <button type='button' class='close' data-dismiss='alert' aria-label='Close'>
+                        <span aria-hidden='true'>&times;</span>
+                    </button>
+                </div>
+            }
+            else if (Model.Status == "fail")
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role='alert'>
+                    <span>Error occured. Selected lab service's cost is not payed !!</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden='true'>&times;</span>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Payables").addClass("subdrop");
+        //$(".Submenu_Payables").css("display", "block");
+        //$(".Submenu_Payables").css("display", "block");
+        //$(".LabPayable").addClass("active");
+
+        function sucessmethod(data) {
+            debugger;
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $("#Pay_FromDate").val($("#FromDate").val());
+            $("#Pay_ToDate").val($("#ToDate").val());
+            $("#Pay_SupplierId").val($("#LabSupplierId").val());
+        }
+        //Assign Click event to Plus Image for LabName.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none");
+            //$(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        $("body").on("click", "img[src*='minus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+        //End
+
+        //Assign Click event to Plus Image for MonthName.
+        $("body").on("click", "img[src*='add.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none")
+            //$(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/close.png");
+        });
+        $("body").on("click", "img[src*='close.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/add.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+        //End
+
+        //Assign Click event to Plus Image for Datewise.
+        $("body").on("click", "img[src*='ext_plus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none")
+            $(this).attr("src", "/Image/ext_minus.png");
+        });
+        $("body").on("click", "img[src*='ext_minus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/ext_plus.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+        //End
+
+        //jquery Checkbox Checked Unchecked
+        function CheckBoxSet(supId, row) {
+            debugger;
+            $(row).closest("tr").next("tr").find("table").find(".checkbox_" + supId).prop('checked', $(row).prop("checked"));
+            SetPrice();
+        }
+        function SetPrice() {
+            var TotalAMt = 0; var IDs = "";
+            $('.checkbox_allcheck').each(function () {
+                debugger;
+                if ($(this).is(":checked")) {
+                    debugger;
+                    TotalAMt = TotalAMt + parseInt($(this).closest('tr').find('td').eq(2).text().trim());
+                    IDs += $(this).closest('tr').find('td').eq(3).text().trim() + ",";
+                }
+                $("#get_ids").val(IDs);
+                $("#SetTotalPayableAmount").val(TotalAMt);
+            });
+        }
+        //function SetSubCheckBox(SupplierId, row) {
+        //    debugger;
+        //    if (false == $(row).prop("checked")) {
+        //        $("#LabnameCheck_" + SupplierId).prop('checked', false);
+        //        $("#MonthCheck_" + SupplierId).prop('checked', false);
+        //        $("#DateWiseCheck_" + SupplierId).prop('checked', false);
+        //    }
+        //    if ($('.checkbox_' + SupplierId + ':checked').length == $('.checkbox_' + SupplierId).length) {
+        //        $("#LabnameCheck_" + SupplierId).prop('checked', true);
+        //        $("#MonthCheck_" + SupplierId).prop('checked', true);
+        //        $("#DateWiseCheck_" + SupplierId).prop('checked', true);
+        //    }
+        //}
+        //End
+        //function GetAccountList(typ) {
+        //    debugger;
+        //    var headid = $("#AccountHeadId").val();
+        //    if (typ == "setaccount_id") {
+        //        $("#Pay_AccountId").val($("#AccountId").val());
+        //        return false
+        //    }
+        //    if (headid == null || headid == "") {
+        //        $("#AccountHeadId").focus();
+        //        $("#AccountId").html('<option value="">Select Account</option>');
+        //        return false;
+        //    }
+        //    $("#progress").show();
+        //    url = "/Payables/GetAccountList?HeadID=" + headid + "";
+        //    $.ajax({
+        //        url: url,
+        //        datatype: 'json',
+        //        ContentType: 'application/json;utf-8'
+        //    }).done(function (datahtml) {
+        //        debugger;
+        //        $(".bind_Accountlst").empty();
+        //        $(".bind_Accountlst").html($(datahtml).find(".bind_Accountlst").html());
+        //        $("#progress").hide();
+        //    });
+        //}
+        function SuccessMethod(datahtml) {
+            debugger;
+            $(".bindtable").empty(); $(".BindStatus").empty();
+            $(".bindtable").html($(datahtml).find(".bindtable").html());
+            $(".BindStatus").html($(datahtml).find(".BindStatus").html());
+            $("#get_ids").val("");
+            $("#SetTotalPayableAmount").val(0);
+            $("#AccountHeadId").val("");
+            $("#AccountId").val("");
+        }
+        function OnbeginMethod() {
+            debugger;
+            if ($("#get_ids").val() == "") {
+                alert("please check at least one service !!")
+                return false;
+            }
+            if ($("#Pay_PaymentTypeId").val() == "" || $("#Pay_PaymentTypeId").val() == 0) {
+                alert("Please select Payment Type !!");
+                return false;
+            }
+
+            if ($("#Pay_ChannelId").val() == "" || $("#Pay_ChannelId").val() == 0) {
+                alert("Please Select Payment Channel !!");
+                return false;
+            }
+            if ($("#SetTotalPayableAmount").val() == 0) {
+                $("#SetTotalPayableAmount").focus();
+                return false;
+            }
+        }
+
+        function GetPaymentTypeChannel(type) {
+            debugger;
+            var PaymentTypeId = $("#PaymentTypeId").val()
+            if (type == "setaccount_id") {
+                $("#Pay_ChannelId").val($("#ChannelId").val());
+                return false;
+            }
+            if (PaymentTypeId != null && parseInt(PaymentTypeId) > 0) {
+                $("#Pay_PaymentTypeId").val(PaymentTypeId);
+                url = "/Payables/getPaymentTypeChannel_Payable?PaymentTypeId=" + PaymentTypeId + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    debugger;
+                    $('.bindChanneltype').removeAttr('hidden');
+                    $(".bindChanneltype").empty();
+                    $(".bindChanneltype").html($(datahtml).find(".bindChanneltype").html());
+                });
+            }
+            else {
+                $("#Pay_PaymentTypeId").val(0);
+                $("#Pay_ChannelId").val(0);
+                $('.bindChanneltype').attr('hidden', true);
+                $("#ChannelId option").remove();
+            }
+        }
+
+    </script>
+}

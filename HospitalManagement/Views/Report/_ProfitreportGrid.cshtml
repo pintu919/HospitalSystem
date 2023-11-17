@@ -1,0 +1,112 @@
+﻿@model HospitalManagement.Models.Profitdata
+<div class="table-responsive">
+    @{
+        decimal totalamount = 0;
+        decimal totaldiscount = 0;
+        decimal totalcost = 0;
+        decimal totalcomission = 0;
+        decimal totalprofit = 0;
+        int TotalQty = 0;
+    }
+
+    <table class="table mb-0">
+        <thead class="thead-light">
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Qty</th>
+                <th>Amount</th>
+                <th>Discount</th>
+                <th>Cost</th>
+                <th>Comission</th>
+                <th>Profit</th>
+                <th>Gross Profit %</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.servicegrouplst)
+            {
+                totalamount += Convert.ToDecimal(item.amount);
+                totaldiscount += Convert.ToDecimal(item.discount);
+                totalcost += Convert.ToDecimal(item.cost);
+                totalcomission+= Convert.ToDecimal(item.comission);
+                totalprofit += Convert.ToDecimal(item.profit);
+                <tr>
+                    <th class="plusicon text-center w-40">
+                        <img src="~/Image/plus.png" class="plusimg" title="" />
+                    </th>
+                    <th>@item.group_name</th>
+                    <th class="w-6">@item.Qty</th>
+                    <th class="w-15">@Math.Round(item.amount, 2)</th>
+                    <th class="w-12">@Math.Round(item.discount, 2)</th>
+                    <th class="w-12">@Math.Round(item.cost, 2)</th>
+                    <th class="w-12">@Math.Round(item.comission, 2)</th>
+                    <th class="w-10">@Math.Round(item.profit, 2)</th>
+                    <th class="w-10">@item.GrossProfit</th>
+                </tr>
+                <tr class="d-none">
+                    <th colspan="999">
+                        <div class="table-responsive">
+                            <table class="table table-bordered datatable mb-0">
+                                <tbody>
+                                    @if (Model.profitlst != null)
+                                    {
+                                        var monthnamelst = Model.profitlst.FindAll(d => d.group_id == item.group_id).ToList();
+                                        foreach (var g in monthnamelst)
+                                        {
+                                            TotalQty += Convert.ToInt32(g.Qty);
+                                            //TotalCost = TotalCost + g.Cost; totalprofit = totalprofit + g.Profit;
+                                            <tr class="table-warning">
+                                                <td>@g.Name</td>
+                                                <td class="w-6">@g.Qty</td>
+                                                <td class="w-15">@Math.Round(g.Amount, 2)</td>
+                                                <td class="w-12">@Math.Round(g.Discount, 2)</td>
+                                                <td class="w-12">@Math.Round(g.Cost, 2)</td>
+                                                <td class="w-12">@Math.Round(g.comission, 2)</td>
+                                                <td class="w-10">@Math.Round(g.Profit, 2)</td>
+                                                <td class="w-10">@g.GrossProfit</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </th>
+                </tr>
+            }
+            <tr class="table-primary">
+                <th colspan="2" class="text-right">Total :</th>
+                <th>@TotalQty</th>
+                <th class="text-left">@Math.Round(totalamount, 2)</th>
+                <th class="text-left">@Math.Round(totaldiscount, 2)</th>
+                <th class="text-left">@Math.Round(totalcost, 2)</th>
+                <th class="text-left">@Math.Round(totalcomission, 2)</th>
+                <th class="text-left">@Math.Round(totalprofit, 2)</th>
+                @if (totalamount != 0)
+                {
+                    <th class="text-left">@Convert.ToString(Math.Round((totalprofit * 100 / totalamount), 2))%  </th>
+                }
+                else
+                {
+                    <th class="text-left">0%</th>
+                }
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    //Assign Click event to Plus Image for LabName.
+    $("body").on("click", "img[src*='plus.png']", function () {
+        debugger;
+        $(this).closest("tr").next("tr").removeClass("d-none");
+        $(this).attr("src", "/Image/minus.png");
+    });
+    $("body").on("click", "img[src*='minus.png']", function () {
+        debugger;
+        $(this).closest("tr").next("tr").addClass("d-none")
+        $(this).attr("src", "/Image/plus.png");
+        $(this).closest("tr").next('.del').remove();
+    });
+        //End
+</script>

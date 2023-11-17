@@ -1,0 +1,250 @@
+﻿@model HospitalManagement.Models.JournalTransaction
+@{
+    ViewBag.Title = "TransactionReport";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">
+                TransactionReport
+            </h4>
+        </div>
+    </div>
+    <div class="row filter-row">
+        <div class="col-12">
+            @using (Ajax.BeginForm("SearchLedgerTransactionReport", "Report", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessmethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-sm-6 col-md-4 col-xl-3">
+                        <div class="form-group form-focus select-focus">
+                            <label class="focus-label">select Ledger</label>
+                            @if (Model.LedgerList != null)
+                            {
+                                @Html.DropDownListFor(model => model.Acc_id, new SelectList(Model.LedgerList, "acc_id", "acc_name"), new { @class = "form-control select floating " })
+                            }
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xl-3 ml-auto">
+                        <div class="form-group form-focus focused">
+                            <label class="focus-label">From</label>
+                            @*<input class="form-control floating datetimepicker" id="FromDate" name="FromDate" type="text" value="">*@
+                            @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control floating", @id = "datetimepicker11", autocomplete = "off", @readonly = "readonly" })
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xl-3">
+                        <div class="form-group form-focus focused">
+                            <label class="focus-label">To</label>
+                            @*<input class="form-control floating datetimepicker" id="Todate" name="Todate" type="text" value="">*@
+                            @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control floating", @id = "datetimepicker12", autocomplete = "off", @readonly = "readonly" })
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xl-3">
+                        <div class="form-group">
+                            @Html.CheckBoxFor(model=>model.op_balance, false) Opennig Balance
+                        </div>
+
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-xl-3">
+                        <div class="form-group">
+                            <button class="btn btn-warning btn-block submit-btn">Search</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row bindtable">
+        @{
+                decimal totalcredit = 0;
+                decimal totaldebit = 0;
+            }
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling">
+                @if (Model.openingbalance != null && Model.openingbalance.Count > 0)
+                {
+                    totalcredit += Convert.ToDecimal(Model.openingbalance[0].cr_amount);
+                    totaldebit += Convert.ToDecimal(Model.openingbalance[0].dr_amount);
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr class="table-primary">
+                                <th class="w-40">
+                                </th>
+                                <th></th>
+                                <th class="w-20">Debit</th>
+                                <th class="w-20">Credit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td>Opening Balance</td>
+                                <td>@Model.openingbalance[0].dr_amount</td>
+                                <td>@Model.openingbalance[0].cr_amount</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+                <table id="" class="table mb-0">
+                    <thead>
+
+                        @foreach (var item in Model.Monthwise)
+                        {
+                            totalcredit += Convert.ToDecimal(item.cr_amount);
+                            totaldebit += Convert.ToDecimal(item.dr_amount);
+
+                            var monthnamelst = Model.Invoicewise.FindAll(d => d.MonthYear == item.MonthYear).ToList();
+
+                            <tr>
+                                <th class="plusicon text-center w-40">
+                                    <img src="~/Image/plus.png" class="plusimg" title="" />
+                                    <div style="display: none" class="table-responsive">
+                                        <table class="table table-bordered mb-0 m-auto">
+                                            @foreach (var m in monthnamelst)
+                                            {
+                                                <tr>
+                                                    <td class="text-center w-40 plusicon">
+                                                        <img src="~/Image/add.png" class="plusimg" style="max-width:16px !important;" title="" />
+                                                        <div style="display: none" class="table-responsive">
+                                                            <table class="table table-bordered mb-0 m-auto">
+                                                                <thead class="thead-light">
+                                                                    <tr>
+                                                                        <th>General Ref.No</th>
+                                                                        <th>Invoice Code</th>
+                                                                        <th class="w-20">Debit</th>
+                                                                        <th class="w-20">Credit</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                @{var datewiselst = Model.journal_transaction_data.FindAll(d => d.journal_date == m.journal_date).ToList();}
+                                                                @foreach (var d in datewiselst)
+                                                                {
+                                                                    <tbody>
+                                                                        <tr class="table-warning">
+                                                                            <td>@d.journal_ref</td>
+                                                                            <td colspan="" class="">
+                                                                                @d.invoice_code
+                                                                            </td>
+                                                                            <td class="w-20">
+                                                                                @d.dr_amount
+                                                                            </td>
+                                                                            <td class="w-20">
+                                                                                @d.cr_amount
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                }
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                    <td class="">
+                                                        @m.journal_date
+                                                    </td>
+                                                    <td class="w-20">
+                                                        @m.dr_amount
+                                                    </td>
+                                                    <td class="w-20"> @m.cr_amount</td>
+                                                </tr>
+                                            }
+                                        </table>
+
+                                    </div>
+                                </th>
+                                <th>@item.MonthYear</th>
+                                <th class="w-20">@item.dr_amount</th>
+                                <th class="w-20">@item.cr_amount</th>
+                                @*<th colspan="999" class="text-center"><small class="text-success mr-2">TOTAL &nbsp; : </small>@item.dr_amount</th>*@
+                            </tr>
+                        }
+                    </thead>
+                </table>
+                @if (Model.Monthwise !=null && Model.Monthwise.Count>0 )
+                {
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr class="table-primary">
+                            <th colspan="2" class="text-right">Total</th>
+                            <th class="w-20">@totaldebit</th>
+                            <th class="w-20">@totalcredit</th>
+                        </tr>
+                        <tr class="table-primary">
+                            <th colspan="2" class="text-right">Balance</th>
+                            <th colspan="2">@Math.Round(totaldebit - totalcredit, 2)</th>
+                        </tr>
+                    </tbody>
+                </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_AccountReport").css("display", "block");
+        //$(".TransactionReport").addClass("active");
+
+        $(document).ready(function () {
+            $('#datetimepicker11').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2
+            }).on('changeDate', function (e) {
+                debugger;
+                ToDate();
+                $('.datetimepicker12').val("").datetimepicker('setStartDate', new Date(e.date));
+            });
+            function ToDate() {
+                debugger;
+                $('#datetimepicker12').datetimepicker({
+                    format: "dd/mm/yyyy",
+                    autoclose: true,
+                    minView: 2
+                    
+                });
+            }
+        });
+
+        function sucessmethod(data) {
+            debugger;
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $(".datatable").dataTable();
+        }
+
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            //$(this).closest("tr").next().remove();
+            $(this).closest("tr").next('.del').remove();
+
+        });
+
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='add.png']", function () {
+            $(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/close.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='close.png']", function () {
+            $(this).attr("src", "/Image/add.png");
+            //$(this).closest("tr").next().remove();
+            $(this).closest("tr").next('.del').remove();
+
+        });
+
+        $('th').on('click', function () {
+            $("#DataTables_Table_0").find('.plusicon').find('.plusimg').attr("src", "/Image/plus.png");
+            // DataTables has done a sort
+        });
+    </script>
+}

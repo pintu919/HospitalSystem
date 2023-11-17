@@ -1,0 +1,41 @@
+﻿@model HospitalManagement.Models.InPatient
+@using (Ajax.BeginForm("SureCancelInvestigation", "InPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "CancelSuccessMethod", LoadingElementId = "progress" }))
+{
+    @Html.AntiForgeryToken()
+<div id="Bindpara">
+    <div id="delete_investigation_Modal" class="modal fade delete-modal" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            @if (Model.parameter != null)
+            {
+                <div class="modal-content">
+
+                    @Html.HiddenFor(Model => Model.parameter.service_id)
+                    @Html.HiddenFor(Model => Model.parameter.investigationmaster_id)
+                    @Html.HiddenFor(Model => Model.parameter.price)
+                    @Html.HiddenFor(Model => Model.parameter.appoinment_code)
+                    @Html.HiddenFor(Model => Model.parameter.invpriceid)
+                    <div class="modal-body text-center">
+                        <div class="icon-box">
+                            <i class="fa fa-trash"></i>
+                        </div>
+                        <h3 class="modal-title w-100">Are you sure?</h3>
+                        <h4 class="font-weight-normal">Are you sure you want to Cancel this Investigation?</h4>
+                        <div class="row">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(Model => Model.parameter.cancel_reason, new { @class = "form-control", placeholder = "Enter Cancel reason", })
+                            </div>
+                        </div>
+                        <div class="m-t-20">
+                            <button type="submit" class="btn green-gradient-btn">Yes</button>
+                            <a href="#" class="btn red-gradient-btn" data-dismiss="modal">No</a>
+                        </div>
+                        <div id="cardboxcancelinv" class="card-box" hidden>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+}

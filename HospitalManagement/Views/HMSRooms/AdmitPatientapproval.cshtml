@@ -1,0 +1,171 @@
+﻿@model HospitalManagement.Models.RoomTypeModel
+@{
+    ViewBag.Title = "AdmitPatientapproval";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Patient Room Allotment Approval</h4>
+        </div>
+    </div>
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.PatientAllotmentList != null && Model.PatientAllotmentList.Count > 0)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Patient Name</th>
+                                <th>Doctor Name</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.PatientAllotmentList)
+                            {
+                                <tr id="row_@item.admit_id">
+                                    <td class="collapse"> @item.admit_id</td>
+                                    <td>
+                                        <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.patuniqrow" target="_blank">@item.patientname </a><span class="d-block"> @item.patient_code </span> </h2>
+                                        @*@item.patientname <span class="d-block text-secondary">@item.patient_code</span>*@
+
+                                    </td>
+                                    <td>@item.doctorname <span class="d-block text-secondary">@item.hos_doctor_code</span></td>
+                                    @*<td>@item.Data.patient_name</td>*@
+                                    @*<td>@item.Data.doctor_name</td>*@
+
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="badge badge-danger">Deactive</span></td>
+                                    }
+
+                                    <td>
+                                        @if (item.isrelease == false)
+                                        {
+                                            <a href="javascript:;" onclick="submit('@item.admit_id')" title="Is Approve" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-check"></i> </a>
+                                        }
+                                        @*<a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.admit_id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-remove"></i></a>*@
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <input type="hidden" id="message" value=@Model.PatientAllotmentList[0].message />
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="approve_addmission" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header skin-bg-gradient">
+                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Approve Patient Hospital Admission</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label> Gardian Name</label>
+                            <input type="text" id="gardianName" placeholder="Enter Gardian Name" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Mobile No</label>
+                            <input type="number" id="mobile" placeholder="Enter Mobile" max="14" min="10" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-left">
+                            <button type="submit" onclick="ApproveIn()" class="btn btn-sm green-gradient-btn">Approve</button> &nbsp;
+                            <a href="#" class="btn btn-sm red-gradient-btn" data-dismiss="modal">Close</a>
+                        </div>
+                    </div>
+                    <div class="col-sm-10 col-lg-8">
+                        <div id="cardbox" class="card-box" hidden>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hiddenadmitid" />
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".InPatient").addClass("subdrop");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".Submenu_InPatient").css("display", "block");
+        //$(".AdmitPatientapproval").addClass("active");
+
+        var submit = function (admitid) {
+            debugger;
+            $("#hiddenadmitid").val(admitid);
+            $("#approve_addmission").modal('show');
+        };
+
+        var ApproveIn = function () {
+            debugger;
+            if ($('#gardianName').val() == '') {
+                $("#cardbox").removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong> <span id='statusmsg'>Please Enter Gardian Name </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardbox").html(htmlstr);
+                return false;
+            }
+            if ($('#mobile').val() == '') {
+                $("#cardbox").removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong> <span id='statusmsg'>Please Enter Mobile number </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#cardbox").html(htmlstr);
+                return false;
+            }
+            var admitid = $("#hiddenadmitid").val();
+            url = "/HMSRooms/ApprovepPtientAdmission?admitid=" + admitid + " &gardianname=" + $('#gardianName').val() + " &mobile=" + $('#mobile').val() + "";
+
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                if (datahtml == "1") {
+                    $("#cardbox").removeAttr('hidden');
+                    htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Record Approve Successfully!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    $("#gardianName").val('');
+                    $("#mobile").val('');
+                    $("#row_" + admitid).remove();
+
+                }
+                else if (datahtml == "0") {
+                    $("#cardbox").removeAttr('hidden');
+                    htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Record Not Saved!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    $("#gardianName").val('');
+                    $("#mobile").val('');
+
+                }
+                $("#cardbox").html(htmlstr);
+            });
+        }
+
+
+
+    </script>
+}
+
+
+

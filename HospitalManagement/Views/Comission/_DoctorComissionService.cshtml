@@ -1,0 +1,144 @@
+﻿@model HospitalManagement.Models.DoctorComissionModel
+
+@using (Ajax.BeginForm("AddHosDoctorComission", "Comission", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethodcom", LoadingElementId = "progress" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div>
+        <div id="Comission_data" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-lg bind_services">
+                <div class="modal-content">
+                    <div class="modal-header skin-bg-gradient">
+                        <h4 class="modal-title" id="myModalLabel">
+                            Doctor Comission Master(@Model.ComissionName)<br />
+                            @Html.HiddenFor(m => m.Id)
+                        </h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @if (Model.Investigation_Group_List != null)
+                        {
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="table-responsive table-scrolling">
+                                        <table class="table mb-0">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Category</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="">
+                                                @for (int j = 0; j < Model.Investigation_Group_List.Count; j++)
+                                                {
+                                                    <tr>
+                                                        <th class="plusicon text-center">
+                                                            <img src="~/Image/plus.png" class="plusimg" title="" />
+                                                        </th>
+                                                        <th>
+                                                            @Model.Investigation_Group_List[j].investigationgroup_name
+                                                            @Html.HiddenFor(m => m.Investigation_Group_List[j].investigationgroup_name)
+                                                            @Html.HiddenFor(m => m.Investigation_Group_List[j].investigationgroup_code)
+                                                        </th>
+                                                    </tr>
+                                                    <tr class="d-none">
+                                                        <th colspan="999">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered datatable mb-0">
+                                                                    <thead class="thead-light">
+                                                                        <tr>
+                                                                            <th>Investigation</th>
+                                                                            <th>Comission Type</th>
+                                                                            <th>Comission</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @if (Model.Investigation_Group_List[j].Investigation_Service_List != null)
+                                                                        {
+
+                                                                            for (int i = 0; i < Model.Investigation_Group_List[j].Investigation_Service_List.Count; i++)
+                                                                            {
+                                                                                //foreach (var g in servicelst)
+                                                                                //{
+                                                                                <tr class="table-warning">
+                                                                                    <td>
+                                                                                        @Html.DisplayFor(m => Model.Investigation_Group_List[j].Investigation_Service_List[i].investigationmaster_name)
+                                                                                        @Html.HiddenFor(m => Model.Investigation_Group_List[j].Investigation_Service_List[i].investigationmaster_id)
+                                                                                        @Html.HiddenFor(m => Model.Investigation_Group_List[j].Investigation_Service_List[i].investigationgroup_code)
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @Html.DropDownListFor(m => Model.Investigation_Group_List[j].Investigation_Service_List[i].comission_type, new List<SelectListItem>
+                                                                                                                       { new SelectListItem { Text = "Select Commission Type", Value = "", Selected=Model.Investigation_Group_List[j].Investigation_Service_List[i].comission_type=="" ? true : false},
+                                                                                                                         new SelectListItem { Text = "Percentage Wise", Value = "Percentage Wise",Selected=Model.Investigation_Group_List[j].Investigation_Service_List[i].comission_type=="Percentage Wise" ? true : false},
+                                                                                                                         new SelectListItem { Text = "Amount Wise", Value = "Amount Wise",Selected=Model.Investigation_Group_List[j].Investigation_Service_List[i].comission_type=="Amount Wise" ? true : false}
+                                                                                                                       }, new { @class = "form-control" })
+                                                                                    </td>
+
+                                                                                    <td> @Html.TextBoxFor(m => Model.Investigation_Group_List[j].Investigation_Service_List[i].comission, new { @class = "form-control" })</td>
+
+                                                                                </tr>
+                                                                            }
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </th>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="m-t-20 text-right">
+                                        <button class="btn skin-gradient-btn btn-sm" type="submit" name="submit"><i class="fa fa-plus"></i> Add Comission</button>
+                                        <a href="#" class="btn red-gradient-btn btn-sm m-l-15 res-479-m-t-10" data-dismiss="modal"><i class="fa fa-close"></i> Close</a>
+                                    </div>
+                                    <div id="cardboxcol">
+                                        @{
+                                            if (Model.ResponseMsg != null)
+                                            {
+                                                if (Model.ResponseMsg.StatusId == "1")
+                                                {
+                                                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                                                        <strong>Success!</strong> Your <a href="#" class="alert-link">action</a> has been successful.
+                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else if (Model.ResponseMsg.StatusId == "0")
+                                                {
+                                                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                                        <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else if (Model.ResponseMsg.StatusId == "2")
+                                                {
+                                                    <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                                                        <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

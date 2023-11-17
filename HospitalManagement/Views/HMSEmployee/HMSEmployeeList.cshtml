@@ -1,0 +1,1064 @@
+﻿@model HospitalManagement.Models.EmployeeData
+@{
+    ViewBag.Title = "HMSEmployeeList";
+}
+<style>
+
+    .datetimepicker {
+        z-index: 1151 !important;
+    }
+</style>
+<div class="content">
+
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Employee</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/HMSEmployee/AddHMSEmployee" class="btn skin-gradient-btn btn-sm"><i class="ti ti-user"></i> Add Employee +</a>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("FilterEmployee", "HMSEmployee", new AjaxOptions { HttpMethod = "POST", OnSuccess = "sucessfilteremp", LoadingElementId = "progress" }))
+    {
+        <div class="row filter-row">
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">Employee ID</label>
+                    @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control floating" })
+                    @*<input type="text" class="form-control floating">*@
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus">
+                    <label class="focus-label">Employee Name</label>
+                    @Html.TextBoxFor(model => model.EmployeeFirstName, new { @class = "form-control floating" })
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="form-group form-focus select-focus">
+                    <label class="focus-label">Role</label>
+                    @if (Model.Rolelistdata != null)
+                    {
+                        @Html.DropDownListFor(model => model.EmployeeroleId, new SelectList(Model.Rolelistdata, "usergroup_id", "groupname"), new { @class = "form-control select floating ", @id = "RoleId" })
+                    }
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <button class="btn skin-gradient-btn btn-block submit-btn">Search</button>
+            </div>
+        </div>
+    }
+    <div class="acttype">
+        @Html.HiddenFor(model => model.ActionType, new { @id = "Act_Type" })
+    </div>
+    @using (Ajax.BeginForm("GetData", "HMSEmployee", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+    {
+        <fieldset>
+            @if (Model.EmpList != null)
+            {
+                <div class="row bindtable">
+                    <div class="col-md-12">
+                        <div class="table-responsive table-scrolling p-t-30">
+                            <table id="emptable" class="table table-border table-striped custom-table  mb-0">
+                                <thead>
+                                    <tr>
+                                        <th data-orderable="false"></th>
+                                        <th>Name</th>
+                                        <th hidden>id</th>
+                                        @*<th>ID</th>*@
+                                        @*<th>Type</th>*@
+                                        <th>Role</th>
+                                        <th>Email</th>
+                                        @*<th>Mobile</th>
+                                            <th>Join Date</th>*@
+                                        <th data-orderable="false">Status</th>
+                                        <th class="text-center" data-orderable="false">Time/Salary/Reset Pass</th>
+                                        <th data-orderable="false">Action</th>
+                                    </tr>
+                                </thead>
+                                @if (Model.EmpList != null)
+                                {
+                                    <tbody>
+                                        @foreach (var item in Model.EmpList.OrderByDescending(A => A.EmployeeId).ToList())
+                                        {
+                                            <tr id="row_@item.EmployeeId">
+                                                <td class="plusicon text-center">
+                                                    <img src="~/Image/plus.png" class="plusimg" title="Employee All Details" />
+                                                    <div style="display: none" class="table-responsive">
+                                                        <table cellpadding="0" cellspacing="0" class="table custom-table">
+                                                            <tr>
+                                                                @if (Model != null)
+                                                                {
+                                                                    var Emp_list = Model.EmpList.Where(A => A.EmployeeCode == item.EmployeeCode).ToList();
+                                                                    foreach (var list in Emp_list)
+                                                                    {
+                                                                        <td colspan="2" class="patients-img text-center">
+
+                                                                            @if (list.Photo == "" || list.Photo == null)
+                                                                            {
+                                                                                <img width="100" height="100" src="~/wwwroot/assets/img/user.jpg" class="m-r-10" alt="">
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                if (item.RoleName == "Doctor")
+                                                                                {
+                                                                                    var img = System.Configuration.ConfigurationManager.AppSettings["getDocimgUrl"] + list.Photo;
+                                                                                    <img width="100" height="100" src="@img" class="m-r-10" alt="">
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    var img = System.Configuration.ConfigurationManager.AppSettings["getEmpimgUrl"] + list.Photo;
+                                                                                    <img width="100" height="100" src="@img" class="m-r-10" alt="">
+                                                                                }
+                                                                            }
+                                                                        </td>
+                                                                        <td colspan="999">
+                                                                            <table cellpadding="0" cellspacing="0" class="table table-bordered table-striped custom-table">
+                                                                                <thead class="thead-light">
+                                                                                    <tr class="more-details">
+                                                                                        <th colspan="2" class=""><i class="fa fa-id-card text-success pull-right"></i><b>Employee All Details:</b></th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td><b class="text-primary mr-2">Mobile :</b>@list.Phone</td>
+                                                                                        <td><b class="text-primary mr-2">Joining Date : </b>@list.JoinigDate</td>
+                                                                                    </tr>
+                                                                                    <tr>
+                                                                                        @if (@list.EmployeeType == 0)
+                                                                                        {
+                                                                                            <td><b class="text-primary mr-2">Type : </b>PayRoll</td>
+                                                                                        }
+                                                                                        @if (item.EmployeeType == 1)
+                                                                                        {
+                                                                                            <td><b class="text-primary mr-2">Type : </b>Freelancer</td>
+                                                                                        }
+                                                                                        <td><b class="text-primary mr-2">Designation : </b>@list.Designation</td>
+
+                                                                                    </tr>
+
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    }
+                                                                }
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                                <td class="employee-img">
+                                                    @if (item.Photo == "" || item.Photo == null)
+                                                    {
+                                                        <img width="28" height="28" src="~/wwwroot/assets/img/user.jpg" class="m-r-10" alt=""> 
+                                                        <h2>
+                                                            @Html.DisplayFor(modelItem => item.EmployeeFirstname)
+                                                            <span class="d-block">  @Html.DisplayFor(modelItem => item.EmployeeCode)</span>
+                                                        </h2>
+                                                    }
+                                                    else
+                                                    {
+                                                        if (item.RoleName == "Doctor")
+                                                        {
+                                                            var img = System.Configuration.ConfigurationManager.AppSettings["getDocimgUrl"] + item.Photo;
+                                                            <img width="28" height="28" src="@img" class="m-r-10" alt=""> 
+                                                            <h2>
+                                                                @Html.DisplayFor(modelItem => item.EmployeeFirstname)
+                                                                <span class="d-block">  @Html.DisplayFor(modelItem => item.EmployeeCode)</span>
+                                                            </h2>
+                                                        }
+                                                        else
+                                                        {
+                                                            var img = System.Configuration.ConfigurationManager.AppSettings["getEmpimgUrl"] + item.Photo;
+                                                            <img width="28" height="28" src="@img" class="m-r-10" alt=""> 
+                                                            <h2>
+                                                                @Html.DisplayFor(modelItem => item.EmployeeFirstname)
+                                                                <span class="d-block">  @Html.DisplayFor(modelItem => item.EmployeeCode)</span>
+                                                            </h2>
+                                                        }
+                                                    }
+                                                </td>
+
+                                                <td hidden>@Html.DisplayFor(modelItem => item.EmployeeId)</td>
+                                                @*<td>@Html.DisplayFor(modelItem => item.EmployeeCode)</td>*@
+
+                                                @*@if (item.EmployeeType == 0)
+                                                    {
+                                                        <td>PayRoll</td>
+                                                    }
+                                                    @if (item.EmployeeType == 1)
+                                                    {
+                                                        <td>Freelancer</td>
+                                                    }*@
+                                                @Html.HiddenFor(modelItem => item.RoleName)
+                                                @if (item.RoleName == "Doctor")
+                                                {
+                                                    <td><i class="fa fa-circle text-primary"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+                                                else if (item.RoleName == "Accountant")
+                                                {
+                                                    <td><i class="fa fa-circle text-danger"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+                                                else if (item.RoleName == "Nurse")
+                                                {
+                                                    <td><i class="fa fa-circle text-success"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+                                                else if (item.RoleName == "Pharmacist")
+                                                {
+                                                    <td><i class="fa fa-circle text-info"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+                                                else if (item.RoleName == "Laboratorist")
+                                                {
+                                                    <td><i class="fa fa-circle text-warning"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+                                                else if (item.RoleName == "Receptionist")
+                                                {
+                                                    <td><i class="fa fa-circle text-success"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+                                                else if (item.RoleName == "Staff")
+                                                {
+                                                    <td><i class="fa fa-circle text-warning"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+                                                else if (item.RoleName == "Admin")
+                                                {
+                                                    <td><i class="fa fa-circle text-info"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+                                                else
+                                                {
+                                                    <td><i class="fa fa-circle text-primary"></i> @Html.DisplayFor(modelItem => item.RoleName)</td>
+                                                }
+
+                                                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                                                @*<td class="text-primary"><b>@Html.DisplayFor(modelItem => item.Phone) </b></td>*@
+                                                @*<td>@Html.DisplayFor(modelItem => item.JoinigDate)</td>*@
+
+                                                @if (item.Ctrl == true)
+                                                {
+                                                    <td class="status-icon"><span class="badge badge-success">Active</span></td>
+                                                }
+                                                @if (item.Ctrl == false)
+                                                {
+                                                    <td class="status-icon"><span class="badge badge-danger">Deactive</span></td>
+                                                }
+                                                <td class="text-center">
+                                                    @if (item.EmployeeType == 1 && item.RoleName.ToLower() == "doctor")
+                                                    {
+                                                        <button class="btn blue-gradient-btn action-icon" name="Submit" value="Timing/@item.EmployeeCode" disabled><i class="fa fa-clock-o"></i></button>
+                                                        <button class="btn orange-gradient-btn action-icon" name="Submit" value="Salary/@item.EmployeeCode" disabled><i class="fa fa-usd"></i></button>
+                                                        <button class="btn green-gradient-btn action-icon" disabled><i class="fa fa-unlock-alt"></i></button>
+                                                    }
+                                                    else if (item.EmployeeType == 0 && item.RoleName.ToLower() == "doctor")
+                                                    {
+                                                        <button class="btn blue-gradient-btn action-icon" title="Add Timing" name="Submit" value="Timing/@item.EmployeeCode"><i class="fa fa-clock-o"></i></button>
+                                                        <button class="btn orange-gradient-btn action-icon" title="Add Salary" name="Submit" value="Salary/@item.EmployeeCode"><i class="fa fa-usd"></i></button>
+                                                        <button class="btn green-gradient-btn action-icon" disabled><i class="fa fa-unlock-alt"></i></button>
+                                                    }
+                                                    else if (item.EmployeeType != 1 || item.RoleName.ToLower() != "doctor")
+                                                    {
+                                                        <button class="btn blue-gradient-btn action-icon" title="Add Timing" name="Submit" value="Timing/@item.EmployeeCode"><i class="fa fa-clock-o"></i></button>
+                                                        <button class="btn orange-gradient-btn action-icon" title="Add Salary" name="Submit" value="Salary/@item.EmployeeCode"><i class="fa fa-usd"></i></button>
+                                                        <a class="btn green-gradient-btn action-icon" title="Reset Password" href="#" onclick="ConfirmResetPass('@item.EmployeeCode')"><i class="fa fa-unlock-alt"></i></a>
+                                                    }
+
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:;" onclick="submit('@item.EmployeeCode')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                                    @*<a href="~/HMSEmployee/EditHMSEmployee/@item.EmployeeCode" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>*@
+                                                    <a href="#" onclick="ConfirmDelete(@item.EmployeeId)" title="Remove" class="action-icon btn red-gradient-btn"><i class="fa fa-trash"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </fieldset>
+    }
+</div>
+<div id="delete_employee" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure you want to delete this Employee?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteEmployee()" class="btn red-gradient-btn">Delete</button>
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardboxdelemp" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Employee Time -->
+<div id="EmployeeTiming_model" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class=" modal-dialog modal-lg modal-dialog-centered">
+        <div id="bindtime" class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Add Schedule</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            @using (Ajax.BeginForm("employeeTiming", "HMSEmployee", new AjaxOptions { HttpMethod = "POST", OnBegin = "AjaxBegintiming", OnSuccess = "SuccessMethodTiming", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <fieldset>
+                    @if (Model.EmpTime != null)
+                    {
+                        @Html.HiddenFor(Model => Model.EmpTime.EmployeeCode)
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label></label>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group mt-3">
+                                                <label>  Efective Date :</label>
+                                                <div>
+                                                    @Html.TextBoxFor(model => model.EmpTime.EffectiveDate, new { @class = "form-control", @type = "date" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="dcacl0">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label>  In Time :</label>
+                                                @if (Model.EmpTime.IsCustom)
+                                                {
+                                                    @Html.TextBoxFor(model => model.EmpTime.InTime, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(model => model.EmpTime.InTime, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label> Out Time : </label>
+                                                @if (Model.EmpTime.IsCustom)
+                                                {
+                                                    @Html.TextBoxFor(model => model.EmpTime.OutTime, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(model => model.EmpTime.OutTime, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            @Html.CheckBoxFor(Model => Model.EmpTime.IsCustom, new { @onclick = "hndleClick(this);" }) Custom Timing
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <label><h4 class="text-uppercase">Weekend Days</h4></label>
+                                            <div class="row">
+                                                    @for (int i = 0; i < Model.EmpTime.DayesCheckBoxItems.Count; i++)
+                                                    {
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            @Html.CheckBoxFor(Model => Model.EmpTime.DayesCheckBoxItems[i].IsChecked)
+                                                            @Html.DisplayFor(Model => Model.EmpTime.DayesCheckBoxItems[i].Text)
+                                                            @Html.HiddenFor(Model => Model.EmpTime.DayesCheckBoxItems[i].Text)<br />
+                                                        </div>
+                                                    </div>
+                                                    }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8" id="dcacl">
+                                    <label><h4 class="text-uppercase">Custom Timing</h4></label>
+                                    @Html.HiddenFor(Model => Model.EmpTime.IsCustom)
+                                    @if (Model.EmpTime.IsCustom)
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Sun In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.SunIn, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label> Sun Out: </label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.SunOut, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label> Mon In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.MonIn, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label> Mon Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.MonOut, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label> Tue In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.TueIn, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label> Tue Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.TueOut, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label> Wed In: </label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.WedIn, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label> Wed Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.WedOut, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Thu In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.ThuIn, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Thu Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.ThuOut, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Fri In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.FriIn, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Fri Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.FriOut, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Sat In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.SatIn, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Sat Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.SatOut, new { @class = "form-control pp" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Sun In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.SunIn, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Sun Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.SunOut, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Mon In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.MonIn, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Mon Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.MonOut, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Tue In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.TueIn, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Tue Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.TueOut, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Wed In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.WedIn, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Wed Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.WedOut, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Thu In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.ThuIn, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Thu Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.ThuOut, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Fri In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.FriIn, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Fri Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.FriOut, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Sat In:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.SatIn, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Sat Out:</label>
+                                                    @Html.TextBoxFor(model => model.EmpTime.SatOut, new { @class = "form-control pp", disabled = "disabled" })
+                                                    <i class="fa fa-clock-o"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-12 text-center">
+                                    <button class="btn green-gradient-btn m-b-20"><i id="ajxtiming" class=""></i>Save</button>
+                                </div>
+                                <div class="col-md-6 title">
+                                    <div id="cardboxTime" class="card-box" hidden>
+                                    </div>
+                                    @if (Model.EmpTime.Status != null)
+                                    {
+                                        if (Model.EmpTime.Status == "insert")
+                                        {
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <strong>Success!</strong> Your <a href="#" class="alert-link">Record</a> has been Add successfully.
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                        else if (Model.EmpTime.Status == "update")
+                                        {
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <strong>Success!</strong> Your <a href="#" class="alert-link">Record</a> has been Update successfully.
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <div class="col-md-2 title"></div>
+
+                            </div>
+                        </div>
+                    }
+                </fieldset>
+            }
+        </div>
+    </div>
+</div>
+<!-- Employee Time End -->
+<!-- Employee Salary -->
+<div id="EmployeeSalary_model" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div id="bindSalary" class="modal-content">
+            <div class="content">
+                <div class="modal-header">
+                    <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Add Staff Salary</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            @using (Ajax.BeginForm("AddEmployeeSalary", "HMSEmployee", new AjaxOptions { HttpMethod = "POST", OnBegin = "AjaxBeginSalary", OnSuccess = "SuccessMethodSalary", LoadingElementId = "progress" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                <fieldset>
+                                    @if (Model.EmpSalary != null)
+                                    {
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Net Salary</label>
+                                                    @Html.ValidationMessageFor(model => model.EmpSalary[0].EmployeeNetSalary, "", new { @class = "text-danger requiredSelect" })
+                                                    @Html.TextBoxFor(model => model.EmpSalary[0].EmployeeNetSalary, new { @class = "form-control", @id = "basicamount", @onchange = "onchangeevent();" })
+                                                    @Html.HiddenFor(model => model.EmpSalary[0].EmployeeCode, new { @id = "empcode" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h4 class="text-uppercase">Earnings</h4>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <small>Basic Salary</small>
+                                                            <label>Basic</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmployeeBasicSlary, "", new { @class = "text-danger requiredSelect" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmployeeBasicSlary, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <small>HouserentAllowance</small>
+                                                            <label>HRA@*(15%)*@</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpHouserentAllowance, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpHouserentAllowance, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Conveyance</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpConveyance, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpConveyance, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Medical Allowance</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpMedicalAllowance, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpMedicalAllowance, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <small> DearnessAllowance </small>
+                                                            <label>DA@*(40%)*@</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpDearnessAllowance, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpDearnessAllowance, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label> other Allowance</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpAllowance, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpAllowance, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group" hidden>
+                                                            <label>Others</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpOther, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpOther, new { @class = "form-control", @readonly = "readonly" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <h4 class="text-uppercase">Deductions</h4>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <small>Tax Deducted at Source</small>
+                                                            <label>TDS</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmployeeTDS, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmployeeTDS, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <small>Employees' State Insurance</small>
+                                                            <label>ESI</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpStateInsurance, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpStateInsurance, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <small>ProvidentFund</small>
+                                                            <label>PF</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpProvidentFund, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpProvidentFund, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Prof. Tax</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpProfTax, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpProfTax, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Labour Welfare</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpLabourWelfare, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpLabourWelfare, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Fund</label>
+                                                            @Html.ValidationMessageFor(model => model.EmpSalary[0].EmpFund, "", new { @class = "text-danger" })
+                                                            @Html.TextBoxFor(model => model.EmpSalary[0].EmpFund, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row m-t-20">
+                                            <div class="col-12">
+                                                <button class="btn green-gradient-btn m-b-20"><i id="ajxsalary" class=""></i>Create Salary</button>
+                                                <a href="#" class="btn red-gradient-btn m-b-20" data-dismiss="modal">Close</a>
+                                            </div>
+                                        </div>
+                                        <div id="cardboxSalary" class="" hidden>
+                                        </div>
+                                    }
+                                </fieldset>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Employee Salary End -->
+<!--Reset Paaword start-->
+<div id="ResetPassword_employee" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-lock"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to Reset Password this Employee?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="ResetEmployeePass()" class="btn green-gradient-btn"><i id="ajxloader" class=""></i> Reset</button>&nbsp;
+                    <a href="#" class="btn red-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardboxResetPass" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Reset Paaword start-->
+<input type="hidden" id="hdnempcode" />
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".HRM").addClass("subdrop");
+        //$(".Submenu_HRM").css("display", "block");
+        //$(".Submenu_HRM").css("display", "block");
+        //$(".HMSEmployeeList").addClass("active");
+
+        $(document).ready(function () {
+
+            $("#emptable").dataTable({
+                "order": [[2, "desc"]]
+            });
+
+
+            // Setup - add a text input to each footer cell
+            //$('#example thead tr').clone(true).appendTo('#example thead');
+            //$('#example thead tr:eq(1) th').each(function (i) {
+            //    var title = $(this).text();
+            //    if (title == "Profile" || title == "Status" || title == "Action" || title == "Timing/Salary/Reset Pass") {
+            //        $(this).html('<input  type="hidden" class ="form-control" placeholder="Search ' + title + '" />');
+            //    }
+            //    else {
+            //        $(this).html('<input type="text" class ="form-control" placeholder="Search ' + title + '" />');
+            //    }
+            //    $('input', this).on('keyup change', function () {
+            //        if (table.column(i).search() !== this.value) {
+            //            table
+            //                .column(i)
+            //                .search(this.value)
+            //                .draw();
+            //        }
+            //    });
+            //});
+            //$('#example thead tr:eq(1)').removeClass('table-header');
+            //$('#example thead tr:eq(1)').addClass('table-info');
+            //var table = $('#example').DataTable({
+            //    orderCellsTop: true,
+            //    fixedHeader: true,
+            //});
+        });
+        $(function () {
+            datepicker()
+        });
+        function datepicker() {
+            $('.pp').datetimepicker({
+                format: 'LT'
+            });
+        }
+        var ConfirmResetPass = function (empcode) {
+            debugger;
+            $("#hdnempcode").val(empcode);
+            $("#ResetPassword_employee").modal('show');
+        }
+        var ResetEmployeePass = function () {
+            debugger;
+            $("#ajxloader").addClass('fa fa-refresh fa-spin');
+            var empcode = $("#hdnempcode").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSEmployee/EmployeeResetPassword",
+                data: { Employeecode: empcode },
+                success: function (result) {
+                    if (result == true) {
+                        var htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>your Password Reset Sucessfully Please check your Email !!! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $('#cardboxResetPass').removeAttr('hidden');
+                        $("#cardboxResetPass").html(htmlstr);
+                    }
+                    $("#ajxloader").removeClass('fa fa-refresh fa-spin');
+                }
+            })
+        }
+        var ConfirmDelete = function (empcode) {
+            debugger;
+            $("#hdnempcode").val(empcode);
+            $("#delete_employee").modal('show');
+        }
+        var DeleteEmployee = function () {
+            debugger;
+            var empid = $("#hdnempcode").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSEmployee/EmployeeDelete",
+                data: { EmployeeId: empid },
+                success: function (result) {
+                    if (result == true) {
+                        $("#delete_employee").modal("hide");
+                        $("#row_" + empid).remove();
+                    }
+                    else {
+                        var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'> Doctor already contracted This Hospital.</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $('#cardboxdelemp').removeAttr('hidden');
+                        $("#cardboxdelemp").html(htmlstr);
+                    }
+                }
+            })
+        }
+        var reparseform = function () {
+            $("form").removeData("validator");
+            $("form").removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse("form");
+        };
+        function SuccessMethodTiming(data) {
+            $("#ajxtiming").removeClass('fa fa-refresh fa-spin');
+            $("#bindtime").empty();
+            $("#bindtime").html($(data).find("#bindtime").html());
+            if ($("#EmpTime_IsCustom").val()) {
+                $("#dcacl").find('input:text').prop('disabled', true);
+            }
+            else
+                $("#dcacl").find('input:text').prop('disabled', false);
+            datepicker();
+        }
+        function AjaxBegintiming() {
+
+            if ($("#EmpTime_IsCustom")[0].checked == true) {
+                var i = "";
+                $.each($("#dcacl").find('input:text'), function (key, field) {
+                    if (field.value == "") {
+                        i = "1";
+                    }
+                });
+                if (i == "1") {
+                    var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Please Insert Custom Time Field!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    $('#cardboxTime').removeAttr('hidden');
+                    $("#cardboxTime").html(htmlstr);
+                    return false;
+                }
+            }
+            else {
+                if ($("#EmpTime_InTime").val() == "" || $("#EmpTime_OutTime").val() == "") {
+                    var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Warning!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>Please Insert InTime And Out Time Field!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                    $('#cardboxTime').removeAttr('hidden');
+                    $("#cardboxTime").html(htmlstr);
+                    return false;
+                }
+            }
+            $("#ajxtiming").addClass('fa fa-refresh fa-spin');
+        }
+        function AjaxBeginSalary() {
+            $("#ajxsalary").addClass('fa fa-refresh fa-spin');
+        }
+        function SuccessMethodSalary(data) {
+            $("#ajxsalary").removeClass('fa fa-refresh fa-spin');
+            var htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            $('#cardboxSalary').removeAttr('hidden');
+            $("#cardboxSalary").html(htmlstr);
+        }
+        function SuccessMethod(data) {
+            debugger;
+            var Type = $(data).find(".acttype").html().split('value="')[1].split('">')[0];
+            if (Type == "Timing") {
+                $("#EmployeeTiming_model").modal('show');
+                $("#bindtime").empty();
+                $("#bindtime").html($(data).find("#bindtime").html());
+                //if ($("#EmpTime_IsCustom").val()) {
+                //    $("#dcacl").find('input:text').prop('disabled', true);
+                //}
+                //else
+                //$("#dcacl").find('input:text').prop('disabled', false);
+                datepicker();
+            }
+            else if (Type == "Salary") {
+                $("#bindSalary").empty();
+                $("#bindSalary").html($(data).find("#bindSalary").html());
+                $("#EmployeeSalary_model").modal('show');
+            }
+            $('.select').select2({
+                minimumResultsForSearch: -1,
+                //multiple: isMultiple,
+                width: '100%'
+            });
+            reparseform();
+        }
+        function onchangeevent() {
+            debugger;
+
+            var amount = $('#basicamount').val();
+            if (amount == '') {
+                alert("Please Enter Net salary");
+                return false;
+            }
+            var empid = $("#empcode").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSEmployee/GetSalaryCalculate",
+                data: { EmployeeId: empid, Amount: amount },
+                success: function (data) {
+                    $("#bindSalary").empty();
+                    $("#bindSalary").html($(data).find("#bindSalary").html());
+                    $("#EmployeeSalary_model").modal('show');
+                }
+            })
+        }
+        function hndleClick(value) {
+            debugger;
+            if (value.checked) {
+                $("#dcacl").find('input:text').prop('disabled', false);
+                $("#dcacl0").find('input:text').prop('disabled', true);
+                $("#EmpTime_IsCustom").val(true);
+            }
+            else {
+                $("#dcacl").find('input:text').prop('disabled', true);
+                $("#dcacl0").find('input:text').prop('disabled', false);
+                $("#EmpTime_IsCustom").val(false);
+            }
+        }
+
+        function sucessfilteremp(data) {
+            $(".bindtable").empty();
+            $(".bindtable").html($(data).find(".bindtable").html());
+            $("#emptable").dataTable({
+                "order": [[2, "desc"]]
+            });
+
+            //location.reload();
+            //debugger;
+            //$("#" + data + "").html("");
+            //$("#" + data + "").html("<span class='custom-badge status-green'>Paid</span>");
+        }
+
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr class='del'><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            //$(this).closest("tr").next().remove();
+            $(this).closest("tr").next('.del').remove();
+
+        });
+        $('th').on('click', function () {
+            $("#DataTables_Table_0").find('.plusicon').find('.plusimg').attr("src", "/Image/plus.png");
+            // DataTables has done a sort
+        });
+        function submit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/HMSEmployee/EditHMSEmployee', '_self') });
+        }
+
+
+    </script>
+}
+
+

@@ -1,0 +1,53 @@
+﻿@model IEnumerable<HospitalManagement.Models.ComissionCategoryList>
+
+<div class="table-responsive">
+    <table class="table table-bordered datatable mb-0" id="groupList_table">
+        <thead class="thead-light">
+            <tr>
+                <th>Category Name</th>
+                <th hidden>CreatedDate</th>
+                @*<th>Comission Type</th>
+                <th>TotalComission</th>*@
+                <th>Services</th>
+                <th>Status</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Count() > 0)
+            {
+                int i = 1;
+                foreach (var g in Model)
+                {
+            <tr id="RowSelected_@i">
+                <td>@g.CategoryName</td>
+                <td hidden>@g.CreatedDate</td>
+                @*<td>@g.comission_type</td>
+                <td>@g.Total_Comission</td>*@
+                <td>@g.Services</td>
+                @if (g.ctrl == 1)
+                {
+                    <td><span class="badge badge-success">Active</span></td>
+                }
+                @if (g.ctrl == 0)
+                {
+                    <td><span class="badge badge-danger">Deactive</span></td>
+                }
+                <td class="text-center">
+                    @*<a href="javascript:void(0)" onclick="MappService(@g.CategoryId,@i,'services')" title="Add Mapping" class="action-icon btn btn-primary"><i class="fa fa-plus"></i></a>*@
+                    <a href="javascript:void(0)" onclick="EditCategory(@g.CategoryId)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                    <a class="action-icon btn red-gradient-btn" href="javascript:void(0)" title="Remove" onclick="ConfirmDelete(@g.CategoryId)"><i class="fa fa-trash"></i></a>
+                </td>
+            </tr>
+                    i++;
+                }
+            }
+            else
+            {
+                <tr class="text-center">
+                    <th colspan="4"> No data available !! </th>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

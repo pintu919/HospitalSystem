@@ -1,0 +1,224 @@
+﻿@model HospitalManagement.Models.LabDoctorModel
+@{
+    ViewBag.Title = "LabDoctorSeting";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title">Map Lab Category With Doctor</h4>
+        </div>
+    </div>
+
+    <div class="row filter-row">
+        <div class="col-sm-6 col-md-6">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Category</label>
+                @Html.ValidationMessageFor(model => model.CategoryCode, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(model => model.CategoryCode, new SelectList(Model.InvestigationGroupLst, "investigationgroup_code", "investigationgroup_name"), "Select Investigation", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData()", @id = "Categorycode" })
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @using (Ajax.BeginForm("AddLabDoctor", "InvestigationPrice", new AjaxOptions { HttpMethod = "POST", OnBegin = "ajaxbegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(Model => Model.CategoryCode, new { @id = "bind_cat_code" })
+               
+
+            <div class="table-responsive table-scrolling bindtbl">
+                <div class="col-md-4 ml-auto">
+                    <input id="searchInput" placeholder="Search by doctor name" onkeyup="myFunction()" class="form-control">
+                </div>
+                @Html.HiddenFor(Model => Model.DoctorCodes, new { @id = "DoctorCodes" })
+
+                <table class="table table-border table-striped custom-table mb-0 mt-2" id="tbldr_list">
+                    <thead>
+                        <tr>
+                            <th style="display:none;"></th>
+                            <th> Doctor Name </th>
+                            <th> Doctor Signature </th>
+                        </tr>
+                    </thead>
+                    <tbody id="bind_html">
+                        @if (Model.DoctorList != null && Model.DoctorList.Count > 0)
+                        {
+                            for (int i = 0; i < Model.DoctorList.Count; i++)
+                            {
+                                <tr>
+                                    <td style="display:none;">
+                                        @Model.DoctorList[i].IsSelected
+                                    </td>
+                                    <td>
+                                        @Html.HiddenFor(Model => Model.DoctorList[i].doctor_code, new { @id = "getdoctor_code_" + i })
+                                        @Html.CheckBoxFor(Model => Model.DoctorList[i].IsSelected, new { @class = "statusclass", @id = i })
+                                        @Model.DoctorList[i].doctor_name
+                                    </td>
+                                    <td>
+                                        <div class="profile-upload">
+                                            <div class="">
+                                                @if (Model.DoctorList[i].Signature == "" || Model.DoctorList[i].Signature == null)
+                                                {
+                                                    <img width="150" id="blah_@i" height="62" src="~/wwwroot/assets/img/upload_signature.png" class="m-r-10" alt="">
+                                                }
+                                                @if (Model.DoctorList[i].Signature != null && Model.DoctorList[i].Signature != "")
+                                                {
+                                                    var img = System.Configuration.ConfigurationManager.AppSettings["getDoctorSignature"] + Model.DoctorList[i].Signature;
+                                                    <img width="150" id="blah_@i" height="62" src="@img" alt="">
+                                                    @Html.HiddenFor(Model => Model.DoctorList[i].Signature)
+                                                }
+                                            </div>
+                                            <div class="upload-input">
+                                                @Html.TextBoxFor(Model => Model.DoctorList[i].signaturepath, new { @class = "form-control", name = "postedFile", @id = "imageUploadForm", onchange = "readURL(this," + @i + ");", @type = "file" })
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else if (Model.DoctorList == null || Model.DoctorList.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="4" style="text-align:center"><div><img src="~/wwwroot/assets/img/no-result.png" /></div></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+                <div class="col-md-12">
+                    <div class="text-center mt-3">
+                        <button class="btn skin-gradient-btn submit-btn" name="submit">Maped & Upload Image</button>
+                    </div>
+                </div>
+                <div id="cardbox" class="card-box" hidden>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Lab").css("display", "block");
+        //$(".LabDoctorSeting").addClass("active");
+        function GetDropdownData() {
+            debugger;
+            if ($('#Categorycode').val() != "") {
+                $("#bind_cat_code").val($('#Categorycode').val());
+                $('.loadingimg').css('display', 'block');
+                url = "/InvestigationPrice/GetLabDoctorList?categorycode=" + $('#Categorycode').val() + "";
+                $.ajax({
+                    url: url,
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (datahtml) {
+                    $('.loadingimg').css('display', 'none');
+                    $(".bindtbl").empty();
+                    $(".bindtbl").html($(datahtml).find(".bindtbl").html());
+                    //$('#tbldr_list').DataTable({
+                    //    "paging": true,
+                    //    "searching": true,
+                    //    "order": [[0, "desc"]],
+                    //    "aLengthMenu": [5, 10, 15, 25, 50, 100],
+                    //});
+                });
+            }
+            else {
+                $('#tbldr_list').DataTable().destroy();
+                $("#bind_html").empty();
+                $("#bind_html").html('<tr> <td colspan="4" style="text-align:center"><div><img src="/wwwroot/assets/img/no-result.png" /></div></td> </tr>');
+                $("#bind_cat_code").val("");
+                $("#DoctorCodes").val("");
+            }
+        }
+        function SuccessMethod(data) {
+            debugger;
+            var htmlstr = "";
+            if (data == "1") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <span id='statusmsg'>Record Added Successfully!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "0") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'>Data</a>  has been occurred while submitting your data :<span id='statusmsg'>Record Not Saved!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            if (data == "2") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <span id='statusmsg'>Select atleast one record</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+        var arr = [];
+        $(document).on('change', '[type=checkbox]', function () {
+            debugger;
+            var DrCode = $("#getdoctor_code_" + $(this)[0].id).val();
+            if ($(this)[0].checked) {
+                $("#DoctorCodes").val($("#DoctorCodes").val() + "," + DrCode);
+            }
+            else {
+                var data = removeValue($("#DoctorCodes").val(), DrCode, ",")
+                $("#DoctorCodes").val(data);
+            }
+        });
+        function removeValue(list, value, separator) {
+            debugger;
+            separator = separator || ",";
+            var values = list.split(separator);
+            for (var i = 0; i < values.length; i++) {
+                if (values[i] == value) {
+                    values.splice(i, 1);
+                    return values.join(separator);
+                }
+            }
+            return list;
+        }
+        function ajaxbegin() {
+            //debugger;
+            //var file = $("#imageUploadForm").get(0).files;
+            //var data = new FormData;
+            //data.append("ImageFile", file[0]);
+        }
+        function readURL(input, id) {
+            debugger;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#blah_' + parseInt(id))
+                        .attr('src', e.target.result)
+                        .width(150)
+                        .height(75);
+                    //$('#DoctorList_' + parseInt(id) + '__signaturepath').val(input.files[0]);
+
+                };
+                reader.readAsDataURL(input.files[0]);
+                //var data = new FormData;
+                //data.append("ImageFile", input.files[0]);
+            }
+        }
+
+        function myFunction() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("tbldr_list");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[1];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+    </script>
+}
+

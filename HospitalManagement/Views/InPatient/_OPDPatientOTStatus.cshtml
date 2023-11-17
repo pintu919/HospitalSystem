@@ -1,0 +1,262 @@
+﻿
+@model HospitalManagement.Models.IP_OT_Transfer
+
+@{string j = "";}
+@if (Model.OT_transfer_List != null && Model.OT_transfer_List.Count > 0)
+{
+    j = Convert.ToString(Model.OT_transfer_List[ViewBag.x].TransferId);
+}
+else if (Convert.ToString(Model.TransferId) != null)
+{
+    j = Convert.ToString(Model.TransferId);
+}
+<div class="vital-tabs">
+    <ul class="nav nav-tabs nav-tabs-solid nav-justified" id="myTab" role="tablist">
+        <li class="nav-item"><a class="nav-link " id="home-@j" data_id="1-@j" data-toggle="tab" href="#home-@j" role="tab" aria-controls="home" aria-selected="true">OPD Patient OT Details</a></li>
+        <li class="nav-item"><a class="nav-link" id="profile-@j" data_id="2-@j" data-toggle="tab" href="#profile-@j" role="tab" aria-controls="profile" aria-selected="false">OPD Patient OT Services</a></li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade" id="home-@j" role="tabpanel" aria-labelledby="home">
+            @using (Ajax.BeginForm("AddOTDetail", "InPatient", new AjaxOptions { HttpMethod = "POST", OnBegin = "return ONbeginOtdetails('" + j + "')", OnSuccess = "OTDetailSuccess", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="row align-items-center OTdteails-@j">
+                @Html.HiddenFor(Model => Model.OTdetail.TransferId, new { @id = "hiddenotcode" })
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Name Of Operation</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.Name_of_Operation, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Indication</label>
+                        @Html.TextAreaFor(Model => Model.OTdetail.Indication, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Surgeon</label>
+
+                        @Html.ListBoxFor(model => model.OTdetail.Surgeon, Model.OTdetail.surgeon_lst, new { @class = "form-control listbox Surgeon_" + j })
+
+                        @*@Html.DropDownListFor(model => model.OTdetail.Surgeon, new SelectList(Model.OTdetail.surgeon_lst, "doctor_code", "doctor_name"), "Select Surgeon", new { @class = "form-control  requiredSelect Surgeon_" + j })*@
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Asstt.Surgeon</label>
+
+                        @Html.ListBoxFor(model => model.OTdetail.Asst_Surgeon, Model.OTdetail.asst_surgeon_lst, new { @class = "form-control listbox AsstSurgeon_" + j, onchange = "GetAssttName('" + j + "')" })
+
+                        @*@Html.DropDownListFor(model => model.OTdetail.Asst_Surgeon, new SelectList(Model.OTdetail.asst_surgeon_lst, "doctor_code", "doctor_name"), "Select Asstt.Surgeon", new { @class = "form-control select requiredSelect AsstSurgeon_" + j, onchange = "GetAssttName('" + j + "')" })*@
+                    </div>
+                </div>
+                <div class="col-md-4 bindasstt_name-@j" hidden>
+                    <div class="form-group">
+                        <label>Asstt.Surgeon</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.Asst_Surgeon_name, new { @class = "form-control AsstSurgeonName_" + j, @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Findings</label>
+                        @Html.TextAreaFor(Model => Model.OTdetail.Findings, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Procedure</label>
+                        @Html.TextAreaFor(Model => Model.OTdetail.Procedure, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Histopathology</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.Histology, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Anesthesiologist</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.Anaesthetist, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Anesthesia Used</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.Anaesthetic_Used, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Units Of Blood Transfusion Required</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.Unista_Blood_Transfusion, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>From Time</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.From_Time, new { @class = "form-control", @required = "required", @type = "time" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>To Time</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.To_Time, new { @class = "form-control", @required = "required", @type = "time" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Date</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.OT_Date, new { @class = "form-control", @required = "required", @type = "date" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>OT Nurse</label>
+                        @Html.TextBoxFor(Model => Model.OTdetail.OT_Nurse, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-12 text-center">
+                    <button class="btn blue-gradient-btn mt-3 btn-sm" type="submit" name="submit">Add</button>
+                </div>
+                <div class="col-md-12 text-center otmsg-@j">
+                    @if (Model.statusmsg != null)
+                    {
+                        <div class="alert alert-success fade in show mb-0">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true" style="font-size:20px">×</span>
+                            </button>    <strong>@Model.statusmsg</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+        <div class="tab-pane fade" id="profile-@j" role="tabpanel" aria-labelledby="profile">
+            <div class="row OTservices-@j">
+                <div class="col-12">
+                    @using (Ajax.BeginForm("AddOTServices", "InPatient", new AjaxOptions { HttpMethod = "POST", OnBegin = "return ONbeginService('" + j + "')", OnSuccess = "OTServiceSuccessMethod" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(Model => Model.OTservice.TransferId, new { @id = "hiddenotservicecode" })
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Other Service :</label>
+                                @if (Model.OTservice.ot_service_list.Count > 0)
+                                {
+                                    @Html.DropDownListFor(model => model.OTservice.Service_id, new SelectList(Model.OTservice.ot_service_list, "id", "service_name"), "Select Service", new { @class = "form-control  service_id_" + j, onchange = "Getcost('" + j + "')" })
+                                }
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="row bindcost-@j" hidden>
+                                @if (Model.OTservice.is_realtime == 0)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Price :</label>
+                                            @Html.TextBoxFor(model => model.OTservice.SellingCost, new { @class = "form-control", @readonly = "readonly", @id = "invSellingCost-" + j })
+                                            @Html.HiddenFor(model => model.OTservice.is_realtime)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Discount(Amount) :</label>
+                                            <span id="dismsg" class="msg_billing" hidden>(<small class="text-danger">Note: Discount Amount is to much.Minimum selling Amount is @Model.OTservice.MinSellingCost </small>)</span>
+                                            @Html.TextBoxFor(model => model.OTservice.Discount, new { @class = "form-control groupOfTexbox dicount_check" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (Model.OTservice.is_realtime == 1)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="focus-label m-b-30">Service Name : </label>
+                                            <span id="oth_Sname" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Service Name. </small>)</span>
+                                            @Html.TextBoxFor(model => Model.OTservice.ServiceName, new { @class = "form-control" })
+                                            @Html.HiddenFor(model => Model.OTservice.is_realtime)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="focus-label m-b-30">Cost : </label>
+                                            <span id="oth_cost" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Cost. </small>)</span>
+                                            @Html.TextBoxFor(model => Model.OTservice.Cost, new { @class = "form-control groupOfTexbox" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="focus-label m-b-30">Selling Cost :</label>
+                                            <span id="oth_Scost" class="msg_billing" hidden>(<small class="text-danger">Note: Please Enter Selling Cost. </small>)</span>
+                                            @Html.TextBoxFor(model => Model.OTservice.SellingCost, new { @class = "form-control groupOfTexbox" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="focus-label m-b-30">Remark :</label>
+                                            @Html.TextAreaFor(model => Model.OTservice.Remark, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                }
+                                @Html.HiddenFor(model => model.OTservice.MinSellingCost)
+                                @Html.HiddenFor(model => model.OTservice.Cost)
+                                <div class="col-md-12 text-center">
+                                    <button id="btnAddservice" class="btn skin-gradient-btn btn-sm" type="submit" name="submit"><i class="fa fa-plus"></i> Add Service Item</button>
+                                </div>
+                                <div class="col-md-12 text-center Otservicemsg-@j">
+                                    @if (Model.statusmsg != null)
+                                    {
+                                        <div class="alert alert-success fade in show mb-0">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true" style="font-size:20px">×</span>
+                                            </button>    <strong>@Model.statusmsg</strong>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row OTservicelistbind-@j">
+                            @if (Model.OTservice.Ot_Service_entity != null && Model.OTservice.Ot_Service_entity.Count > 0)
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-bordered custom-table" style="border-bottom: 5px solid #dee2e6;" id="example1">
+                                        <thead>
+                                            <tr>
+                                                <th>Service Name</th>
+                                                <th>Service Type</th>
+                                                <th>Selling cost</th>
+                                                <th>Discount</th>
+                                                <th data-orderable="false" class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (int i = 0; i < Model.OTservice.Ot_Service_entity.Count; i++)
+                                            {
+                                                <tr id="row_@Model.OTservice.Ot_Service_entity[i].id">
+                                                    <td>
+                                                        @Html.DisplayFor(Model => Model.OTservice.Ot_Service_entity[i].service_name)
+                                                        @Html.HiddenFor(Model => Model.OTservice.Ot_Service_entity[i].id)
+                                                    </td>
+                                                    <td>@Html.DisplayFor(Model => Model.OTservice.Ot_Service_entity[i].type)</td>
+                                                    <td>@Html.DisplayFor(Model => Model.OTservice.Ot_Service_entity[i].selling_price)</td>
+                                                    <td>@Html.DisplayFor(Model => Model.OTservice.Ot_Service_entity[i].discount)</td>
+                                                    <td class="text-center">
+                                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmServiceDelete(@Model.OTservice.Ot_Service_entity[i].id,'@j')" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-remove"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

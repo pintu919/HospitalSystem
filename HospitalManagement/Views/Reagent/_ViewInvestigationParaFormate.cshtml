@@ -1,0 +1,65 @@
+﻿@model HospitalManagement.Models.List_regent
+    <div id="BindInvestigationpara">
+        <div id="paramater_view_model" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header skin-bg-gradient">
+                        <h4 class="modal-title" style="color:#fff;" id="myModalLabel">View Investigation Parameter</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <div class="form-group">
+                                        <span style="font-size:13px;">@Model.investigation_name</span>
+                                    </div>
+                                    <table class="table table-bordered table-striped custom-table" id="example">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Investigation Para Name</th>
+                                                <th>Investigation Value</th>
+                                                <th>Reference</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.ParaLists != null)
+                                            {
+                                                for (int i = 0; i < Model.ParaLists.Count; i++)
+                                                {
+                                                    if (Model.ParaLists[i].SubgroupName != "")
+                                                    {
+
+                                                        <tr>
+                                                            <th colspan="3" style="border:unset;font-weight:600;">@Model.ParaLists[i].SubgroupName</th>
+                                                        </tr>
+                                                    }
+                                                    for (int j = 0; j < Model.ParaLists[i].invParaList.Count; j++)
+                                                    {
+                                                        <tr class="">
+                                                            <td>@Html.DisplayFor(Model => Model.ParaLists[i].invParaList[j].investigationpara_name, new { @class = "form-control" })</td>
+                                                            <td>@Html.TextBoxFor(Model => Model.ParaLists[i].invParaList[j].find_ip_reference, new { @class = "form-control",@readonly="readonly" })</td>
+                                                            <td>
+                                                                @foreach (var item in Model.ParaLists[i].invParaList[j].investigationpara_reference.Split(','))
+                                                                {
+                                                                    <ul style="list-style-type: none;padding-left:0;margin-bottom:3px;">
+                                                                        <li>@item</li>
+                                                                    </ul>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

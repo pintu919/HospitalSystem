@@ -1,0 +1,126 @@
+﻿@model  HospitalManagement.Models.LoginModel
+@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="~/wwwroot/assets/img/favicon.ico">
+    <title>HMS - Medical & Hospital</title>
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/flaticon.css" />
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/themify-icons.css" />
+</head>
+<body>
+    @using (Html.BeginForm("Login", "Login"))
+    {
+        var im = System.Configuration.ConfigurationManager.AppSettings["gethosdefaultimg"] + "default_hplogo.png";
+        @Html.AntiForgeryToken()
+        <div class="main-wrapper account-wrapper" @*style="background-image: url('../../wwwroot/assets/img/bg2.jpg'); background-repeat:no-repeat; background-attachment:fixed; background-size:cover;"*@>
+            <div class="account-page">
+                <div class="account-center">
+                    <div class="account-box">
+                        <form action="#" class="form-signin">
+                            <div class="account-logo">
+                                <a href="#"><img src="@im" alt=""></a>
+                            </div>
+                            <div class="form-group">
+                                <i class="fa fa-id-card" aria-hidden="true"></i>
+                                @Html.TextBoxFor(m => m.HosCode, new { placeholder = "Enter Hospital Code", @class = "form-control" })
+                            </div>
+                            <div class="form-group">
+                                <i class="fa fa-user" aria-hidden="true"></i>
+                                @Html.TextBoxFor(m => m.Username, new { placeholder = "Enter UserName (Email Address)", @class = "form-control" })
+                            </div>
+                            <div class="form-group">
+                                <i class="fa fa-lock" aria-hidden="true"></i>
+                                @Html.TextBoxFor(m => m.Pwd, new { placeholder = "Enter Password", @class = "form-control", @type = "password" })
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <div>
+                                            <img src="/Login/GetCaptchaImage" title="Captcha" />
+                                        </div>
+                                    </div>
+                                    <div class="col-7">
+                                        <div>
+                                            @Html.TextBoxFor(model => model.Capcha, new { placeholder = "Write captcha code", @class = "form-control capcha-text", autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="custom-control custom-checkbox mb-3">
+                                            @Html.CheckBoxFor(m => m.RememberMe, new { @class = "custom-control-input", @name = "example1", @id = "customCheck" })
+                                            <label class="custom-control-label" for="customCheck">Remember Me</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-right">
+                                            <a href="~/Login/ForgetPassword">Forgot your password?</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="form-group checkbox">
+                                    <label>
+                                        @Html.CheckBoxFor(m => m.RememberMe) Remember Me
+                                    </label>
+                                </div>*@
+
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-primary account-btn skin-gradient-btn">Sign In</button>
+                            </div>
+                        </form>
+                        @if ((string)TempData["message"] == "Sorry, please write valid capcha code.")
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Worng!</strong> Sorry, please write valid capcha code.
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                        @if ((string)TempData["message"] == "UserName or Password Incorrect!!")
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Worng!</strong> Please Enter Corract UserName And Password !!!!
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                        @if ((string)TempData["message"] == "hosting Url Incorract !!")
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Worng!</strong> Please Enter Corract hosting Url !!!!
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="container body-content">
+                <footer style="text-align:right; color:black; font-weight:600;">
+                    <p>&copy; @DateTime.Now.Year - Hospital Management System</p>
+                </footer>
+            </div>
+        </div>
+    }
+    <script src="~/wwwroot/assets/js/jquery-3.2.1.min.js"></script>
+    <script src="~/wwwroot/assets/js/popper.min.js"></script>
+    <script src="~/wwwroot/assets/js/bootstrap.min.js"></script>
+    <script src="~/wwwroot/assets/js/app.js"></script>
+    <script src="~/wwwroot/assets/js/jquery.validate.min.js"></script>
+    <script src="~/wwwroot/assets/js/jquery.validate.unobtrusive.js"></script>
+
+</body>
+

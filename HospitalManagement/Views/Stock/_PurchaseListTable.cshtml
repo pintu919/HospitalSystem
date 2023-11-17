@@ -1,0 +1,72 @@
+﻿@model HospitalManagement.Models.StockPurchaseListModel
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive table-scrolling">
+            <table class="table table-striped table-bordered m-0 jquerydatatable" id="purchase_tbl">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Purchase Code</th>
+                        <th>Invoice Code</th>
+                        @*<th>Receive Date</th>*@
+                        <th>Invoice Date</th>
+                        <th>Supplier</th>
+                        <th>Grand Total</th>
+                        <th>Paid Amount</th>
+                        <th>Due Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model.stkpurchaseList)
+                    {
+
+                        <tr>
+                            <td> @item.purchase_code</td>
+                            <td>
+                                @item.supplier_invoice_code
+                                @*@if (item.IsIP == 1)
+                                    {
+                                        <a href="~/Invoice/IPInvoiceView/@item.UniqRow" target="_blank">@item.invoice_code</a>
+                                    }
+                                    else
+                                    {
+                                        <a href="~/Invoice/InvoiceView/@item.UniqRow" target="_blank">@item.invoice_code</a>
+                                    }*@
+                            </td>
+                            @*<td>@item.received_date</td>*@
+                            <td>@item.invoice_date</td>
+                            <td>@item.supplier_name</td>
+                            <td>@String.Format("{0:n}", Convert.ToDecimal(item.grand_total)) </td>
+                            <td>@String.Format("{0:n}", Convert.ToDecimal(item.paid_amount))</td>
+                            <td>@String.Format("{0:n}", Convert.ToDecimal(item.due_amount))</td>
+                            <td>
+                                @if (item.Status == null || item.Status == "")
+                                {
+                                    <span class="badge badge-info">Pending</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success">Approved</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Status == null || item.Status == "")
+                                {
+                                    <a href="~/Stock/StockPurchaseApproval/@item.id" target="_blank" class="btn btn-xs btn-primary" title="Approve Invoice">View</a>
+                                }
+                                else
+                                {
+                                    <a href="~/Stock/StockPurchaseApproval/@item.id" target="_blank" class="btn btn-xs btn-success" title="Print Invoice">View/Print</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,78 @@
+﻿@model HospitalManagement.Models.PaymentTypeChannelModel
+@{
+    ViewBag.Title = "PaymentTypeChannelListData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Payment Type Channel List</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Payment/PaymentTypeChannelMaster" class="btn  skin-gradient-btn btn-sm"><i class="fa fa-plus-square"></i> Add Channel</a>
+        </div>
+    </div>
+    <div class="row bindtable">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.PaymentTypeChannel_List != null && Model.PaymentTypeChannel_List.Count > 0)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Payment Type</th>
+                                <th>Channel Name</th>
+                                <th>Head Name</th>
+                                <th>Account Name</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.PaymentTypeChannel_List)
+                            {
+                                <tr id="row_@item.Id">
+                                    <td class="collapse"> @item.Id</td>
+                                    <td>@item.PaymentType</td>
+                                    <td>@item.ChannelName</td>
+                                    <td>@item.head_name</td>
+                                    <td>@item.acc_name</td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="badge badge-danger">Deactive</span></td>
+                                    }
+                                    <td>
+                                        <a href="javascript:;" onclick="submit(@item.Id)" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                        @*<a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.acc_id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-remove"></i></a>*@
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Account").addClass("subdrop");
+        //$(".Submenu_Account").css("display", "block");
+        //$(".Submenu_MasterOfPayment").css("display", "block");
+        //$(".PaymentTypeChannelListData").addClass("active");
+
+        //function submit(Uniqrow) {
+        //    debugger;
+        //    $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/AccountHead/EditLedgerAccount', '_self') });
+        //}
+    </script>
+}
+

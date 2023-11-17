@@ -1,0 +1,127 @@
+﻿@model IEnumerable<HMS.BizLogic.HospitalDepartment_Entity>
+@{
+    ViewBag.Title = "HMSDepartmentList";
+}
+
+<div class="content">
+
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Departments</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/HMSDepartment/AddHMSDepartment" class="btn skin-gradient-btn btn-sm"><i class="fa fa-building-o" aria-hidden="true"></i> Add Department +</a>
+        </div>
+    </div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive table-scrolling">
+                    <table class="table table-striped custom-table datatable mb-0" id="dep_lsttable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th hidden>#</th>
+                                <th>Department Name</th>
+                                <th>Status</th>
+                                <th class="text-center" data-orderable="false">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr id="row_@item.Hos_department_id">
+                                    <td hidden>@Html.DisplayFor(modelItem => item.Hos_department_id)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Hos_department_name)</td>
+                                    @if (item.Ctrl == 1)
+                                    {
+                                        <td class="status-icon"> <span class="badge badge-success">Active</span> </td>
+                                    }
+                                    @if (item.Ctrl == 0)
+                                    {
+                                        <td class="status-icon"><span class="badge badge-success">Deactive</span></td>
+                                    }
+                                <td class="text-center">
+                                    <a href="javascript:;" onclick="submit('@item.row')" title="Edit" class="action-icon btn skyblue-gradient-btn"> <i class="fa fa-pencil"></i> </a>
+                                    <a href="#" onclick="ConfirmDelete(@item.Hos_department_id)" class="action-icon btn red-gradient-btn"><i class="fa fa-trash"></i></a>
+                                </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div id="delete_department" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="icon-box">
+                    <i class="fa fa-trash"></i>
+                </div>
+                <h3 class="modal-title w-100">Are you sure?</h3>
+                <h4 class="font-weight-normal">Are you sure want to delete this Department?</h4>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteHosDepartment()" class="btn red-gradient-btn">Delete</button> &nbsp;
+                    <a href="#" class="btn green-gradient-btn" data-dismiss="modal">Close</a>
+                </div>
+                <div id="cardboxdeldep" class="card-box" hidden>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hiddenhosdepcode" />
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Department").addClass("subdrop");
+        //$(".Submenu_Department").css("display", "block");
+        //$(".Submenu_Department").css("display", "block");
+        //$(".HMSDepartmentList").addClass("active");
+
+        $(document).ready(function () {
+             $("#dep_lsttable").dataTable({
+                "order": [[0, "desc"]],
+            });
+        });
+        var ConfirmDelete = function (hosdepartmentid) {
+            debugger;
+            $("#hiddenhosdepcode").val(hosdepartmentid);
+            $("#delete_department").modal('show');
+        }
+        var DeleteHosDepartment = function () {
+            debugger;
+            var HosDepid = $("#hiddenhosdepcode").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSDepartment/HospitalDepartmentDelete",
+                data: { HosDepartId: HosDepid },
+                success: function (result) {
+
+                    if (result) {
+                        $("#delete_department").modal("hide");
+                        $("#row_" + HosDepid).remove();
+                    }
+                    else {
+
+                         var htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <span id='statusmsg'> Department  already Used in Register Employee in this Hospital.</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                        $('#cardboxdeldep').removeAttr('hidden');
+                        $("#cardboxdeldep").html(htmlstr);
+                    }
+                }
+            })
+        }
+
+        function submit(Uniqrow) {
+            debugger;
+            $.post("/Dashboard/SetParaValue", { Para: Uniqrow }, function () { window.open('/HMSDepartment/EditHMSDepartment', '_self') });
+        }
+    </script>
+}
+
+
+

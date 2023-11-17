@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html>
+@{
+    var controllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString().ToLower();
+}
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="~/wwwroot/assets/img/favicon.ico">
+    <title>@ViewBag.Title - Hospital Management System</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="~/wwwroot/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/dataTables.bootstrap4.min.css">
+    <link href="~/wwwroot/assets/css/themify-icons.css" rel="stylesheet" />
+    <link href="~/wwwroot/assets/css/flaticon.css" rel="stylesheet" />
+    <link href="~/wwwroot/assets/css/jquery-ui.css" rel="stylesheet" />
+    @if (controllerName == "hmsdoctorappointment" || controllerName == "cancelappointment" || controllerName == "report")
+    {
+        <link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+    }
+    else
+    {
+        <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/bootstrap-datetimepicker.min.css">
+    }
+    <link rel="stylesheet" type="text/css" href="~/wwwroot/assets/css/style.css">
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="header">
+            <div class="header-left">
+                <a href="~/Dashboard/Dashboard" class="logo">
+                    <span>Hospital Management </span>
+                </a>
+            </div>
+            <a id="toggle_btn" href="javascript:void(0);"><i class="fa fa-bars"></i></a>
+            <a id="mobile_btn" class="mobile_btn float-left" href="#sidebar"><i class="fa fa-bars"></i></a>
+            <ul class="nav user-menu float-right">
+                <li class="nav-item dropdown has-arrow">
+                    <a href="#" class="dropdown-toggle nav-link user-link" data-toggle="dropdown">
+                        <span>
+                            @if (Session["ClinicCode"] != null)
+                            {
+                                if (Convert.ToString(Session["UserCode"]).Split('-')[0] == "HP")
+                                {
+                                    @HttpContext.Current.Session["clinic_name"]
+                                }
+                                else
+                                {
+                                    @Session["UserCode"].ToString();
+                                }
+                            }
+                        </span>
+                    </a>
+                    <div class="dropdown-menu">
+                        @if (Convert.ToString(Session["UserCode"]).Split('-')[0] == "HP")
+                        {
+                            <a class="dropdown-item" href="~/HMSClinic/ViewClinicProfile">My Profile</a>
+                            <a class="dropdown-item" href="~/HMSClinic/EditClinicProfile">Edit Profile</a>
+                            <a class="dropdown-item" href="~/Login/ClinicChangePassword">Settings</a>
+                        }
+                        <a class="dropdown-item" href="~/Login/Signout">Logout</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="dropdown mobile-user-menu float-right">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @if (Convert.ToString(Session["UserCode"]).Split('-')[0] == "HP")
+                    {
+                        <a class="dropdown-item" href="~/HMSClinic/ViewClinicProfile">My Profile</a>
+                        <a class="dropdown-item" href="~/HMSClinic/EditClinicProfile">Edit Profile</a>
+                        <a class="dropdown-item" href="~/Login/ClinicChangePassword">Settings</a>
+                    }
+                    <a class="dropdown-item" href="~/Login/Signout">Logout</a>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-inner slimscroll" id="bindMenu">
+                @Html.Raw(Session["HtmlMenu"])
+
+                @*@Html.Partial("_Menu")*@
+            </div>
+        </div>
+        <div class="page-wrapper">
+            <div id="progress" class="loadingimg">
+                <div class="centerloading">
+                    <img src="~/wwwroot/assets/img/loading.gif" width="128" height="128" />
+                </div>
+            </div>
+            @RenderBody()
+        </div>
+    </div>
+    <div class="container body-content">
+        <footer style="text-align:center;">
+            <p>&copy; @DateTime.Now.Year - Hospital Management System</p>
+        </footer>
+    </div>
+    @Html.Partial("SessionTimeOut")
+    <div class="sidebar-overlay" data-reff=""></div>
+    @*<script src="~/wwwroot/assets/js/jquery-1.12.4.js?<%=@DateTime.Now.ToString()%>"></script>*@
+    <script src="~/wwwroot/assets/js/jquery-1.12.4.js"></script>
+    <script src="~/wwwroot/assets/js/jquery-ui.js"></script>
+    <script src="~/wwwroot/assets/js/popper.min.js"></script>
+    <script src="~/wwwroot/assets/js/bootstrap.min.js"></script>
+    <script src="~/wwwroot/assets/js/jquery.validate.min.js"></script>
+    <script src="~/wwwroot/assets/js/jquery.validate.unobtrusive.js"></script>
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/wwwroot/assets/js/jquery.slimscroll.js"></script>
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script src="~/wwwroot/assets/js/jquery.dataTables.min.js"></script>
+    <script src="~/wwwroot/assets/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/wwwroot/assets/js/moment.min.js"></script>
+    @if (controllerName == "hmsdoctorappointment" || controllerName == "cancelappointment" || controllerName == "report")
+    {
+        <script src="~/Scripts/bootstrap-datetimepicker.js"></script>
+    }
+    else
+    {
+        <script src="~/wwwroot/assets/js/bootstrap-datetimepicker.min.js"></script>
+    }
+    <script src="~/wwwroot/assets/js/app.js"></script>
+    @RenderSection("scripts", required: false)
+    <script type="text/javascript">
+        debugger;
+        var length = parseInt(window.location.pathname.split("/").length);
+        var PageName = window.location.pathname.split("/")[(length - 1)];
+        var ActionName = window.location.pathname.split("/")[(length - 2)];
+
+        var AssignMenu = getAssignSessionValue(PageName, ActionName);
+        if (AssignMenu != undefined) {
+            $("." + AssignMenu.hp_main_menu_name.replace(/ /g, '')).addClass("subdrop");
+            $(".Submenu_" + AssignMenu.hp_main_menu_name.replace(/ /g, '')).css("display", "block");
+            $("." + AssignMenu.hp_keyword.replace(/ /g, '')).addClass("subdrop");
+            $(".Submenu_" + AssignMenu.hp_keyword.replace(/ /g, '')).css("display", "block");
+            $("." + AssignMenu.hp_pagename.replace(/ /g, '')).addClass("active");
+        }
+        function getAssignSessionValue(PageName, ActionName) {
+            var result;
+            $.ajax({
+                url: "/Dashboard/GetSessionAssignMenu",
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify({ PageName: PageName, ActionName: ActionName }),
+                contentType: 'application/json; charset=utf-8',
+                async: false
+            }).done(function (data) {
+                result = data;
+            });
+            return result;
+        }
+    </script>
+</body>
+</html>

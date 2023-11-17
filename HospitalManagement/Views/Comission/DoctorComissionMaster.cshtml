@@ -1,0 +1,210 @@
+﻿@model HospitalManagement.Models.DoctorComissionModel
+@{
+    ViewBag.Title = "DoctorComissionMaster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title">Doctor Comission Master</h4>
+        </div>
+    </div>
+    <div class="row employee-form m-0">
+        <div class="col-lg-12 p-0">
+            @using (Ajax.BeginForm("Add_Update_Doctor_Comission", "Comission", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-md-6 col-lg-6">
+                        <div class="form-group">
+                            <label>Comission Name</label>
+                            @Html.ValidationMessageFor(model => model.ComissionName, "", new { @class = "text-danger" })
+                            @Html.TextBoxFor(model => model.ComissionName, new { @class = "form-control" })
+                            @Html.HiddenFor(m => m.Id)
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-2">
+                        <div class="form-group">
+                            <label class="display-block">Status</label>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_active">
+                                    @Html.RadioButtonFor(model => model.ctrl, 1, new { @id = "active" })
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label" for="product_inactive">
+                                    @Html.RadioButtonFor(model => model.ctrl, 0, new { @id = "Inactive" })
+                                    InActive
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-4 col-xl-2">
+                        <button type="submit" class="btn skin-gradient-btn submit-btn" id="update_insertbtn_set">Add</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div id="cardbox_status" class="">
+                            @{
+                                if (Model.ResponseMsg != null)
+                                {
+                                    if (Model.ResponseMsg.StatusId == "1")
+                                    {
+                                        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Success!</strong> Your <a href="#" class="alert-link">action</a> has been successful.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "0")
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Error!</strong> A <a href="#" class="alert-link">problem</a> has been occurred while submitting your data.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (Model.ResponseMsg.StatusId == "2")
+                                    {
+                                        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                                            <strong>Note!</strong> Please read the <a href="#" class="alert-link">comments</a> carefully Record Allrady Exists!.
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="row bindtable mt-4">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                @if (Model.ALlComissionData != null)
+                {
+                    <table class="table table-border table-striped custom-table datatable mb-0">
+                        <thead>
+                            <tr>
+                                <th class="collapse">#</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ALlComissionData)
+                            {
+                                <tr id="row_@item.Id">
+                                    <td class="collapse">@item.Id</td>
+                                    <td>@item.ComissionName</td>
+                                    @if (item.ctrl == 1)
+                                    {
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    }
+                                    @if (item.ctrl == 0)
+                                    {
+                                        <td><span class="badge badge-danger">Deactive</span></td>
+                                    }
+                                    <td class="text-center">
+                                        <a href="javascript:void(0)" onclick="AddService(@item.Id)" title="Add Comission Services" class="action-icon btn btn-primary"><i class="fa fa-plus"></i></a>
+                                        <a href="javascript:void(0)" onclick="EditService(@item.Id)" title="Edit" class="action-icon btn skyblue-gradient-btn"><i class="fa fa-pencil"></i></a>
+                                        <a class="action-icon btn red-gradient-btn" href="#" title="Remove" onclick="ConfirmDelete(@item.Id)" data-toggle="modal" data-target="#delete_patient"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("_DoctorComissionService", Model)
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_CommissionMaster").css("display", "block");
+        //$(".DoctorComissionMaster").addClass("active");
+
+        $(".custom-table").dataTable();
+        function SuccessMethod(datahtml) {
+            debugger;
+            $(".bindtable").empty();
+            $("#cardbox_status").empty();
+            $(".bindtable").html($(datahtml).find(".bindtable").html());
+            $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+            $(".custom-table").dataTable();
+            $("#Id").val(0);
+            $("#ComissionName").val('');
+            $("#update_insertbtn_set").html("Add");
+        }
+
+        function AddService(Id) {
+            debugger;
+            $("#progress").show();
+            var url = "";
+            url = "/Comission/Get_DoctorCategorywiseInvestigation?Id=" + Id + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                debugger;
+                $(".bind_services").empty();
+                $(".bind_services").html($(datahtml).find(".bind_services").html());
+                $("#progress").hide();
+            });
+            $('#Comission_data').modal('show');
+        }
+
+        function SuccessMethodcom(datahtml) {
+            debugger;
+            $("#cardbox_status").empty();
+            $("#cardbox_status").html($(datahtml).find("#cardbox_status").html());
+        }
+
+        function EditService(val) {
+            debugger;
+            $("#Id").val(parseInt($("#row_" + val).find("td:eq(0)").text()));
+            $("#ComissionName").val($("#row_" + val).find("td:eq(1)").text());
+            if ($("#row_" + val).find("td:eq(2)").text().trim() == "Active") {
+                $("#active").prop('checked', true);
+            }
+            else {
+                $("#Inactive").prop('checked', true)
+            }
+            $("#update_insertbtn_set").html("Update");
+        }
+
+        //Assign Click event to Plus Image for LabName.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").removeClass("d-none");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        $("body").on("click", "img[src*='minus.png']", function () {
+            debugger;
+            $(this).closest("tr").next("tr").addClass("d-none")
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next('.del').remove();
+        });
+           //End
+        
+
+
+
+
+    </script>
+}
+

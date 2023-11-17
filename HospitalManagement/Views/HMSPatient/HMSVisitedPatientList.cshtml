@@ -1,0 +1,393 @@
+﻿@model HospitalManagement.Models.HMSPatientModel
+@{
+    ViewBag.Title = "HMSVisitedPatientList";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <h4 class="page-title"> Visited Patients</h4>
+        </div>
+    </div>
+    <div class="row filter-row">
+        <div class="col-sm-6 col-md-3 ml-auto" id="divoff">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Day</label>
+                <select class="select floating" id="Days" onchange="GetDropdownData()">
+                    <option>Today</option>
+                    <option>Weekly</option>
+                    <option>Custom</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpfrom">
+            <div class="form-group form-focus">
+                <label class="focus-label">Custom Date</label>
+                <input id="datetimepicker11" class="form-control datetimepicker floating">
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3 collapse" id="colpto">
+            <div class="form-group form-focus">
+                <label class="focus-label">Custom Date</label>
+                <input id="datetimepicker12" class="form-control datetimepicker floating">
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="form-group form-focus select-focus">
+                <label class="focus-label">Doctor</label>
+                @Html.ValidationMessageFor(model => model.HosDocCode, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(model => model.HosDocCode, new SelectList(Model.DoctorList, "doctor_code", "doctor_name"), "All Doctors", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData()", @id = "hosDoctor" })
+            </div>
+        </div>
+    </div>
+    @*Patient Search Added By Dhaval*@
+    <div id="accordion">
+        <div class="card">
+            <a class="card-link collapsed" data-toggle="collapse" href="#collapseOne">
+                Other Filter For Patient Search
+            </a>
+            <div id="collapseOne" class="collapse" data-parent="#accordion">
+                <div class="card-body">
+                    @if (Model.PatientSearch != null)
+                    {
+                        using (Ajax.BeginForm("HMSVisitedPatientList_SearchOtherFilter", "HMSPatient", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod_PatientFilter", LoadingElementId = "progress" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="row align-items-center">
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.MobileNo, new { @class = "form-control", placeholder = "Enter Mobile" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.Email, new { @class = "form-control", placeholder = "Enter Email" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.PatientName, new { @class = "form-control", placeholder = "Enter PatientName" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.PatientCode, new { @class = "form-control", placeholder = "Enter PatientCode" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.PatientBirthYear, new { @class = "form-control", @type = "number", @min = "1800", @max = "9999", placeholder = "Enter Patient BirthYear" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(model => model.PatientSearch.PatientFatherName, new { @class = "form-control", placeholder = "Enter Patient FatherName" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="m-b-20">
+                                        <button class="btn skin-gradient-btn" type="submit" name="Submit" style="padding:10px; font-size:15px;"> <i class="fa fa-search"></i> </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @*Dhsval end*@
+    <div class="row bindtable mt-3">
+        <div class="col-md-12">
+            <div class="table-responsive table-scrolling">
+                <table class="table table-border table-striped custom-table datatable mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Create Date</th>
+                            <th hidden>id</th>
+                            <th>DOB / Age</th>
+                            <th>Gender</th>
+                            <th>Phone / Email</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.visitpatientlist)
+                        {
+                        <tr id="row_@item.patient_code">
+                            <td class="patients-img">
+                                @if (item.photo == "" || item.photo == null)
+                                {
+                                    <img width="28" height="28" src="~/wwwroot/assets/img/user.jpg" class="m-r-10" alt="">
+                                }
+
+                                @if (item.photo != null && item.photo != "")
+                                {
+                                    var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.photo;
+                                    <img width="28" height="28" src="@img" class="m-r-10" alt="">
+                                }
+                                <h2><a href="~/HMSPatient/VisitedPatientProfile/@item.uniqrow" target="_blank">@(item.patient_firstname + " " + item.patient_lastname)</a><span class="text-secondary">@item.patient_code</span></h2>
+                            </td>
+
+                            <td><h2>@Html.DisplayFor(modelItem => item.create_date)<span class="text-secondary">NID/BirthRegNo : @Html.DisplayFor(modelItem => item.nid_birthregno)</span></h2></td>
+                            <td hidden>@Html.DisplayFor(modelItem => item.patient_id)</td>
+                            <td><h2>@Html.DisplayFor(modelItem => item.dateofbirth)<span class="text-secondary">@Html.DisplayFor(modelItem => item.age)</span></h2></td>
+                            <td><h2>@Html.DisplayFor(modelItem => item.gender) <span class="text-secondary">@Html.DisplayFor(modelItem => item.marital_status)</span></h2></td>
+                            @*<td>@Html.DisplayFor(modelItem => item.gender)</td>*@
+                            <td><h2>@Html.DisplayFor(modelItem => item.phone)<span class="text-secondary">@Html.DisplayFor(modelItem => item.email)</span></h2></td>
+
+                            @if (item.Ctrl == 1)
+                            {
+                                <td class="status-icon">
+                                    <span class="badge badge-success">Active</span>
+                                </td>
+                            }
+                            @if (item.Ctrl == 0)
+                            {
+                                <td class="status-icon">
+                                    <span class="badge badge-danger">Deactive</span>
+                                </td>
+                            }
+
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="delete_patient" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <img src="~/wwwroot/assets/img/sent.png" alt="" width="50" height="46">
+                <h3>Are you sure want to delete this Patient?</h3>
+                <div class="m-t-20">
+                    <button type="submit" onclick="DeleteHosPatient()" class="btn btn-danger">Delete</button> &nbsp;
+                    <a href="#" class="btn btn-white" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="hiddenpatcode" />
+
+@section scripts{
+    <script type="text/javascript">
+
+        //$(".Patients").addClass("subdrop");
+        //$(".Submenu_Patients").css("display", "block");
+        //$(".Submenu_Patients").css("display", "block");
+        //$(".HMSVisitedPatientList").addClass("active");
+
+        $(document).ready(function () {
+
+            setCurrentDate();
+
+            $(".datatable").dataTable({
+                "order": [[2, "desc"]]
+            });
+            $('#datetimepicker12').datetimepicker({
+                dateFormat: "dd/mm/yy"
+            }).on('dp.change', function (e) {
+                debugger;
+                GetDropdownData();
+            });
+
+            $('#datetimepicker11').datetimepicker({
+                dateFormat: "dd/mm/yy"
+            }).on('dp.change', function (e) {
+                debugger;
+                GetDropdownData();
+            });
+
+        });
+
+        //function SetDataTableFillter() {
+        //    // Setup - add a text input to each footer cell
+        //    $('#example thead tr').clone(true).appendTo('#example thead');
+        //    $('#example thead tr:eq(1) th').each(function (i) {
+        //        debugger;
+        //        var title = $(this).text();
+        //        if (title == "Profile" || title == "Status" || title == "Action") {
+        //            $(this).html('<input  type="hidden" class ="form-control" placeholder="Search ' + title + '" />');
+        //        }
+        //        else {
+        //            $(this).html('<input type="text" class ="form-control" placeholder="Search ' + title + '" />');
+        //        }
+
+        //        $('input', this).on('keyup change', function () {
+        //            if (table.column(i).search() !== this.value) {
+        //                table
+        //                    .column(i)
+        //                    .search(this.value)
+        //                    .draw();
+        //            }
+        //        });
+        //    });
+        //    $('#example thead tr:eq(1)').removeClass('table-header');
+        //    $('#example thead tr:eq(1)').addClass('table-primary');
+        //    var table = $('#example').DataTable({
+        //        orderCellsTop: true,
+        //        fixedHeader: true,
+
+        //    });
+        //}
+
+
+        var ConfirmDelete = function (PATCode) {
+            debugger;
+            $("#hiddenpatcode").val(PATCode);
+            $("#delete_patient").modal('show');
+        }
+        var DeleteHosPatient = function () {
+            debugger;
+            var PATCode = $("#hiddenpatcode").val();
+            $.ajax({
+                type: "POST",
+                url: "/HMSPatient/HosPatientDelete",
+                data: { PATCode: PATCode },
+                success: function (result) {
+                    if (result == true) {
+                        $("#delete_patient").modal("hide");
+                        $("#row_" + PATCode).remove();
+                        location.reload();
+                    }
+                    else {
+                        alert("Something went to wrorng !!!")
+                    }
+
+                }
+            })
+        }
+
+        function setCurrentDate() {
+            debugger;
+            var now = new Date();
+            var day = ("0" + now.getDate()).slice(-2);
+            var month = ("0" + (now.getMonth() + 1)).slice(-2);
+            var today = (day) + "/" + (month) + "/" + now.getFullYear();
+            $('#datetimepicker11').val(today);
+            $('#datetimepicker12').val(today);
+        }
+
+
+        function GetDropdownData() {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            var day = $("#Days").val() == 'Select Day' ? 'Select Day' : $("#Days").val();
+            var firstDay = new Date();
+            var lastDay = new Date();
+            if ($('#Days').val() == 'Today') {
+                var now = new Date();
+                var day = ("0" + now.getDate()).slice(-2);
+                var month = ("0" + (now.getMonth() + 1)).slice(-2);
+                var today = (day) + "/" + (month) + "/" + now.getFullYear();
+                firstDay = today;
+                lastDay = today;
+            }
+            if ($('#Days').val() == 'Weekly') {
+                debugger;
+                //var curr = new Date; // get current date
+                //var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+                //var last = first + 6; // last day is the first day + 6
+
+                //firstDay = new Date(curr.setDate(first)).toUTCString();
+                //lastDay = new Date(curr.setDate(last)).toUTCString();
+                let today = new Date();
+                let day = today.getDay();
+                let t = day - 1;
+                 var frdate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - t - 7); //monday from last week
+                var ldate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - t - 1); //sunday from ast week
+
+                var dayf = ("0" + frdate.getDate()).slice(-2);
+                var monthf = ("0" + (frdate.getMonth() + 1)).slice(-2);
+                var todayf = (dayf) + "/" + (monthf) + "/" + frdate.getFullYear();
+                firstDay = todayf;
+
+                var dayl = ("0" + ldate.getDate()).slice(-2);
+                var monthl = ("0" + (ldate.getMonth() + 1)).slice(-2);
+                var todayl = (dayl) + "/" + (monthl) + "/" + ldate.getFullYear();
+                lastDay = todayl;
+
+
+            }
+
+           
+              
+
+            if ($('#Days').val() == 'Custom') {
+                $('#colpfrom').removeClass('collapse');
+                $('#colpto').removeClass('collapse');
+                $('#divoff').removeClass('offset-2');
+                if ($('#datetimepicker11').val() != null && $('#datetimepicker11').val() != "") {
+                    var from = $("#datetimepicker11").val();
+                   /* var f = new Date(from[2], from[1] - 1, from[0])*/
+                    firstDay = from;
+                    $('.loadingimg').css('display', 'none');
+
+                }
+                if ($('#datetimepicker12').val() != null && $('#datetimepicker12').val() != "") {
+                    $('.loadingimg').css('display', 'block');
+                    var to = $("#datetimepicker12").val();
+                    /*var t = new Date(to[2], to[1] - 1, to[0])*/
+                    lastDay = to;
+                }
+
+            }
+            else {
+                $('#colpfrom').addClass('collapse');
+                $('#colpto').addClass('collapse');
+                $('#divoff').addClass('offset-2');
+            }
+            var hosdoccode = "";
+            if ($('#hosDoctor').val() != null && $('#hosDoctor').val() != "") {
+                hosdoccode = $('#hosDoctor').val();
+            }
+
+            url = "/HMSPatient/GetfilterVisitedPatient?fromdate=" + firstDay + " &todate=" + lastDay + " &hosdoccode=" + hosdoccode + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                $(".bindtable").empty();
+                $(".bindtable").html($(datahtml).find(".bindtable").html());
+                $(".datatable").dataTable({
+                    "order": [[2, "desc"]]
+                });
+            });
+        }
+
+        //Assign Click event to Plus Image.
+        $("body").on("click", "img[src*='plus.png']", function () {
+            $(this).closest("tr").after("<tr><td></td><td colspan = '999'>" + $(this).next().html() + "</td></tr>");
+            $(this).attr("src", "/Image/minus.png");
+        });
+        //Assign Click event to Minus Image.
+        $("body").on("click", "img[src*='minus.png']", function () {
+            $(this).attr("src", "/Image/plus.png");
+            $(this).closest("tr").next().remove();
+        });
+
+        //Added By Dhaval for Other Patient Search
+        function SuccessMethod_PatientFilter(datahtml) {
+            debugger;
+            $(".bindtable").empty();
+            $(".bindtable").html($(datahtml).find(".bindtable").html());
+            $(".datatable").dataTable({
+                "order": [[2, "desc"]]
+            });
+        }
+        //Added By Dhaval End
+
+    </script>
+}

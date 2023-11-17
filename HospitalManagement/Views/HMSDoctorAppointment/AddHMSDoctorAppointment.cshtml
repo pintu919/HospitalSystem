@@ -1,0 +1,544 @@
+﻿@model HospitalManagement.Models.AppointmentModel
+@{
+    /**/
+    ViewBag.Title = "AddHMSDoctorAppointment";
+}
+@*<link href="~/wwwroot/assets/css/select2.min.css" rel="stylesheet" />*@
+<style>
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12 ">
+            <h4 class="page-title">Add Appointment</h4>
+        </div>
+    </div>
+    <div class="col-md-12 appointment-form">
+        <div id="clear_data" class="inv_tab">
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" href="#solid-justified-tab1" data-toggle="tab">Register Patient Appointment</a></li>
+                <li class="nav-item"><a class="nav-link" href="#solid-justified-tab2" data-toggle="tab">Non-register Patient Appointment</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane show active" id="solid-justified-tab1">
+                    @using (Ajax.BeginForm("AddAppointment", "HMSDoctorAppointment", new AjaxOptions { HttpMethod = "POST", OnBegin = "ajaxbegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-md-12">
+                                <form>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group text-center divider p-b-10">
+                                                <label class="radio-label text-danger"><b>Take Appointment</b></label>
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label" for="product_active">
+                                                        @Html.RadioButtonFor(model => model.RegPatAppointment.AppointmentType, "Department Wise", new { @id = "DepartmentWise", @type = "radio", @value = "1", @checked = true })
+                                                        Department Wise
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label" for="product_inactive">
+                                                        @Html.RadioButtonFor(model => model.RegPatAppointment.AppointmentType, "Date Wise", new { @id = "DateWise", @type = "radio", @value = "0" })
+                                                        Date Wise
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Patient @*<span id="patmsg" class="msg_billing" hidden> (<small class="text-danger">Note: Please enter valid patient !!! </small>)</span>*@</label>
+                                            <div class="input-group">
+                                                <span id="patmsg" class="msg_billing" hidden> (<small class="text-danger">Note: Please enter valid patient !!! </small>)</span>
+                                                @*@Html.TextBoxFor(model => model.RegPatAppointment.patient_code, new { @class = "form-control requiredSelect", placeholder = "Enter Patient Code, Mobile OR Patient Name" })*@
+                                                @Html.TextBoxFor(model => model.RegPatAppointment.PatientName, new { @class = "form-control", placeholder = "Enter keyword related to patient" })
+                                                @Html.HiddenFor(model => model.RegPatAppointment.patient_code)
+                                                <div id="patdanger" class="input-group-append" hidden><button class="btn  btn-danger" type="submit"><i class="fa fa-close"></i></button></div>
+                                                <div id="patsucess" class="input-group-append" hidden><button class="btn  btn-success" type="submit"><i class="fa fa-check"></i></button></div>
+
+                                            </div>
+                                        </div>
+                                        <div id="datwise" class="col-md-6" hidden>
+                                            <div class="form-group">
+                                                <label>Appointment Date</label>
+                                                @Html.ValidationMessageFor(model => model.RegPatAppointment.AppointmentDate, "", new { @class = "text-danger" })
+                                                @Html.TextBoxFor(model => model.RegPatAppointment.AppointmentDate, new { @class = "form-control", @id = "datetimepicker12", @readonly = "readonly", placeholder = "Select Appintment Date" })
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Department</label>
+                                                @Html.ValidationMessageFor(model => model.RegPatAppointment.HosDepCode, "", new { @class = "text-danger" })
+                                                @Html.DropDownListFor(model => model.RegPatAppointment.HosDepCode, new SelectList(Model.HosDepartmentList, "Hos_department_code", "Hos_department_name"), "Select Department", new { @class = "form-control select2 requiredSelect", onchange = "GetDropdownData('Register_Pat')" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group binddoc">
+                                                <label>Doctor</label>
+                                                @Html.ValidationMessageFor(model => model.RegPatAppointment.HosDocCode, "", new { @class = "text-danger" })
+                                                @Html.DropDownListFor(model => model.RegPatAppointment.HosDocCode, new SelectList(Model.DoctorList, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select2 requiredSelect", onchange = "GetDoctorDays('Reg_Pat')", @id = "hosDoctor" })
+                                            </div>
+                                        </div>
+                                        <div id="Appointdate" class="col-md-6">
+                                            <label>Appointment Date</label>
+                                            <div class="form-group">
+                                                @Html.ValidationMessageFor(model => model.RegPatAppointment.AppointmentDate, "", new { @class = "text-danger" })
+                                                @Html.TextBoxFor(model => model.RegPatAppointment.AppointmentDate, new { @class = "form-control", @id = "datetimepicker11", @readonly = "readonly", placeholder = "Select Appintment Date" })
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group bindTimeslot">
+                                                <label>Select Time</label>
+                                                <div class="">
+                                                    @Html.ValidationMessageFor(model => model.RegPatAppointment.AppointmentFromTime, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.RegPatAppointment.AppointmentFromTime, new SelectList(Model.DoctorTimeSlotList, "TimeSlot", "TimeSlot"), "Select TimeSlot", new { @class = "form-control select2 requiredSelect", @id = "DoctorTiming" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="display-block">Appointment Status</label>
+
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label" for="product_active">
+                                                        @Html.RadioButtonFor(model => model.RegPatAppointment.Ctrl, 1, new { @id = "Active" })
+                                                        Is Appointment
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label" for="product_active">
+                                                        @Html.RadioButtonFor(model => model.RegPatAppointment.Ctrl, 2, new { @id = "Register" })
+                                                        Register
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Comission Agent</label>
+                                                @Html.DropDownListFor(model => model.RegPatAppointment.Comission_Agent_Id, new SelectList(Model.Comission_Agent_List, "Comission_Agent_Id", "Commision_Agent"), "Select Comission Agent", new { @class = "form-control select2" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-t-20 text-center">
+                                        <button class="btn skin-gradient-btn submit-btn">Create Appointment</button>
+                                        <a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSDoctorAppointment/HMSDoctorAppointmentList"><i class="fa fa-arrow-left"></i> Back To List</a>
+                                    </div>
+                                    <div id="cardbox" class="mt-3" hidden>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="tab-pane box-shadow" id="solid-justified-tab2">
+                    @using (Ajax.BeginForm("Add_Non_reg_pat_Appointment", "HMSDoctorAppointment", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethodNonreg", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="col-md-12">
+                                <form>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group text-center divider p-b-10">
+                                                <label class="radio-label text-danger"><b>Take Appointment</b></label>
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label" for="product_active">
+                                                        @Html.RadioButtonFor(model => model.NonRegPatAppointment.AppointmentType, "Department Wise", new { @id = "DepartmentWise_Non_Reg", @type = "radio", @value = "1", @checked = true })
+                                                        Department Wise
+                                                    </label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <label class="form-check-label" for="product_inactive">
+                                                        @Html.RadioButtonFor(model => model.NonRegPatAppointment.AppointmentType, "Date Wise", new { @id = "DateWise_Non_Reg", @type = "radio", @value = "0" })
+                                                        Date Wise
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row appointment-form m-0">
+                                        <div class="col-md-12">
+                                            <div class="form-group text-left divider p-b-10">
+                                                <label class="radio-label page-title-box text-danger"><b>Patient Information :</b></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>First Name <span class="text-danger">@Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientFirstName, "", new { @class = "text-danger" })</span></label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientFirstName, new { @class = "form-control" })
+                                                <i class="fa fa-pencil"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Last Name <span class="text-danger">@Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientLastName, "", new { @class = "text-danger" })</span></label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientLastName, new { @class = "form-control" })
+                                                <i class="fa fa-pencil"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Father's Name <span class="text-danger">@Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientFatherName, "", new { @class = "text-danger" })</span></label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientFatherName, new { @class = "form-control" })
+                                                <i class="fa fa-user"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Mother's Name <span class="text-danger"> @Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientMotherName, "", new { @class = "text-danger" })</span></label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientMotherName, new { @class = "form-control" })
+                                                <i class="fa fa-user"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Blood Group</label>
+                                                @{
+                                                    List<SelectListItem> ListBloodGroup = new List<SelectListItem>();
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "-- Select Blood Group --",
+                                                        Value = "",
+                                                        Selected = true
+                                                    });
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "A+",
+                                                        Value = "A+"
+                                                    });
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "O+",
+                                                        Value = "O+"
+
+                                                    });
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "B+",
+                                                        Value = "B+"
+
+                                                    });
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "AB+",
+                                                        Value = "AB+"
+
+                                                    });
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "A-",
+                                                        Value = "A-",
+                                                    });
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "O-",
+                                                        Value = "O-"
+
+                                                    });
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "B-",
+                                                        Value = "B-"
+
+                                                    });
+                                                    ListBloodGroup.Add(new SelectListItem
+                                                    {
+                                                        Text = "AB-",
+                                                        Value = "AB-"
+
+                                                    });
+                                                }
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.BloodGroup, ListBloodGroup, new { @class = "form-control" })
+                                                <i class="fa fa-ambulance"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Email <span class="text-danger"> @Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientEmail, "", new { @class = "text-danger" })</span></label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientEmail, new { @class = "form-control" })
+                                                <i class="fa fa-envelope"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Date of Birth   @Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientDOB, "", new { @class = "text-danger" })</label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientDOB, new { @class = "form-control", placeholder = "(dd/mm/yyyy)", @id = "DateOfBirth" })
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group gender-select">
+                                                <label class="gen-label">Gender: @Html.ValidationMessageFor(model => model.NonRegPatAppointment.Gender, "", new { @class = "text-danger" })</label>
+                                                <div class="form-check-inline">
+                                                    <label class="form-check-label">
+                                                        @Html.RadioButtonFor(model => model.NonRegPatAppointment.Gender, "Male", new { @id = "Male" })
+                                                        Male
+                                                    </label>
+                                                </div>
+                                                <div class="form-check-inline">
+                                                    <label class="form-check-label">
+                                                        @Html.RadioButtonFor(model => model.NonRegPatAppointment.Gender, "Female", new { @id = "Female" })
+                                                        Female
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Age   @Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientAge, "", new { @class = "text-danger" })</label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientAge, new { @class = "form-control", @readonly = "readonly", @id = "Patientage" })
+                                                <i class="fa fa-user"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                @Html.RadioButtonFor(model => model.NonRegPatAppointment.PatVerify, "NID", new { @id = "NID" }) <label> NID </label>
+                                                @Html.RadioButtonFor(model => model.NonRegPatAppointment.PatVerify, "BirthReg", new { @id = "BirthReg" }) <label> Birth Reg. No </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(model => model.NonRegPatAppointment.NID_Birthregno, new { @class = "form-control ", @id = "nidno" })
+                                                    <i class="fa fa-registered"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Marital Status   </label>
+                                                @{
+                                                    List<SelectListItem> listItemsMarital = new List<SelectListItem>();
+                                                    listItemsMarital.Add(new SelectListItem
+                                                    {
+                                                        Text = "Single",
+                                                        Value = "Single",
+                                                        Selected = true
+                                                    });
+                                                    listItemsMarital.Add(new SelectListItem
+                                                    {
+                                                        Text = "Married",
+                                                        Value = "Married"
+
+                                                    });
+                                                    listItemsMarital.Add(new SelectListItem
+                                                    {
+                                                        Text = "Divorced",
+                                                        Value = "Divorced"
+
+                                                    });
+                                                    listItemsMarital.Add(new SelectListItem
+                                                    {
+                                                        Text = "Widow",
+                                                        Value = "Widow"
+
+                                                    });
+                                                }
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.MaritalStatus, listItemsMarital, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Address  @Html.ValidationMessageFor(model => model.NonRegPatAppointment.PresentAddress, "", new { @class = "text-danger" })</label>
+                                                @Html.TextAreaFor(model => model.NonRegPatAppointment.PresentAddress, new { @class = "form-control", @rows = "3" })
+                                                <i class="fa fa-map-marker"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label> Spouse Name<span class="text-danger">@Html.ValidationMessageFor(model => model.NonRegPatAppointment.SpouseName, "", new { @class = "text-danger" })</span></label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.SpouseName, new { @class = "form-control" })
+                                                <i class="fa fa-pencil"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Profession  @Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientProfessions, "", new { @class = "text-danger" })</label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientProfessions, new { @class = "form-control" })
+                                                <i class="fa fa-map-marker"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-md-6 col-lg-3">
+                                            <div class="form-group">
+                                                <label>Country</label>
+                                                @Html.ValidationMessageFor(model => model.NonRegPatAppointment.CountryCode, "", new { @class = "text-danger" })
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.CountryCode, new SelectList(Model.CountryLst, "country_code", "country_name"), "Select Country", new { @class = "form-control select2 requiredSelect", onchange = "GetDropdownData_Country('state')", @id = "country" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-md-6 col-lg-3">
+                                            <div class="form-group statebnd">
+                                                <label>State/Province</label>
+                                                @Html.ValidationMessageFor(model => model.NonRegPatAppointment.StateCode, "", new { @class = "text-danger" })
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.StateCode, new SelectList(Model.StateLst, "state_code", "statename"), "Select State", new { @class = "form-control select2 requiredSelect", onchange = "GetDropdownData_Country('district')", @id = "state" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-md-6 col-lg-3">
+                                            <div class="form-group districtbnd">
+                                                <label>District</label>
+                                                @Html.ValidationMessageFor(model => model.NonRegPatAppointment.DistrictCode, "", new { @class = "text-danger" })
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.DistrictCode, new SelectList(Model.DistrictLst, "district_code", "district"), "Select District", new { @class = "form-control select2 requiredSelect", onchange = "GetDropdownData_Country('city')", @id = "district" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-md-6 col-lg-3">
+                                            <div class="form-group citybnd">
+                                                <label>City</label>
+                                                @Html.ValidationMessageFor(model => model.NonRegPatAppointment.CityCode, "", new { @class = "text-danger" })
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.CityCode, new SelectList(Model.CityLst, "city_code", "cityname"), "Select City", new { @class = "form-control select2 requiredSelect", @id = "city" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6 col-md-6 col-lg-3">
+                                            <div class="form-group">
+                                                <label>Mobile <span class="text-danger"> @Html.ValidationMessageFor(model => model.NonRegPatAppointment.PatientMobile, "", new { @class = "text-danger" })</span></label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.PatientMobile, new { @class = "form-control" })
+                                                <i class="fa fa-envelope"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-md-6 col-lg-3">
+                                            <div class="form-group">
+                                                <label>Postal Code </label>
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.ZipCode, new { @class = "form-control" })
+                                                <i class="fa fa-file-zip-o"></i>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label></label>
+                                                <div class="profile-upload">
+                                                    <div class="upload-img">
+                                                        <img id="blah" alt="your image" src="~/wwwroot/assets/img/user.jpg">
+                                                    </div>
+                                                    <div class="upload-input">
+                                                        @Html.EditorFor(model => model.NonRegPatAppointment.Photo, new { htmlAttributes = new { @class = "form-control", name = "postedFile", @id = "imageUploadForm", onchange = "readURL(this);", @type = "file" } })
+                                                        @Html.ValidationMessageFor(model => model.NonRegPatAppointment.Photo, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row appointment-form m-0 mt-2">
+                                        <div class="col-md-12">
+                                            <div class="form-group text-left divider p-b-10">
+                                                <label class="radio-label page-title-box text-danger"><b> Appointment Details :</b></label>
+                                            </div>
+                                        </div>
+                                        <div id="datwise_non_reg" class="col-md-6" hidden>
+                                            <div class="form-group">
+                                                <label>Appointment Date</label>
+                                                @Html.ValidationMessageFor(model => model.NonRegPatAppointment.AppointmentDate, "", new { @class = "text-danger" })
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.AppointmentDate, new { @class = "form-control", @id = "datetimepicker13", @readonly = "readonly", placeholder = "Select Appintment Date" })
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Department</label>
+                                                @Html.ValidationMessageFor(model => model.NonRegPatAppointment.HosDepCode, "", new { @class = "text-danger" })
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.HosDepCode, new SelectList(Model.HosDepartmentList, "Hos_department_code", "Hos_department_name"), "Select Department", new { @class = "form-control select2 requiredSelect", onchange = "GetDropdownData('Non_Reg_Patient')" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group non_regbinddoc">
+                                                <label>Doctor</label>
+                                                @Html.ValidationMessageFor(model => model.NonRegPatAppointment.HosDocCode, "", new { @class = "text-danger" })
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.HosDocCode, new SelectList(Model.DoctorList, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select2 requiredSelect", onchange = "GetDoctorDays('Non_Reg_Pat')", @id = "hosDoctor_nonreg" })
+                                            </div>
+                                        </div>
+                                        <div id="Appointdate_Non_Reg" class="col-md-6">
+                                            <label>Appointment Date</label>
+                                            <div class="form-group">
+                                                @Html.ValidationMessageFor(model => model.NonRegPatAppointment.AppointmentDate, "", new { @class = "text-danger" })
+                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.AppointmentDate, new { @class = "form-control", @id = "datetimepicker14", @readonly = "readonly", placeholder = "Select Appintment Date" })
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group non_regbindTimeslot">
+                                                <label>Select Time</label>
+                                                <div class="">
+                                                    @Html.ValidationMessageFor(model => model.NonRegPatAppointment.AppointmentFromTime, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.NonRegPatAppointment.AppointmentFromTime, new SelectList(Model.DoctorTimeSlotList, "TimeSlot", "TimeSlot"), "Select TimeSlot", new { @class = "form-control select2 requiredSelect", @id = "DoctorTiming" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Comission Agent</label>
+                                                @*@Html.ValidationMessageFor(model => model.NonRegPatAppointment.Comission_Agent_Id, "", new { @class = "text-danger" })*@
+                                                @Html.DropDownListFor(model => model.NonRegPatAppointment.Comission_Agent_Id, new SelectList(Model.Comission_Agent_List, "Comission_Agent_Id", "Commision_Agent"), "Select Comission Agent", new { @class = "form-control select2" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-t-20 text-center">
+                                        <button class="btn skin-gradient-btn submit-btn">Create Appointment</button>
+                                        <a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSDoctorAppointment/HMSDoctorAppointmentList"><i class="fa fa-arrow-left"></i> Back To List</a>
+                                    </div>
+                                    <div id="Regpatient" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog modal-md modal-dialog-centered">
+
+                                            <div class="modal-content">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </button>
+                                                <div class="modal-body m-3">
+                                                    <h4 class="text-center" style="color: #0c479f;">Below Patient already register for this mobile number. Are you sure want to continue register for this number : ?</h4>
+                                                    <table id="example2" class="table table-bordered mt-3">
+                                                        <thead class="thead-light">
+                                                            <tr>
+                                                                <th>Patient </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="form-group">
+                                                                Relation Type
+                                                                @Html.TextBoxFor(model => model.NonRegPatAppointment.Relation, new { @class = "form-control", @required = "required" })
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="text-center">
+                                                        <button type="submit" class="btn red-gradient-btn">Continue</button>&nbsp;
+                                                        <a href="#" onclick="closepopup()" class="btn skyblue-gradient-btn" data-dismiss="modal">Close</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="cardbox1" class="mt-3 text-center" hidden>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    @*<script src="~/wwwroot/assets/js/select2.min.js"></script>*@
+    <script src="~/Scripts/Appointment/AddAppointment.js"></script>
+    <script type="text/javascript">
+                    //$(".Appointment").addClass("subdrop");
+                    //$(".Submenu_Appointment").css("display", "block");
+                    //$(".Submenu_Appointment").css("display", "block");
+                    //$(".AddHMSDoctorAppointment").addClass("active");
+
+    </script>
+}
+

@@ -1,0 +1,107 @@
+﻿@model HospitalManagement.Models.AppointModel
+@{
+                /**/
+
+                ViewBag.Title = "PendingDoctorConfirmation";
+}
+
+<div class="content">
+    <div class="row">
+        <div class="col-sm-4 col-3">
+            <h4 class="page-title">Pending Confirmation</h4>
+        </div>
+    </div>
+
+    <div class="row bindtable">
+        <div class="col-sm-12">
+            <div class="table-responsive table-scrolling p-t-30">
+                <table class="table table-border table-striped custom-table mb-0" id="patapplst">
+                    <thead>
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>AppointCode</th>
+                            <th hidden>AppointDatetime</th>
+                            <th>AppointDate</th>
+                            <th>Mobile</th>
+                            <th>Age</th>
+                            <th>Status</th>
+                            <th>Confirmation</th>
+                            @*<th>Action</th>*@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Patient_AppList != null && Model.Patient_AppList.Count > 0)
+                        {
+                            foreach (var item in Model.Patient_AppList)
+                            {
+                                <tr>
+                                    <td>
+                                        @{
+                                            var PatProfile = "/wwwroot/assets/img/user.jpg";
+                                            if (item.Profile != string.Empty)
+                                            { PatProfile = System.Configuration.ConfigurationManager.AppSettings["GetPatImgUrl"] + item.Profile; }
+                                        }
+                                        <img class="avatar" src="@PatProfile" alt="User Image"><h2>@item.PatientName <span>@item.PatientCode</span></h2>
+                                    </td>
+                                    <td>@item.AppoinmentCode</td>
+                                    <td hidden>@Html.DisplayFor(model => item.AppointDatetime)</td>
+                                    <td>@item.AppointDate <span class="d-block text-secondary">@item.AppointmentTime</span></td>
+                                    <td>@item.Mobile</td>
+                                    <td><h2>@item.Gender <span class="text-primary">@item.Age</span></h2></td>
+                                    <td>
+                                        @if (item.status == "SUCCESS")
+                                        {
+                                            <span class="custom-badge status-green">Success</span>
+                                            <span class="d-block text-primary">@item.paymenttype</span>
+                                        }
+
+                                    </td>
+                                    <td><span class="custom-badge status-orange">Pending</span></td>
+                                    @*<td>
+                                            <div class="table-action">
+                                                @Ajax.ActionLink(" PDF", "Print_Presc", "HMSDoctorAppointment",
+                                                      new { ApptCode = item.AppoinmentCode },
+                                                      new AjaxOptions()
+                                                      {
+                                                          HttpMethod = "POST",
+                                                          OnSuccess = "PrintElem",
+                                                          LoadingElementId = "progress"
+                                                      }, new { @class = "btn skyblue-gradient-btn res-block-btn fa fa-file-pdf-o", title = "Print prescription" }
+                                                    )
+                                            </div>
+                                        </td>*@
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="http://cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js"></script>
+    <script type="text/javascript">
+
+        //$(".videoappointment").addClass("subdrop");
+        //$(".Submenu_videoappointment").css("display", "block");
+        //$(".Submenu_videoappointment").css("display", "block");
+        //$(".PendingDoctorConfirmation").addClass("active");
+
+        $(document).ready(function () {
+            $('#patapplst').DataTable({
+                "paging": true,
+                "order": [[2, "desc"]],
+                "scrollCollapse": true,
+                "searching": true,
+                "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                "bInfo": true
+
+            });
+        });
+      
+    </script>
+}
+
+

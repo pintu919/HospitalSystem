@@ -1,0 +1,51 @@
+﻿@model HospitalManagement.Models.TestAndInvestigationModel
+@using (Ajax.BeginForm("AddHOSInvestigationReportOP", "TestAndInvestigation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethod_OP", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div id="BindInvestigationReportOP">
+        <div id="InvestigationReportOP_model" class="modal fade" role="dialog" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header skin-bg-gradient">
+                        <h4 class="modal-title" style="color:#fff;" id="myModalLabel">Upload Investigation Report</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <span style="font-size:13px;">@Model.investigationname</span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                @if (Model.invSubgroupList != null && Model.invSubgroupList.Count() > 0 && Model.invSubgroupList[0].invParaList != null && Model.invSubgroupList[0].invParaList.Count() > 0)
+                                {
+                                    @Html.TextBoxFor(m => m.invSubgroupList[0].invParaList[0].investigation_path, new { @class = "form-control", name = "postedFile", @type = "file" })
+                                    @Html.HiddenFor(Model => Model.invSubgroupList[0].invParaList[0].investigationmaster_id)
+                                    @Html.HiddenFor(Model => Model.invSubgroupList[0].invParaList[0].investigationsubgrop_id)
+                                    @Html.HiddenFor(Model => Model.invSubgroupList[0].invParaList[0].investigation_uniqcode)
+                                    @Html.HiddenFor(Model => Model.invoice_code)
+                                    @Html.HiddenFor(Model => Model.service_id)
+                                    @Html.HiddenFor(Model => Model.invtype)
+                                    @Html.HiddenFor(Model => Model.Id)
+                                }
+                            </div>
+                            <div class="col-md-2">
+                                <div class="">
+                                    <button class="btn green-gradient-btn" type="submit" name="submit">Upload</button>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="cardboxop" class="mt-3" hidden>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,891 @@
+﻿@model HospitalManagement.Models.WalkingAppointmodel
+@{
+    /**/
+
+    ViewBag.Title = "AddWalkingDoctorAppointment";
+}
+<style>
+    .ui-autocomplete {
+        max-height: 250px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .ui-front {
+        z-index: 2000 !important;
+    }
+</style>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="page-title">Add Walking Appointment</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="inv_tab">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item"><a class="nav-link active" href="#solid-justified-tab1" data-toggle="tab">Register Patient Walking Appointment</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#solid-justified-tab2" data-toggle="tab">Non Register Patient Walking Appointment</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane show active" id="solid-justified-tab1">
+                        @using (Ajax.BeginForm("AddWalking", "HMSDoctorAppointment", new AjaxOptions { HttpMethod = "POST", OnBegin = "ajaxbegin", OnSuccess = "SuccessMethod", LoadingElementId = "progress" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <form>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group text-center divider p-b-10">
+                                                    <label class="radio-label text-danger"><b>Take Walking Appointment</b></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>Patient</label>
+                                                @*<div class="form-group">
+                                                        <label>Patient</label>
+                                                        @Html.ValidationMessageFor(model => model.RegPatwalkingAppointment.patient_code, "", new { @class = "text-danger" })
+                                                        @Html.TextBoxFor(model => model.RegPatwalkingAppointment.patient_code, new { @class = "form-control requiredSelect", placeholder = "Enter Patient Code, Mobile OR Patient Name" })
+                                                        <i class="fa fa-pencil"></i>
+                                                    </div>*@
+                                                <div class="input-group">
+                                                    <span id="patmsg" class="msg_billing" hidden> (<small class="text-danger">Note: Please enter valid patient !!! </small>)</span>
+                                                    @*@Html.TextBoxFor(model => model.RegPatAppointment.patient_code, new { @class = "form-control requiredSelect", placeholder = "Enter Patient Code, Mobile OR Patient Name" })*@
+                                                    @Html.TextBoxFor(model => model.RegPatwalkingAppointment.PatientName, new { @class = "form-control", placeholder = "Enter keyword related to patient" })
+                                                    @Html.HiddenFor(model => model.RegPatwalkingAppointment.patient_code)
+                                                    <div id="patdanger" class="input-group-append" hidden><button class="btn  btn-danger" type="submit"><i class="fa fa-close"></i></button></div>
+                                                    <div id="patsucess" class="input-group-append" hidden><button class="btn  btn-success" type="submit"><i class="fa fa-check"></i></button></div>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Department</label>
+                                                    @Html.ValidationMessageFor(model => model.RegPatwalkingAppointment.HosDepCode, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.RegPatwalkingAppointment.HosDepCode, new SelectList(Model.HosDepartmentList, "Hos_department_code", "Hos_department_name"), "Select Department", new { @class = "form-control requiredSelect", onchange = "GetDropdownData('Register_Pat')" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group binddoc">
+                                                    <label>Doctor</label>
+
+                                                    @Html.ValidationMessageFor(model => model.RegPatwalkingAppointment.HosDocCode, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.RegPatwalkingAppointment.HosDocCode, new SelectList(Model.DoctorList, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select requiredSelect", onchange = "GetDoctorDays('Register_Pat')", @id = "hosDoctor" })
+                                                </div>
+                                            </div>
+                                            <div id="Appointdate" class="col-md-6">
+                                                <label>Appointment Date</label>
+                                                <div class="form-group">
+                                                    @Html.ValidationMessageFor(model => model.RegPatwalkingAppointment.AppointmentDate, "", new { @class = "text-danger" })
+                                                    @Html.TextBoxFor(model => model.RegPatwalkingAppointment.AppointmentDate, new { @class = "form-control", @id = "datetimepicker11", @readonly = "readonly", placeholder = "Select Appintment Date" })
+                                                    <i class="fa fa-calendar"></i>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Comission Agent</label>
+                                                    @Html.ValidationMessageFor(model => model.RegPatwalkingAppointment.Comission_Agent_Id, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.RegPatwalkingAppointment.Comission_Agent_Id, new SelectList(Model.Comission_Agent_List, "Comission_Agent_Id", "Commision_Agent"), "Select Comission Agent", new { @class = "form-control requiredSelect" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="display-block">Appointment Status</label>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label" for="product_active">
+                                                            @Html.RadioButtonFor(model => model.RegPatwalkingAppointment.Ctrl, 2, new { @id = "Register", @checked = "checked" })
+                                                            Register
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <button class="btn skin-gradient-btn submit-btn">Create Appointment</button>
+                                            <a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSDoctorAppointment/HMSDoctorAppointmentList"><i class="fa fa-arrow-left"></i> Back To List</a>
+                                        </div>
+                                        <div id="cardbox" class="card-box" hidden>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="tab-pane" id="solid-justified-tab2">
+                        @using (Ajax.BeginForm("Add_Non_reg_pat_Walking", "HMSDoctorAppointment", new AjaxOptions { HttpMethod = "POST", OnSuccess = "SuccessMethodNonreg", LoadingElementId = "progress" }, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <form>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group text-center divider p-b-10">
+                                                    <label class="radio-label text-danger"><b>Take Walking Appointment</b></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row appointment-form m-0">
+                                            <div class="col-md-12">
+                                                <div class="form-group text-left divider p-b-10">
+                                                    <label class="radio-label page-title-box text-danger"><b>Patient Information :</b></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>First Name <span class="text-danger">@Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientFirstName, "", new { @class = "text-danger" })</span></label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientFirstName, new { @class = "form-control" })
+                                                    <i class="fa fa-pencil"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Last Name <span class="text-danger">@Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientLastName, "", new { @class = "text-danger" })</span></label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientLastName, new { @class = "form-control" })
+                                                    <i class="fa fa-pencil"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Father's Name <span class="text-danger">@Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientFatherName, "", new { @class = "text-danger" })</span></label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientFatherName, new { @class = "form-control" })
+                                                    <i class="fa fa-user"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Mother's Name <span class="text-danger"> @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientMotherName, "", new { @class = "text-danger" })</span></label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientMotherName, new { @class = "form-control" })
+                                                    <i class="fa fa-user"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Blood Group</label>
+                                                    @{
+                                                        List<SelectListItem> ListBloodGroup = new List<SelectListItem>();
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "-- Select Blood Group --",
+                                                            Value = "",
+                                                            Selected = true
+                                                        });
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "A+",
+                                                            Value = "A+"
+                                                        });
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "O+",
+                                                            Value = "O+"
+
+                                                        });
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "B+",
+                                                            Value = "B+"
+
+                                                        });
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "AB+",
+                                                            Value = "AB+"
+
+                                                        });
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "A-",
+                                                            Value = "A-",
+                                                        });
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "O-",
+                                                            Value = "O-"
+
+                                                        });
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "B-",
+                                                            Value = "B-"
+
+                                                        });
+                                                        ListBloodGroup.Add(new SelectListItem
+                                                        {
+                                                            Text = "AB-",
+                                                            Value = "AB-"
+
+                                                        });
+                                                    }
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.BloodGroup, ListBloodGroup, new { @class = "form-control" })
+                                                    <i class="fa fa-ambulance"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Email <span class="text-danger"> @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientEmail, "", new { @class = "text-danger" })</span></label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientEmail, new { @class = "form-control" })
+                                                    <i class="fa fa-envelope"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Date of Birth   @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientDOB, "", new { @class = "text-danger" })</label>
+                                                    @*<div class="cal-icon">*@
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientDOB, new { @class = "form-control", placeholder = "(dd/mm/yyyy)", @id = "DateOfBirth" })
+                                                    <i class="fa fa-calendar"></i>
+                                                    @*</div>*@
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group gender-select">
+                                                    <label class="gen-label">Gender:@Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.Gender, "", new { @class = "text-danger" })</label>
+                                                    <div class="form-check-inline">
+                                                        <label class="form-check-label">
+                                                            @Html.RadioButtonFor(model => model.NonregPatWalkAppoint.Gender, "Male", new { @id = "Male" })
+                                                            Male
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check-inline">
+                                                        <label class="form-check-label">
+                                                            @Html.RadioButtonFor(model => model.NonregPatWalkAppoint.Gender, "Female", new { @id = "Female" })
+                                                            Female
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Age @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientAge, "", new { @class = "text-danger" })</label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientAge, new { @class = "form-control", @readonly = "readonly", @id = "Patientage" })
+                                                    <i class="fa fa-user"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    @Html.RadioButtonFor(model => model.NonregPatWalkAppoint.PatVerify, "NID", new { @id = "NID" }) <label> NID </label>
+                                                    @Html.RadioButtonFor(model => model.NonregPatWalkAppoint.PatVerify, "BirthReg", new { @id = "BirthReg" }) <label> Birth Reg. No </label>
+                                                    <div class="">
+                                                        @Html.TextBoxFor(model => model.NonregPatWalkAppoint.NID_Birthregno, new { @class = "form-control ", @id = "nidno" })
+                                                        <i class="fa fa-registered"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Marital Status   </label>
+                                                    @{
+                                                        List<SelectListItem> listItemsMarital = new List<SelectListItem>();
+                                                        listItemsMarital.Add(new SelectListItem
+                                                        {
+                                                            Text = "Single",
+                                                            Value = "Single",
+                                                            Selected = true
+                                                        });
+                                                        listItemsMarital.Add(new SelectListItem
+                                                        {
+                                                            Text = "Married",
+                                                            Value = "Married"
+
+                                                        });
+                                                        listItemsMarital.Add(new SelectListItem
+                                                        {
+                                                            Text = "Divorced",
+                                                            Value = "Divorced"
+
+                                                        });
+                                                        listItemsMarital.Add(new SelectListItem
+                                                        {
+                                                            Text = "Widow",
+                                                            Value = "Widow"
+
+                                                        });
+                                                    }
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.MaritalStatus, listItemsMarital, new { @class = "form-control select" })
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Address  @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PresentAddress, "", new { @class = "text-danger" })</label>
+                                                    @Html.TextAreaFor(model => model.NonregPatWalkAppoint.PresentAddress, new { @class = "form-control", @rows = "3" })
+                                                    <i class="fa fa-map-marker"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label> Spouse Name<span class="text-danger">@Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.SpouseName, "", new { @class = "text-danger" })</span></label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.SpouseName, new { @class = "form-control" })
+                                                    <i class="fa fa-pencil"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Profession  @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientProfessions, "", new { @class = "text-danger" })</label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientProfessions, new { @class = "form-control" })
+                                                    <i class="fa fa-map-marker"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6 col-md-6 col-lg-3">
+                                                <div class="form-group">
+                                                    <label>Country</label>
+                                                    @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.CountryCode, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.CountryCode, new SelectList(Model.CountryLst, "country_code", "country_name"), "Select Country", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData_Country('state')", @id = "country" })
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6 col-md-6 col-lg-3">
+                                                <div class="form-group statebnd">
+                                                    <label>State/Province</label>
+                                                    @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.StateCode, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.StateCode, new SelectList(Model.StateLst, "state_code", "statename"), "Select State", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData_Country('district')", @id = "state" })
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6 col-md-6 col-lg-3">
+                                                <div class="form-group districtbnd">
+                                                    <label>District</label>
+                                                    @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.DistrictCode, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.DistrictCode, new SelectList(Model.DistrictLst, "district_code", "district"), "Select District", new { @class = "form-control select requiredSelect", onchange = "GetDropdownData_Country('city')", @id = "district" })
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6 col-md-6 col-lg-3">
+                                                <div class="form-group citybnd">
+                                                    <label>City</label>
+                                                    @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.CityCode, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.CityCode, new SelectList(Model.CityLst, "city_code", "cityname"), "Select City", new { @class = "form-control select requiredSelect", @id = "city" })
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6 col-md-6 col-lg-3">
+                                                <div class="form-group">
+                                                    <label>Mobile <span class="text-danger"> @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.PatientMobile, "", new { @class = "text-danger" })</span></label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.PatientMobile, new { @class = "form-control" })
+                                                    <i class="fa fa-envelope"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6 col-md-6 col-lg-3">
+                                                <div class="form-group">
+                                                    <label>Postal Code </label>
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.ZipCode, new { @class = "form-control" })
+                                                    <i class="fa fa-file-zip-o"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label></label>
+                                                    <div class="profile-upload">
+                                                        <div class="upload-img">
+                                                            <img id="blah" alt="your image" src="~/wwwroot/assets/img/user.jpg">
+                                                        </div>
+                                                        <div class="upload-input">
+                                                            @Html.EditorFor(model => model.NonregPatWalkAppoint.Photo, new { htmlAttributes = new { @class = "form-control", name = "postedFile", @id = "imageUploadForm", onchange = "readURL(this);", @type = "file" } })
+                                                            @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.Photo, "", new { @class = "text-danger" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row appointment-form m-0 mt-2">
+                                            <div class="col-md-12">
+                                                <div class="form-group text-left divider p-b-10">
+                                                    <label class="radio-label page-title-box text-danger"><b> Appointment Details :</b></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Department</label>
+                                                    @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.HosDepCode, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.HosDepCode, new SelectList(Model.HosDepartmentList, "Hos_department_code", "Hos_department_name"), "Select Department", new { @class = "form-control requiredSelect", onchange = "GetDropdownData('Non_Reg_Patient')" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group non_regbinddoc">
+                                                    <label>Doctor</label>
+
+                                                    @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.HosDocCode, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.HosDocCode, new SelectList(Model.DoctorList, "doctor_code", "doctor_name"), "Select Doctor", new { @class = "form-control select requiredSelect", onchange = "GetDoctorDays('Non_Reg_Patient')", @id = "hosDoctor_nonreg" })
+                                                </div>
+                                            </div>
+                                            <div id="Appointdate" class="col-md-6">
+                                                <label>Appointment Date</label>
+                                                <div class="form-group">
+                                                    @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.AppointmentDate, "", new { @class = "text-danger" })
+                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.AppointmentDate, new { @class = "form-control", @id = "datetimepicker12", @readonly = "readonly", placeholder = "Select Appintment Date" })
+                                                    <i class="fa fa-calendar"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Comission Agent</label>
+                                                    @Html.ValidationMessageFor(model => model.NonregPatWalkAppoint.Comission_Agent_Id, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.NonregPatWalkAppoint.Comission_Agent_Id, new SelectList(Model.Comission_Agent_List, "Comission_Agent_Id", "Commision_Agent"), "Select Comission Agent", new { @class = "form-control requiredSelect" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="display-block">Appointment Status</label>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label" for="product_active">
+                                                            @Html.RadioButtonFor(model => model.NonregPatWalkAppoint.Ctrl, 2, new { @id = "Register", @checked = "checked" })
+                                                            Register
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="m-t-20 text-center">
+                                            <button class="btn skin-gradient-btn submit-btn">Create Appointment</button>
+                                            <a class="btn skin-border-btn submit-btn m-l-15 res-479-m-t-10" href="~/HMSDoctorAppointment/HMSDoctorAppointmentList"><i class="fa fa-arrow-left"></i> Back To List</a>
+                                        </div>
+                                        <div id="Regpatient" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                                            <div class="modal-dialog modal-md modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">×</span>
+                                                    </button>
+                                                    <div class="modal-body m-3">
+                                                        <h4 class=" text-center" style="color: #0c479f;">Below Patient already register for this mobile number. Are you sure want to continue register for this number : ?</h4>
+                                                        <table id="example2" class="table table-bordered mt-3">
+                                                            <thead class="thead-light">
+                                                                <tr>
+                                                                    <th>Patient </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                        <div class="row">
+                                                            <div class="col-sm-12">
+                                                                <div class="form-group">
+                                                                    Relation Type
+                                                                    @Html.TextBoxFor(model => model.NonregPatWalkAppoint.Relation, new { @class = "form-control", @required = "required" })
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="text-center">
+                                                            <button type="submit" class="btn red-gradient-btn">Continue</button>&nbsp;
+                                                            <a href="#" onclick="closepopup()" class="btn skyblue-gradient-btn" data-dismiss="modal">Close</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="cardbox1" class="card-box text-center" hidden>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section scripts{
+    <script src="~/wwwroot/assets/js/select2.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.0.min.js" type="text/javascript"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
+    <link href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" rel="Stylesheet" type="text/css" />
+    <script type="text/javascript">
+
+        //$(".Appointment").addClass("subdrop");
+        //$(".Submenu_Appointment").css("display", "block");
+        //$(".Submenu_Appointment").css("display", "block");
+        //$(".AddWalkingDoctorAppointment").addClass("active");
+
+        $.noConflict();
+        $(document).ready(function () {
+            $("#country").select2();
+            $("#NonregPatWalkAppoint_HosDepCode").select2();
+            $('#DateOfBirth').datetimepicker({
+                format: "dd/mm/yyyy",
+                minView: 2
+
+            }).on('change', function (e) {
+                debugger;
+                var today = new Date();
+                var birthDate = new Date(e.target.value.split("/").reverse().join("/"));
+                var age = today.getFullYear() - birthDate.getFullYear();
+                var m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                $('#Patientage').val(age);
+            });
+            $('#datetimepicker11').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2,
+                startDate: new Date()
+            });
+            $('#datetimepicker12').datetimepicker({
+                format: "dd/mm/yyyy",
+                autoclose: true,
+                minView: 2,
+                startDate: new Date()
+            });
+
+        });
+        //jQuery("#RegPatwalkingAppointment_patient_code").autocomplete({
+        //    source: function (request, response) {
+        //        $.ajax({
+        //            url: '/HMSDoctorAppointment/GatePatientCode',
+        //            type: "POST",
+        //            dataType: "json",
+        //            async: false,
+        //            data: { Prefix: request.term },
+        //            success: function (data) {
+        //                if (data.length > 0) {
+        //                    response($.map(data, function (item) {
+        //                        return { label: item.patient_firstname, value: item.patient_code };
+        //                    }))
+        //                }
+        //                else {
+        //                    var data = [];
+        //                    var arr = {};
+        //                    arr.patient_firstname = "No Record Found";
+        //                    arr.patient_code = "";
+        //                    data.push(arr);
+        //                    response($.map(data, function (item) {
+        //                        return { label: item.patient_firstname, value: item.patient_code };
+        //                    }))
+        //                    $("#RegPatwalkingAppointment_patient_code").val("");
+        //                }
+        //            }
+        //        })
+        //    },
+        //    select: function (e, i) {
+        //        if (i.item.value == "No Record Found") { return false; }
+        //        else
+        //            $("#RegPatwalkingAppointment_patient_code").val(i.item.value);
+
+        //    },
+        //    minLength: 3,
+        //});
+
+        jQuery("#RegPatwalkingAppointment_PatientName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '/HMSDoctorAppointment/GatePatientCode',
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        debugger;
+                        if (data.length > 0) {
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                        }
+                        else {
+                            var data = [];
+                            var arr = {};
+                            arr.patient_firstname = "No Record Found";
+                            arr.patient_code = "";
+                            data.push(arr);
+                            response($.map(data, function (item) {
+
+                                return { label: item.patient_firstname, value: item.patient_firstname, patient_code: item.patient_code };
+                            }))
+                            $("#RegPatwalkingAppointment_patient_code").val("");
+                            $("#RegPatwalkingAppointment_PatientName").val("");
+                            $('#patdanger').removeAttr('hidden');
+                            $('#patsucess').attr('hidden', true);
+
+                        }
+                    }
+                })
+            },
+            select: function (e, i) {
+                if (i.item.value == "No Record Found") { return false; }
+                else {
+
+                    $.ajax({
+                        url: '/HMSDoctorAppointment/Checkpatient',
+                        type: "POST",
+                        dataType: "json",
+                        async: false,
+                        data: { patient_code: i.item.patient_code },
+                        success: function (data) {
+                            debugger;
+                            if (data == true) {
+                                $('#cardbox').removeAttr('hidden');
+                                var htmlstr1 = "<div class='alert alert-warning alert-dismissible fade show' role='alert'>  <span id='statusmsg'> Your selected patient is admit in this Hospital, So you can not take an appointment for this patient !!!!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                                $("#cardbox").html(htmlstr1);
+                                i.item.patient_code = "";
+                                i.item.value = "";
+                                $("#RegPatwalkingAppointment_patient_code").val("");
+                                $("#RegPatwalkingAppointment_PatientName").val("");
+
+                            }
+                            else {
+                                $('#patmsg').attr('hidden', true);
+                                $('#cardbox').attr('hidden', true);
+                                $("#RegPatwalkingAppointment_patient_code").val(i.item.patient_code);
+                                $("#RegPatwalkingAppointment_PatientName").val(i.item.value);
+                                $('#patsucess').removeAttr('hidden');
+                                $('#patdanger').attr('hidden', true);
+                            }
+
+                        }
+                    })
+
+                }
+            },
+            minLength: 3,
+        }).bind("keyup.autocomplete", function (event) {
+            if (event.keyCode == $.ui.keyCode.BACKSPACE || event.keyCode == $.ui.keyCode.DELETE) {
+                $("#RegPatwalkingAppointment_patient_code").val("");
+                $("#RegPatwalkingAppointment_PatientName").val("");
+                $('#patdanger').removeAttr('hidden');
+                $('#patsucess').attr('hidden', true);
+            };
+        });
+
+        function ajaxbegin() {
+            debugger;
+            if ($("#RegPatwalkingAppointment_patient_code").val() == "" || $("#RegPatwalkingAppointment_patient_code").val() == null) {
+                $('#patmsg').removeAttr('hidden');
+                return false;
+            }
+            else {
+                $('#patmsg').attr('hidden', true);
+            }
+
+        }
+
+        function SuccessMethodNonreg(data) {
+            debugger;
+            var htmlstr = "";
+            if (data[0].status == "1") {
+                $("#Regpatient").modal('hide');
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Record Added Successfully! </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+
+            }
+            else if (data[0].status == "0") {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> Record Not Saved!</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+
+            else if (data[0].status == "old") {
+                $('#example2 tbody tr').remove();
+                $.each(data, function (i, dt) {
+                    tr = $('<tr />');
+                    tr.append("<td>" + dt.name + "</td>");
+                    $('#example2').append(tr);
+                });
+
+
+                //$('#cardbox1').removeAttr('hidden');
+                //htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> " + data[1] + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+                $("#Regpatient").modal('show');
+            }
+
+            else if (data[0].status == "3") {
+                $('#cardbox1').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> Record Allrady Exists </span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+
+            //else {
+            //    $('#cardbox1').removeAttr('hidden');
+            //    htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> " + data[1] + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            //}
+            $("#cardbox1").html(htmlstr);
+
+        }
+        function closepopup() {
+            debugger;
+            $('#NonregPatWalkAppoint_Relation').val('');
+        }
+        function SuccessMethod(data) {
+            var htmlstr = "";
+            if (data == "Record Added Successfully!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-success alert-dismissible fade show' role='alert'> <strong>Success!</strong> Your <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Record Not Saved!") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-danger alert-dismissible fade show' role='alert'> <strong>Error!</strong> problem <a href='#' class='alert-link'></a>  has been occurred while submitting your data :<span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else if (data == "Please Enter Valid Patient") {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-warning alert-dismissible fade show' role='alert'> <strong>Comments!</strong> problem <a href='#' class='alert-link'></a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            else {
+                $('#cardbox').removeAttr('hidden');
+                htmlstr = "<div class='alert alert-info alert-dismissible fade show' role='alert'> <strongPlease read the</strong> comments <a href='#' class='alert-link'>Data</a> <span id='statusmsg'>" + data + "</span> <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div > ";
+            }
+            $("#cardbox").html(htmlstr);
+        }
+        function GetDropdownData(Type) {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            var Depart_Code = "";
+            if (Type == "Register_Pat")
+                Depart_Code = $("#RegPatwalkingAppointment_HosDepCode").val();
+            else if (Type == "Non_Reg_Patient")
+                Depart_Code = $("#NonregPatWalkAppoint_HosDepCode").val();
+            var url = "";
+            url = "/HMSDoctorAppointment/GetDatabyCodeWalking?code=" + Depart_Code + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                if (Type == "Register_Pat") {
+                    $(".binddoc").empty();
+                    $(".binddoc").html($(datahtml).find(".binddoc").html());
+                }
+                else if (Type == "Non_Reg_Patient") {
+                    $(".non_regbinddoc").empty();
+                    $(".non_regbinddoc").html($(datahtml).find(".non_regbinddoc").html());
+                }
+            });
+        }
+        function GetDoctorDays(Type) {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            var doc_code = "";
+            if (Type == "Reg_Pat") {
+                doc_code = $("#hosDoctor").val();
+
+            }
+            else if (Type == "Non_Reg_Pat") {
+                doc_code = $("#hosDoctor_nonreg").val();
+
+            }
+            $.ajax({
+                url: "/HMSDoctorAppointment/GateDoctorDays",
+                dataType: "json",
+                ContentType: 'application/json;utf-8',
+                data: { code: doc_code },
+                success: function (data) {
+                    $('.loadingimg').css('display', 'none');
+                    if (data.days.length > 0) {
+                        var sub_array = [];
+                        for (var i = 0; i < data.days.length; i++) {
+                            sub_array.push(data.days[i].daynumber);
+                        }
+
+                        if (Type == "Reg_Pat") {
+                            $('#datetimepicker11').datetimepicker('setDaysOfWeekDisabled', sub_array);
+                        }
+                        else if (Type == "Non_Reg_Pat") {
+                            $('#datetimepicker12').datetimepicker('setDaysOfWeekDisabled', sub_array);
+                        }
+
+
+                        var arr = [];
+                        if (data.date.length > 0) {
+                            var startDate = new Date(data.date[0].fromdate);
+                            var endDate = new Date(data.date[0].todate);
+                            var dt = new Date(startDate);
+                            while (dt <= endDate) {
+                                var d = new Date(dt);
+                                month = '' + (d.getMonth() + 1),
+                                    day = '' + d.getDate(),
+                                    year = d.getFullYear();
+                                if (month.length < 2) month = '0' + month;
+                                if (day.length < 2) day = '0' + day;
+                                var date = [year, month, day].join('-');
+                                arr.push(date);
+                                dt.setDate(dt.getDate() + 1);
+                            }
+                        }
+                        if (Type == "Reg_Pat") {
+                            $('#datetimepicker11').datetimepicker('setDatesDisabled', arr);
+                        }
+                        else if (Type == "Non_Reg_Pat") {
+                            $('#datetimepicker12').datetimepicker('setDatesDisabled', arr);
+                        }
+
+
+                    }
+                    else {
+                        if (Type == "Reg_Pat") {
+                            $('#datetimepicker11').datetimepicker('setDaysOfWeekDisabled', []);
+                        }
+                        else if (Type == "Non_Reg_Pat") {
+                            $('#datetimepicker12').datetimepicker('setDaysOfWeekDisabled', []);
+                        }
+
+
+                    }
+                    if (Type == "Reg_Pat") {
+                        $('#datetimepicker11').datetimepicker('show');
+                    }
+                    else if (Type == "Non_Reg_Pat") {
+                        $('#datetimepicker12').datetimepicker('show');
+                    }
+
+
+                }
+            })
+        }
+        function GetDropdownData_Country(Type) {
+            debugger;
+            $('.loadingimg').css('display', 'block');
+            var url = "";
+            if (Type == "state")
+                url = "/HMSDoctorAppointment/GetDatabyCode_data_waking?code=" + $("#country").val() + "&Type=" + Type + "";
+            else if (Type == "district")
+                url = "/HMSDoctorAppointment/GetDatabyCode_data_waking?code=" + $("#state").val() + "&Type=" + Type + "";
+            else if (Type == "city")
+                url = "/HMSDoctorAppointment/GetDatabyCode_data_waking?code=" + $("#district").val() + "&Type=" + Type + "";
+            $.ajax({
+                url: url,
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (datahtml) {
+                $('.loadingimg').css('display', 'none');
+                if (Type == "state") {
+                    $(".statebnd").empty();
+                    $(".statebnd").html($(datahtml).find(".statebnd").html());
+                    $("#state").select2();
+                }
+                else if (Type == "district") {
+                    $(".districtbnd").empty();
+                    $(".districtbnd").html($(datahtml).find(".districtbnd").html());
+                    $("#district").select2();
+                }
+                else if (Type == "city") {
+                    $(".citybnd").empty();
+                    $(".citybnd").html($(datahtml).find(".citybnd").html());
+                    $("#city").select2();
+                }
+                $('#loadingmessage').hide();
+            });
+        }
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#blah')
+                        .attr('src', e.target.result)
+                        .width(50)
+                        .height(50);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}
+
+
+
+

@@ -1,0 +1,766 @@
+﻿@model HospitalManagement.Models.InvestigationModel
+@{
+    ViewBag.Title = "ReagentMaster";
+}
+@*<link href="~/wwwroot/assets/tagsinput/bootstrap-tagsinput.css" rel="stylesheet" />*@
+<link href="~/wwwroot/assets/tagsinput/tagsinput.min.css" rel="stylesheet" />
+<style>
+
+    .nav-tabs.nav-tabs-solid > li > a {
+        border-color: #04040445 !important;
+    }
+
+    .nav-tabs.nav-tabs-solid {
+        background-color: transparent;
+        border: 0px solid rgba(0, 0, 0, .1) !important;
+    }
+
+    .tab-content {
+        margin-top: 0px !important;
+    }
+
+    .card {
+        margin-bottom: 20px !important;
+        box-shadow: 0 0px 7px 0 rgb(0 0 0 / 32%) !important;
+        border: 0 !important;
+        transition: .5s !important;
+        border-radius: 0.2rem !important;
+    }
+
+
+    .hide {
+        display: none !important;
+    }
+</style>
+<div class="content">
+    <div class="row align-items-center">
+        <div class="col-sm-6 col-12">
+            <h4 class="page-title"> Reagent Wise Investigation Para</h4>
+        </div>
+        <div class="col-sm-6 col-12 text-sm-right m-b-20">
+            <a href="~/Reagent/ReagentList" class="btn skin-gradient-btn btn-sm"><i class="fa fa-arrow-left"></i> Back to List </a>
+        </div>
+    </div>
+    <div class="row bindmainname">
+        @{
+            string InvestigationGroup = "", InvestigationName = "", InvestigationReagent = "";
+            if (Model.SubGroup.InvestigationName != null)
+            {
+                InvestigationGroup = Model.SubGroup.InvestigationName.Split('$')[0];
+                InvestigationName = Model.SubGroup.InvestigationName.Split('$')[1];
+                InvestigationReagent = Model.SubGroup.InvestigationName.Split('$')[2];
+            }
+        }
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <table class="table table-border table-striped custom-table">
+                <thead>
+                    <tr>
+                        <th>Investigation Group</th>
+                        <th>Investigation Name</th>
+                        <th>Reagent Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@InvestigationGroup</td>
+                        <td>@InvestigationName</td>
+                        <td>@InvestigationReagent</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-2"></div>
+        @*<div class="col-md-6">
+                <lable style="color:black; font-weight:bold;">
+                    Investigation Group :
+                </lable>
+            </div>
+            <div class="col-md-6">
+                <span class="badge badge-success">@InvestigationGroup</span>
+            </div>
+            <div class="col-md-6">
+                <lable style="color:black; font-weight:bold;">
+                    Investigation Name :
+                </lable>
+            </div>
+            <div class="col-md-6">
+                <span class="badge badge-success">@InvestigationName</span>
+            </div>
+            <div class="col-md-6">
+                <lable style="color:black; font-weight:bold;">
+                    Reagent Name :
+                </lable>
+            </div>
+            <div class="col-md-6">
+                <span class="badge badge-success">@InvestigationReagent</span>
+            </div>*@
+    </div>
+    <div class="row employee-form m-0">
+        <div class="col-12">
+
+            <div class="col-md-12">
+                <div class="card-body">
+                    <ul class="nav nav-tabs nav-tabs-solid nav-tabs-rounded  bindtabbind">
+                        <li class="nav-item"><a class="lidep nav-link active" href="#solid-rounded-justified-tab1" data-toggle="tab">Investigation SubGroup</a></li>
+                        @*<li class="nav-item"><a class="liemp nav-link disabled" href="#solid-rounded-justified-tab2" data-toggle="tab">Investigation SubGroup Parameter</a></li>*@
+                        <li class="nav-item"><a class="liemp nav-link" href="#solid-rounded-justified-tab2" data-toggle="tab" onclick="SubcategoryPara(@Model.SubGroup.InvestigationID, 'InvMaster',@Model.ReagentId)">Investigation SubGroup Parameter</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tab-content">
+                <div class="tab-pane show active" id="solid-rounded-justified-tab1">
+                    <!--Body-->
+                    <div class="modal-body">
+                        <!--Subcategory-->
+                        <fieldset>
+                            @using (Ajax.BeginForm("AddSubGroup", "Reagent", new AjaxOptions { HttpMethod = "POST", OnBegin = "SubGroupajaxbegin", OnSuccess = "SubGroupSuccessMethod" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                @Html.HiddenFor(m => m.ReagentId)
+                                <div class="card card-primary">
+                                    <div id="div-record">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label> Sub group Name </label>
+                                                        @Html.ValidationMessageFor(m => m.SubGroup.InvestigationSubGroupName, "", new { @class = "text-danger" })
+                                                        <div class="bindhiddenfield">
+                                                            @Html.HiddenFor(m => m.SubGroup.InvestigationID)
+                                                        </div>
+                                                        @*<div class="col-md-12 input-group">*@
+                                                        @Html.TextBoxFor(m => m.SubGroup.InvestigationSubGroupName, new { @class = "form-control required", @id = "subgrouptext" })
+                                                        @*</div>*@
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label> Unit</label>
+                                                        @Html.TextBoxFor(m => m.SubGroup.Unit, new { @class = "form-control required", @id = "subgroupUnit" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Refrence  </label>
+                                                        @Html.TextBoxFor(m => m.SubGroup.RefreanceValue, new { @class = "form-control required", @id = "subgroupRefrence" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group m-t-30">
+                                                        <label> Active </label>
+                                                        @Html.CheckBoxFor(m => m.SubGroup.Ctrl, new { htmlAttributes = new { @class = "form-control required" } })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group text-center">
+                                                        <input type="submit" id="btnAdd" value="Save" class="btn btn-primary" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="bindsubgroup">
+                                @if (Model.SubGroup.InvSubGroupList != null)
+                                {
+                                    if (Model.SubGroup.InvSubGroupList.Count > 0)
+                                    {
+                                        if (Model.SubGroup.InvSubGroupList[0].status == "1")
+                                        {
+                                            <div class="alert alert-success">
+                                                <strong>Success!</strong> Action Method Sucess!!
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                        if (Model.SubGroup.InvSubGroupList[0].status == "0")
+                                        {
+                                            <div class="alert alert-error">
+                                                <strong>error!</strong> Action Method occured error!!
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                        if (Model.SubGroup.InvSubGroupList[0].status == "notallow")
+                                        {
+                                            <div class="alert alert-warning">
+                                                <strong>Warning!</strong> Please Delete Investigation SubGroup Para which is realated to this subgroup!!
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                        if (Model.SubGroup.InvSubGroupList[0].status == "same")
+                                        {
+                                            <div class="alert alert-info">
+                                                <strong>Info!</strong> This Record Allrady Exists!!
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                }
+                                <span id="Smallloadingmessage" class="sub-GroupLoad" style='display:none'></span>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="table-responsive table-scrolling">
+                                            <table id="Subgroup_example" class="table table-border table-striped custom-table mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="hide">Sr. </th>
+                                                        <th>SUB GROUP NAME</th>
+                                                        <th style="width:14%">Unit</th>
+                                                        <th>Reference</th>
+                                                        <th>Add/Update Ref. Unit</th>
+                                                        <th>Index</th>
+                                                        <th>Status</th>
+                                                        <th>Delete</th>
+                                                        <th>AddPara</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (Model.SubGroup.InvSubGroupList != null)
+                                                    {
+                                                        int i = 0;
+                                                        foreach (var item in Model.SubGroup.InvSubGroupList)
+                                                        {
+                                                            <tr>
+                                                                <td class="hide" id="SubGrp-@item.investigationsubgrop_id">@item.indexing</td>
+                                                                <td>@item.investigationsubgroup_name</td>
+                                                                <td>
+                                                                    <input type="text" class="form-control" style="width:65%" value="@item.unit" id="Units_ID_@i" />
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control refrence_tags Reference_ID_@i" value="@item.reference" />
+                                                                    @Html.HiddenFor(m => item.reference, new { @id = "hidden_subgroup_reference_" + i })
+                                                                </td>
+                                                                <td>
+                                                                    @if (item.unit != null && item.reference != null && item.hoscode != null)
+                                                                    {
+                                                                        <a href="javascript:void(0);" onclick="AddReference_Unit(@i,@item.investigationsubgrop_id,@Model.ReagentId,'Update')" class="btn btn-xs btn-primary">
+                                                                            Update Unit with Reference
+                                                                        </a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a href="javascript:void(0);" onclick="AddReference_Unit(@i,@item.investigationsubgrop_id,@Model.ReagentId,'Insert')" class="btn btn-xs btn-primary">
+                                                                            Add Unit with Reference
+                                                                        </a>
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <input style="width:50px;" type="text" class="form-control" value="@item.indexing" onchange="SetSubgroupIndex(@item.investigationsubgrop_id, this)" />
+                                                                </td>
+                                                                <td>
+                                                                    @if (item.Ctrl == 1)
+                                                                    {
+                                                                        <span class="badge badge-success">Active</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge badge-danger">Deactive</span>
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    @if (item.hoscode != null)
+                                                                    {
+                                                                        <a onclick=DeleteSubInv(@Model.ReagentId,@item.investigationsubgrop_id,@item.investigationmaster_id) class="DeleteCss" href="javascript:void(0);">Delete</a>
+                                                                    }
+                                                                </td>
+                                                                <td> <button onclick="SubcategoryPara(@item.investigationsubgrop_id,'InvSubGroup',@Model.ReagentId)" class="btn btn-sm btn-primary">Next</button></td>
+                                                            </tr>
+                                                            i++;
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!--End-->
+                    </div>
+                </div>
+                <div class="tab-pane show" id="solid-rounded-justified-tab2">
+                    <!--Body-->
+                    <div class="modal-body">
+                        <!--Investigation Paramater-->
+                        <fieldset>
+                            @using (Ajax.BeginForm("AddSubGroupPara", "Reagent", new AjaxOptions { HttpMethod = "POST", OnBegin = "SubGroupParaAjaxbegin", OnSuccess = "SubGroupParaSuccessMethod" }))
+                            {
+                                @Html.HiddenFor(m => m.ReagentId)
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                <div class="card card-primary">
+                                    <div id="div-record">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label> SubGroupName (<small style="color:red;font-weight:500">optional field</small>)</label>
+                                                        <div class="input-group bindsubgroupname">
+                                                            <input type="text" class="form-control" value="@Model.SubGroupPara.InvestigationSubGroupName" readonly>
+                                                            @Html.HiddenFor(m => m.SubGroupPara.InvestigationSubGroupId)
+                                                            @Html.HiddenFor(m => m.SubGroupPara.InvestigationID)
+                                                            @Html.HiddenFor(m => m.SubGroupPara.Type)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label> Parameter </label>
+                                                        @Html.ValidationMessageFor(m => m.SubGroupPara.ParaName, "", new { @class = "text-danger" })
+                                                        <div class="input-group">
+                                                            @Html.TextBoxFor(m => m.SubGroupPara.ParaName, new { @class = "form-control required", @id = "text_para" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label> Unit </label>
+                                                        @Html.ValidationMessageFor(m => m.SubGroupPara.Units, "", new { @class = "text-danger" })
+                                                        <div class="input-group">
+                                                            @Html.TextBoxFor(m => m.SubGroupPara.Units, new { @class = "form-control required", @id = "text_units" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label>Reference</label>
+                                                        @Html.ValidationMessageFor(m => m.SubGroupPara.Reference, "", new { @class = "text-danger" })
+                                                        <div class="input-group">
+                                                            @*@Html.TextAreaFor(m => m.SubGroupPara.Reference, new { @class = "form-control bootstrap-tagsinput tagsinput required",  @id = "text_reference" })*@
+                                                            @Html.TextAreaFor(m => m.SubGroupPara.Reference, new { @class = "form-control required", @id = "text_reference" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group m-t-30">
+                                                        <label>Active</label>
+                                                        @Html.CheckBoxFor(m => m.SubGroupPara.Ctrl, new { htmlAttributes = new { @class = "form-control required" } })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="form-group text-center">
+                                                        <input type="submit" id="btnAdd" value="Save" class="btn btn-primary" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="bindsubgroup_para">
+                                @if (Model.SubGroupPara.InvSubGroupParaList != null)
+                                {
+                                    if (Model.SubGroupPara.InvSubGroupParaList.Count > 0)
+                                    {
+                                        if (Model.SubGroupPara.InvSubGroupParaList[0].status == "1")
+                                        {
+                                            <div class="alert alert-success">
+                                                <strong>Success!</strong> Action Method Sucess!!
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                        if (Model.SubGroupPara.InvSubGroupParaList[0].status == "0")
+                                        {
+                                            <div class="alert alert-error">
+                                                <strong>error!</strong> Action Method Occured error!!
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                        if (Model.SubGroupPara.InvSubGroupParaList[0].status == "same")
+                                        {
+                                            <div class="alert alert-info">
+                                                <strong>Info!</strong> This Record Allrady Exists!!
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                }
+                                <span id="Smallloadingmessage" class="SubGroupparaloader" style='display:none'></span>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="table-responsive table-scrolling">
+                                            <table id="SubgroupPara_example" class="table table-border table-striped custom-table mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="hide">Sr.</th>
+                                                        <th>Para Name</th>
+                                                        <th>Unit</th>
+                                                        <th>Reference</th>
+                                                        <th>Add/Update Ref. Unit</th>
+                                                        <th>Index</th>
+                                                        <th>Status</th>
+                                                        <th> Action </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (Model.SubGroupPara.InvSubGroupParaList != null)
+                                                    {
+                                                        int H = 0;
+                                                        foreach (var item in Model.SubGroupPara.InvSubGroupParaList)
+                                                        {
+                                                            <tr>
+                                                                <td class="hide" id="SubGrppara-@item.investigationpara_id">@item.indexing</td>
+                                                                <td>@item.investigationpara_name</td>
+                                                                <td> <input type="text" class="form-control" style="width:65%" value="@item.units" id="SubGroupPara_Units_ID_@H" /></td>
+                                                                <td>
+                                                                    <input type="text" class="form-control subpara_refrence_tags SubGroupPara_Reference_ID_@H" value="@item.investigationpara_reference" />
+                                                                    @Html.HiddenFor(m => item.investigationpara_reference, new { @id = "hidden_para_reference_" + H })
+                                                                </td>
+                                                                <td>
+                                                                    @if ((item.units != null && item.units != "") && (item.investigationpara_reference != null && item.investigationpara_reference != "") && (item.hoscode != null && item.hoscode != ""))
+                                                                    {
+                                                                        <a href="javascript:void(0);" onclick="AddSubGroupParaReference_Unit(@H,@item.investigationpara_id,@item.investigationsubgrop_id,@Model.ReagentId, 'Update')" class="btn btn-xs btn-primary">
+                                                                            Update Unit with Reference
+                                                                        </a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a href="javascript:void(0);" onclick="AddSubGroupParaReference_Unit(@H,@item.investigationpara_id,@item.investigationsubgrop_id,@Model.ReagentId,'Insert')" class="btn btn-xs btn-primary">
+                                                                            Add Unit with Reference
+                                                                        </a>
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" style="width:60px;" class="form-control" value="@item.indexing" onchange="SetSubgroupParaIndex(@item.investigationpara_id,this)" />
+                                                                </td>
+                                                                <td>
+                                                                    @if (item.Ctrl == 1)
+                                                                    {
+                                                                        <span class="badge badge-success">Active</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="badge badge-danger">Deactive</span>
+                                                                    }
+                                                                </td>
+                                                                <td>
+                                                                    @if (item.hoscode != null)
+                                                                    {
+                                                                        <a onclick=DeleteParaInv(@item.investigationpara_id,@item.investigationsubgrop_id,@item.investigationmaster_id,@Model.ReagentId) class="DeleteCss" href="javascript:void(0);">Delete</a>
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                            H++;
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!--End-->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<input type="hidden" id="DirectPara_SubPara" />
+@section scripts{
+    <script src="~/wwwroot/assets/tagsinput/tagsinput.min.js"></script>
+    <script type="text/javascript">
+        debugger;
+        //$(".Admin").addClass("subdrop");
+        //$(".Submenu_Admin").css("display", "block");
+        //$(".Submenu_Lab").css("display", "block");
+        //$(".ReagentList").addClass("active");
+
+        $('#text_reference').tagsInput();
+        $('#subgroupRefrence').tagsInput();
+        //Loop Set tags input
+        //function set_tags_with_height(tabl_id) {
+        //    $(tabl_id).each(function (index, tr) {
+        //        $(tr).find(".tagsinput").css("width", "240px");
+        //        $(tr).find(".tagsinput").css("min-height", "70px");
+        //        $(tr).find(".tagsinput").css("height", "70px");
+        //    });
+        //}
+        //end
+        SubcategoryPopUp(@Html.Raw(Json.Encode(Model.InvestigationID)),@Html.Raw(Json.Encode(Model.InvestigationType)),@Html.Raw(Json.Encode(Model.ReagentId)));
+        //Add SubGroup Reference And UNIT
+        function AddReference_Unit(index,INVSubgrop_id, RegId,type) {
+            debugger;
+            var Unit = $("#Units_ID_" + index).val();
+            var Reference = $(".Reference_ID_" + index).val();
+            if (Unit == null || Unit == undefined || Unit == "") {
+                $("#Units_ID_" + index).focus();
+                return false;
+            }
+            if (Reference == null || Reference == undefined || Reference == "") {
+                if ($("#hidden_subgroup_reference_" + index).val() == null || $("#hidden_subgroup_reference_" + index).val() == undefined || $("#hidden_subgroup_reference_" + index).val() == "") {
+                    alert("Please add reference.")
+                    return false;
+                }
+            }
+            $(".sub-GroupLoad").show();
+            $.ajax({
+                url: "/Reagent/SubGroup_AddUnit_Reference?Reagentid="+parseInt(RegId) + "&INVSubgrop_id=" + parseInt(INVSubgrop_id) + "&Units=" + Unit + "&Reference=" + Reference + "&ActType=" + type + "",
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (data) {
+                debugger;
+                $(".bindsubgroup").html($(data).find(".bindsubgroup").html());
+                $(".refrence_tags").tagsInput();
+              //  set_tags_with_height("#Subgroup_example > tbody  > tr");
+                $(".sub-GroupLoad").hide();
+            });
+        }
+        //This Script For Ad,Delete SubGroup
+        function SubcategoryPopUp(InvestigationID, InvType,RegId) {
+            debugger;
+            if (InvType == "radiology") {
+                $(".bindsubgroup_radiology").empty();
+                $('.loading_radio').show();
+                $.ajax({
+                    url: "/Reagent/GetAllSubGroup?inv_masterid=" + parseInt(InvestigationID) + "&InvType=" + InvType + "&Reagentid=" + parseInt(0) + "",
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (data) {
+                    debugger;
+                    $(".bindsubgroup_radiology").html($(data).find(".bindsubgroup_radiology").html());
+                    $(".radio_bindmainname").empty();
+                    $(".radio_bindmainname").html($(data).find(".radio_bindmainname").html());
+                    $(".radio_bindhiddenfield").empty();
+                    $(".radio_bindhiddenfield").html($(data).find(".radio_bindhiddenfield").html());
+                    $('.loading_radio').hide();
+                });
+            }
+            else {
+                $("#solid-rounded-justified-tab1").addClass('active', 'show');
+                $(".lidep").addClass('active', 'show');
+                $("#solid-rounded-justified-tab2").removeClass('active', 'show');
+                $(".liemp").removeClass('active', 'show');
+                $(".bindsubgroup").empty();
+                $('.loading1').show();
+                $.ajax({
+                    url: "/Reagent/GetAllSubGroup?inv_masterid=" + parseInt(InvestigationID) + "&InvType=" + InvType + "&Reagentid=" + parseInt(RegId) + "",
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (data) {
+                    $(".bindmainname").empty();
+                    $(".bindhiddenfield").empty();
+                    $(".bindsubgroup").html($(data).find(".bindsubgroup").html());
+                    $(".bindmainname").html($(data).find(".bindmainname").html());
+                    $(".bindhiddenfield").html($(data).find(".bindhiddenfield").html());
+                    $(".bindtabbind").empty();
+                    $(".bindtabbind").html($(data).find(".bindtabbind").html());
+                   // setdatatable();
+                    $(".refrence_tags").tagsInput();
+                    //set_tags_with_height("#Subgroup_example > tbody  > tr");
+                    $('.loading1').hide();
+                });
+            }
+        }
+        function SubGroupajaxbegin() {
+            $('.loading1').show();
+        }
+        function SubGroupSuccessMethod(data) {
+            $(".bindsubgroup").empty();
+            $(".bindsubgroup").html($(data).find(".bindsubgroup").html());
+            $("#subgrouptext").val('');
+          //  setdatatable();
+            $('.loading1').hide();
+            $("#subgroupRefrence_tagsinput .tag").remove();
+            $("#subgroupRefrence").val('');
+            $(".refrence_tags").tagsInput();
+        }
+        function DeleteSubInv(ReagentId,subgroupid, invmasterid, INVType = "") {
+            debugger;
+            if (INVType == "radiology")
+                $('.loading_radio').show();
+            else
+                $('.loading1').show();
+            if (confirm("Are you sure wants to delete ?.")) {
+                $.ajax({
+                    url: "/Reagent/DeleteInveSubGroup?ReagentId=" + ReagentId + "&InvSubGroupId=" + subgroupid + "&invmasterid=" + invmasterid + "&InvType=" + INVType + "",
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (data) {
+                    if (INVType == "radiology") {
+                        $(".bindsubgroup_radiology").empty();
+                        $(".bindsubgroup_radiology").html($(data).find(".bindsubgroup_radiology").html());
+                        $('.loading_radio').hide();
+                    }
+                    else {
+                        $(".bindsubgroup").empty();
+                        $(".bindsubgroup").html($(data).find(".bindsubgroup").html());
+                      //  setdatatable();
+                        $('.loading1').hide();
+                    }
+                });
+            }
+            else {
+                $('.loading1').hide();
+                $('.loading_radio').hide();
+            }
+        }
+        //function setdatatable() {
+        //    $('#Subgroup_example').DataTable({
+        //        "destroy": true,
+        //        "aLengthMenu": [4, 10, 25, 50, 100],
+        //        "order": [[0, "asc"]],
+        //        "paging": false,
+        //        "searching": true,
+        //    })
+        //}
+        function SetSubgroupIndex(subgroupid, obj) {
+            $(".sub-GroupLoad").show();
+            $.ajax({
+                url: "/Reagent/SetSubGroupIndex?subgroupid=" + parseInt(subgroupid) + "&indexvalue=" + parseInt($(obj).val()) + "",
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (data) {
+                $("#SubGrp-" + subgroupid + "").text($(obj).val());
+                //$('#Subgroup_example').DataTable().destroy();
+                //$('#Subgroup_example').DataTable({
+                //    "destroy": true,
+                //    "aLengthMenu": [4, 10, 25, 50, 100],
+                //    "order": [[0, "asc"]],
+                //    "paging": false,
+                //    "searching": true,
+                //});
+                $(".sub-GroupLoad").hide();
+            });
+        }
+        //Ad,Delete SubGroup Script End
+
+        //This Script For Ad,Delete SubGroupParameter
+        function SubcategoryPara(SubGroupId, Type,regid) {
+            $('.loading1').show();
+            $(".bindsubgroup_para").empty();
+            if (Type == "InvSubGroup") {
+                $("#solid-rounded-justified-tab1").removeClass('active', 'show');
+                $(".lidep").removeClass('active', 'show');
+                $("#solid-rounded-justified-tab2").addClass('active', 'show');
+                $(".liemp").addClass('active', 'show');
+            }
+            $.ajax({
+                url: "/Reagent/GetAllSubGroupPara?SubGroupId=" + parseInt(SubGroupId) + "&Type=" + Type + "&Reagentid=" + parseInt(regid) + "",
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (data) {
+                $(".bindsubgroupname").empty();
+                $(".bindsubgroup_para").html($(data).find(".bindsubgroup_para").html());
+                $(".bindsubgroupname").html($(data).find(".bindsubgroupname").html());
+                //setdatatable1();
+                $(".subpara_refrence_tags").tagsInput();
+                //set_tags_with_height("#SubgroupPara_example > tbody  > tr");
+                $("#DirectPara_SubPara").val(Type);
+                $('.loading1').hide();
+            });
+        }
+        function AddSubGroupParaReference_Unit(index,subgroup_para_id,INVSubgrop_id,RegId,type) {
+            debugger;
+            var Unit = $("#SubGroupPara_Units_ID_" + index).val();
+            var Reference = $(".SubGroupPara_Reference_ID_" + index).val();
+            if (Unit == null || Unit == undefined || Unit == "") {
+                $("#SubGroupPara_Units_ID_" + index).focus();
+                return false;
+            }
+            if (Reference == null || Reference == undefined || Reference == "") {
+                if ($("#hidden_para_reference_" + index).val() == null || $("#hidden_para_reference_" + index).val() == undefined || $("#hidden_para_reference_" + index).val() == "") {
+                    alert("Please add reference.")
+                    return false;
+                }
+            }
+            $('.loading1').show();
+            $.ajax({
+                url: "/Reagent/SubGroupPara_AddUnit_Reference?SubGroupparaID=" + parseInt(subgroup_para_id) + "&INVSubgrop_id=" + parseInt(INVSubgrop_id) + "&Reagentid=" + parseInt(RegId) + "&Units=" + Unit + "&Reference=" + Reference + "&ActType=" + type + "&Type=" + $("#DirectPara_SubPara").val() + "",
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (data) {
+                debugger;
+                $(".bindsubgroup_para").html($(data).find(".bindsubgroup_para").html());
+                //setdatatable1();
+                $(".subpara_refrence_tags").tagsInput();
+                //set_tags_with_height("#SubgroupPara_example > tbody  > tr");
+                $('.loading1').hide();
+            });
+        }
+        function SubGroupParaAjaxbegin() {
+            $('.loading1').show();
+        }
+        function SubGroupParaSuccessMethod(data) {
+            $(".bindsubgroup_para").empty();
+            $(".bindsubgroup_para").html($(data).find(".bindsubgroup_para").html());
+            $("#text_para").val('');
+            $("#text_units").val('');
+            $("#text_reference_tagsinput .tag").remove();
+            /*$("#text_reference").tagsinput('removeAll');*/
+            $("#text_reference").val('');
+            //setdatatable1();
+            $(".subpara_refrence_tags").tagsInput();
+            //set_tags_with_height("#SubgroupPara_example > tbody  > tr");
+            $('.loading1').hide();
+        }
+        function DeleteParaInv(ParaId, SubGroupId, InvMasterId, ReagentId) {
+            $('.loading1').show();
+            if (confirm("Are you sure wants to delete ?.")) {
+                $.ajax({
+                    url: "/Reagent/DeleteInveSubGroupPara?ParaId=" + ParaId + "&ReagentId=" + ReagentId + "&SubGroupId=" + SubGroupId + "&Type=" + $("#SubGroupPara_Type").val() + "&InvMasterId=" + InvMasterId + "",
+                    datatype: 'json',
+                    ContentType: 'application/json;utf-8'
+                }).done(function (data) {
+
+                    $(".bindsubgroup_para").empty();
+                    $(".bindsubgroup_para").html($(data).find(".bindsubgroup_para").html());
+                    //setdatatable1();
+                    $(".subpara_refrence_tags").tagsInput();
+                    //set_tags_with_height("#SubgroupPara_example > tbody  > tr");
+                    $('.loading1').hide();
+                });
+            }
+            else
+                $('.loading1').hide();
+        }
+        //function setdatatable1() {
+        //    $('#SubgroupPara_example').DataTable({
+        //        "destroy": true,
+        //        "aLengthMenu": [4, 10, 25, 50, 100],
+        //        "order": [[0, "asc"]],
+        //        "paging": false,
+        //        "searching": true,
+        //    });
+        //}
+        function SetSubgroupParaIndex(subgroupparaid, obj) {
+            $(".SubGroupparaloader").show();
+            $.ajax({
+                url: "/Reagent/SetSubgroupParaIndex?subgroupparaid=" + parseInt(subgroupparaid) + "&indexvalue=" + parseInt($(obj).val()) + "",
+                datatype: 'json',
+                ContentType: 'application/json;utf-8'
+            }).done(function (data) {
+                $("#SubGrppara-" + subgroupparaid + "").text(parseInt($(obj).val()));
+                //$('#SubgroupPara_example').DataTable().destroy();
+                //$('#SubgroupPara_example').DataTable({
+                //    "destroy": true,
+                //    "aLengthMenu": [4, 10, 25, 50, 100],
+                //    "order": [[0, "asc"]],
+                //    "paging": false,
+                //    "searching": true,
+                //});
+                $(".SubGroupparaloader").hide();
+            });
+        }
+//End Ad,Delete SubGroupParameter Script
+    </script>
+}

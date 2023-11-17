@@ -1,0 +1,783 @@
+﻿@model HospitalManagement.Models.HMSDashboardData
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="content">
+    <div class="row">
+        <div class="col-md-4 col-sm-4 col-lg-3 col-xl-2">
+            <div class="dash-widget">
+                <img src="~/wwwroot/assets/img/appointment.png" />
+                <p>Today Appointment</p>
+                <h3>@Model.today_appoint</h3>
+                <div class="dash-widget-info">
+                    <span>Offline - @Model.todayappoint_offline</span>
+                    <span>Online - @Model.today_appoint_online</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-lg-3 col-xl-2">
+            <div class="dash-widget">
+                <img src="~/wwwroot/assets/img/new_pat.png" />
+                <p>Total Visited Patient</p>
+                <h3>@Model.totalpat</h3>
+                <div class="dash-widget-info">
+                    <span>Today Visited Patient - @Model.todayregister</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-lg-3 col-xl-2">
+            <div class="dash-widget">
+                <img src="~/wwwroot/assets/img/in_pat.png" />
+                <p>Admited Patient</p>
+                <h3>@Model.totalinpatient</h3>
+                <div class="dash-widget-info">
+                    <span>Today IP - @Model.todayinpatient</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-lg-3 col-xl-2">
+            <div class="dash-widget">
+                <img src="~/wwwroot/assets/img/ot_pat.png" />
+                <p>OT Patient</p>
+                <h3>@Model.totalOT</h3>
+                <div class="dash-widget-info">
+                    <span>OPD OT - @Model.totalOPDOT</span>
+                    <span>IP OT - @Model.totalIPOT</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-lg-3 col-xl-2">
+            <div class="dash-widget">
+                <img src="~/wwwroot/assets/img/res_pat.png" />
+                <p>Total Released</p>
+                <h3>@Model.totalrealsepatient</h3>
+                <div class="dash-widget-info">
+                    <span>Today Release - @Model.todayrealsepatient</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-lg-3 col-xl-2">
+            <div class="dash-widget pink">
+                <img src="~/wwwroot/assets/img/earn_money.png" />
+                <p>Today Earning</p>
+                <h3>@Model.todayearning Tk</h3>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-6 col-xl-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chart-title">
+                        <h4>Patient Ratio</h4>
+                        <div class="float-right chart-select position-relative">
+                            @{
+                                List<SelectListItem> listItemstatus = new List<SelectListItem>();
+                                listItemstatus.Add(new SelectListItem
+                                {
+                                    Text = "All",
+                                    Value = "All",
+                                    Selected = true
+                                });
+                                listItemstatus.Add(new SelectListItem
+                                {
+                                    Text = "Today",
+                                    Value = "Today"
+
+                                });
+                                listItemstatus.Add(new SelectListItem
+                                {
+                                    Text = "Weekly",
+                                    Value = "Weekly"
+                                });
+                                listItemstatus.Add(new SelectListItem
+                                {
+                                    Text = "Monthly",
+                                    Value = "Monthly"
+                                });
+                                listItemstatus.Add(new SelectListItem
+                                {
+                                    Text = "Yearly",
+                                    Value = "Yearly"
+                                });
+                            }
+                            @Html.DropDownList("patientration", listItemstatus, new { @class = "form-control", onchange = "Getpatientratio()" })
+                            <i class="fa fa-caret-down"></i>
+
+                        </div>
+                    </div>
+
+                    <div id="hospital-chart-01"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-6 col-xl-4">
+            <div class="hos-emp-details">
+                <div class="card">
+                    <div class="card-body">
+                        @foreach (var item in Model.employeelst)
+                        {
+                            <div class="d-flex justify-content-between">
+                                <h4 class="card-title mb-2">Total Employee</h4>
+                            </div>
+                            <div class="row mb-2 mt-2">
+                                <div class="col-md-4 col col-sm-4 col-xs-4">
+                                    <div class="text-center">
+                                        <img src="/wwwroot/assets/img/new_pat.png" class="" alt="revenue" style="max-width:45px;">
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col col-sm-8 col-xs-8 my-auto">
+                                    <div class="float-right text-right my-auto">
+                                        <span class="font-weight-600 font-18">@item.totalemp</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex position-relative">
+                                <h5 class="float-left text-muted font-weight-normal">Admin</h5>
+                                <span class="dash-line"></span>
+                                <h5 class="float-right ml-auto font-weight-normal">@item.admin</h5>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="d-flex position-relative">
+                                <h5 class="float-left text-muted font-weight-normal">Staff</h5>
+                                <span class="dash-line"></span>
+                                <h5 class="float-right ml-auto font-weight-normal">@item.staff</h5>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="d-flex position-relative">
+                                <h5 class="float-left text-muted font-weight-normal">Doctor</h5>
+                                <span class="dash-line"></span>
+                                <h5 class="float-right ml-auto font-weight-normal">@item.doctor</h5>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="d-flex position-relative">
+                                <h5 class="float-left text-muted font-weight-normal">Nurse</h5>
+                                <span class="dash-line"></span>
+                                <h5 class="float-right ml-auto font-weight-normal">@item.nurse</h5>
+                            </div>
+                            @*<div class="clearfix"></div>
+                                <div class="d-flex position-relative">
+                                    <h5 class="float-left text-muted font-weight-normal">Laboratorist</h5>
+                                    <span class="dash-line"></span>
+                                    <h5 class="float-right ml-auto font-weight-normal">@item.laboratorist</h5>
+                                </div>*@
+                            <div class="clearfix"></div>
+                            <div class="d-flex position-relative">
+                                <h5 class="float-left text-muted font-weight-normal">Pharmacist</h5>
+                                <span class="dash-line"></span>
+                                <h5 class="float-right ml-auto font-weight-normal">@item.pharmacist</h5>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="d-flex position-relative">
+                                <h5 class="float-left text-muted font-weight-normal">Accountant</h5>
+                                <span class="dash-line"></span>
+                                <h5 class="float-right ml-auto font-weight-normal">@item.accountant</h5>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="d-flex position-relative">
+                                <h5 class="mb-0 float-left text-muted font-weight-normal">Pathologist</h5>
+                                <span class="dash-line"></span>
+                                <h5 class="mb-0 float-right ml-auto font-weight-normal">@item.Pathologist</h5>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            @*<div class="chart-title">
+                    <h4>Patients In</h4>
+                    <div class="float-right">
+                        <ul class="chat-user-total">
+                            <li><i class="fa fa-circle current-users" aria-hidden="true"></i>ICU</li>
+                            <li><i class="fa fa-circle old-users" aria-hidden="true"></i> OPD</li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="bar"></div>*@
+            <!--</div>
+            </div>-->
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-6 col-xl-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chart-title">
+                        <h4>Biling</h4>
+                        <div class="float-right chart-select position-relative">
+                            @{
+                                List<SelectListItem> listItem = new List<SelectListItem>();
+                                listItem.Add(new SelectListItem
+                                {
+                                    Text = "All",
+                                    Value = "All",
+                                    Selected = true
+                                });
+                                listItem.Add(new SelectListItem
+                                {
+                                    Text = "Today",
+                                    Value = "Today"
+
+                                });
+                                listItem.Add(new SelectListItem
+                                {
+                                    Text = "Weekly",
+                                    Value = "Weekly"
+                                });
+                                listItem.Add(new SelectListItem
+                                {
+                                    Text = "Monthly",
+                                    Value = "Monthly"
+                                });
+                                listItem.Add(new SelectListItem
+                                {
+                                    Text = "Yearly",
+                                    Value = "Yearly"
+                                });
+                            }
+                            @Html.DropDownList("billing", listItem, new { @class = "form-control", onchange = "Getbilling()" })
+                            <i class="fa fa-caret-down"></i>
+                        </div>
+                    </div>
+
+                    <div id="hospital-chart-02" class=""></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-8 col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title d-inline-block">Upcoming Appointments</h4> <a href="~/HMSDoctorAppointment/HMSDoctorAppointmentList" class="btn skin-gradient-btn float-right">View all</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table mb-0 table-bordered">
+                            <thead class="">
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Doctor Name</th>
+                                    <th>Date</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.TopAppointmentList.Count > 0)
+                                {
+                                    foreach (var item in Model.TopAppointmentList)
+                                    {
+                                        <tr>
+                                            <td style="min-width: 200px;">
+                                                <span class="avatar" href="profile.html">@item.patient_name.Substring(0, 1)</span>
+                                                <h2><a href="#">@item.patient_name <span>@item.patient_address</span></a></h2>
+                                            </td>
+                                            <td>
+                                                <h2>@item.doctor_name <span class="text-secondary">  @item.department_name</span></h2>
+                                            </td>
+                                            <td>
+                                                @item.appointment_date @item.appointment_time
+                                            </td>
+                                            @if (item.ctrl == 1)
+                                            {
+
+                                                <td class="status-icon text-center"> @*<h5 class="time-title p-0">Status</h5>*@ <span class="badge badge-success">Active</span></td>
+                                            }
+                                            @if (item.ctrl == 0)
+                                            {
+                                                <td class="status-icon text-center">  @*<h5 class="time-title p-0">Status</h5>*@ <i class="fa fa-check text-danger"></i></td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="999" style="text-align:center;">
+                                                <img src="~/wwwroot/assets/img/no_appointment.png" class="img-fluid" style="max-width:429px;" alt="">
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-4">
+            <div class="card member-panel p-2">
+                <div class="member-heading">
+                    <h4 class="card-title mb-0 text-white">Doctors</h4>
+                </div>
+                <div class="card-body">
+                    @foreach (var item in Model.TopDoctorList)
+                    {
+                        <ul class="contact-list">
+                            <li>
+                                <div class="contact-cont">
+                                    <div class="float-left user-img m-r-10">
+                                        <a href="~/HMSDoctor/DcotorProfile/@item.uniqrow" target="_blank" title=@item.doctor_name>
+                                            @if (item.doctor_image == null || item.doctor_image == "")
+                                            {
+                                                <img src="~/wwwroot/assets/img/user.jpg" alt="" class="rounded-circle">
+                                            }
+                                            else
+                                            {
+                                                var img = System.Configuration.ConfigurationManager.AppSettings["getDocimgUrl"] + item.doctor_image;
+                                                <img src=@img alt="" class="">
+                                            }
+
+                                            <span class="status online"></span>
+                                        </a>
+                                    </div>
+                                    <div class="contact-info">
+                                        <span class="contact-name text-ellipsis">@item.doctor_name</span>
+                                        <span class="contact-date">@item.doctor_designation</span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    }
+                </div>
+                <div class="card-footer text-center bg-white">
+                    <a href="~/HMSDoctor/HMSDoctorContractList" class="btn-inline">View all</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6 col-lg-8 col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title d-inline-block">New Patients </h4> <a href="~/HMSPatient/HMSPatientList" class="btn skin-gradient-btn float-right">View all</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table mb-0 new-patient-table table-bordered">
+                            <thead class="">
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.TopPatientList)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (item.patient_profile == null || item.patient_profile == "")
+                                            {
+                                                <img width="28" height="28" class="rounded-circle" src="~/wwwroot/assets/img/user.jpg" alt="">
+                                            }
+                                            else
+                                            {
+                                                var img = System.Configuration.ConfigurationManager.AppSettings["getPatimgUrl"] + item.patient_profile;
+                                                <img width="28" height="28" class="rounded-circle" src=@img alt="">
+                                            }
+                                            <h2>@item.patientname</h2>
+                                        </td>
+                                        <td>@item.email</td>
+                                        <td>@item.phone</td>
+                                        @if (item.ctrl == 1)
+                                        {
+
+                                            <td class="status-icon text-center"> @*<h5 class="time-title p-0">Status</h5>*@ <span class="badge badge-success">Active</span></td>
+                                        }
+                                        @if (item.ctrl == 0)
+                                        {
+                                            <td class="status-icon text-center">  @*<h5 class="time-title p-0">Status</h5>*@ <span class="badge badge-danger">deactive</span></td>
+                                        }
+                                        @*<td><button class="btn btn-primary btn-primary-one float-right">Fever</button></td>*@
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title d-inline-block m-0">Hospital Management</h4>
+                </div>
+                <div class="card-body">
+                    <!-- progress -->
+                    <div class="hp_details">
+                        <h5 class="title">OPD Patient</h5>
+                        <div class="progress">
+                            <div class="progress-bar" style="width:80%">
+                                <span class="progress-text-one">80%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hp_details mt-4">
+                        <h5 class="title">New Patient</h5>
+                        <div class="progress pg-orange">
+                            <div class="progress-bar" style="width:70%">
+                                <span class="progress-text-one">70%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hp_details mt-4">
+                        <h5 class="title">Discharge Patient</h5>
+                        <div class="progress pg-purple">
+                            <div class="progress-bar" style="width:60%">
+                                <span class="progress-text-one">60%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hp_details mt-4">
+                        <h5 class="title">Leboretory Test</h5>
+                        <div class="progress pg-yellow">
+                            <div class="progress-bar" style="width:90%">
+                                <span class="progress-text-one">90%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="notification-box">
+    <div class="msg-sidebar notifications msg-noti">
+        <div class="topnav-dropdown-header">
+            <span>Messages</span>
+        </div>
+        <div class="drop-scroll msg-list-scroll" id="msg_list">
+            <ul class="list-box">
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">R</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author">Richard Miles </span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item new-message">
+                            <div class="list-left">
+                                <span class="avatar">J</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author">John Doe</span>
+                                <span class="message-time">1 Aug</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">T</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author"> Tarah Shropshire </span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">M</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author">Mike Litorus</span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">C</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author"> Catherine Manseau </span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">D</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author"> Domenic Houston </span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">B</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author"> Buster Wigton </span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">R</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author"> Rolland Webber </span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">C</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author"> Claire Mapes </span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">M</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author">Melita Faucher</span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">J</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author">Jeffery Lalor</span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">L</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author">Loren Gatlin</span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html">
+                        <div class="list-item">
+                            <div class="list-left">
+                                <span class="avatar">T</span>
+                            </div>
+                            <div class="list-body">
+                                <span class="message-author">Tarah Shropshire</span>
+                                <span class="message-time">12:28 AM</span>
+                                <div class="clearfix"></div>
+                                <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="topnav-dropdown-footer">
+            <a href="chat.html">See all messages</a>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/wwwroot/assets/plugins/apexchart/apexcharts.min.js"></script>
+    <script>
+        var chartview = "";
+        var chartbilling = "";
+
+        function Getpatientratio() {
+            var ratio = $("#patientration").val();
+            $.ajax({
+                url: '/Dashboard/getPatientratio',
+                type: "POST",
+                dataType: "json",
+                async: false,
+                data: { ratio: ratio },
+                success: function (data) {
+                    debugger;
+                    IpOpChart(data[0].totalop, data[0].totalip);
+                }
+            });
+        }
+        function Getbilling() {
+            var ratio = $("#billing").val();
+            $.ajax({
+                url: '/Dashboard/Getbilling',
+                type: "POST",
+                dataType: "json",
+                async: false,
+                data: { ratio: ratio },
+                success: function (data) {
+                    debugger;
+                    BillingChart(data[0].totaldirectbilling, data[0].totalamountip, data[0].totalamountop);
+                }
+            });
+        }
+
+            // for apexchart
+            function apexChartUpdate(chartdt, detail) {
+                let color = getComputedStyle(document.documentElement).getPropertyValue('--dark');
+                if (detail.dark) {
+                    color = getComputedStyle(document.documentElement).getPropertyValue('--white');
+                }
+                chartdt.updateOptions({
+                    chart: {
+                        foreColor: color
+                    }
+                })
+            }
+            if (jQuery("#hospital-chart-01").length) {
+                debugger;
+                var data = JSON.parse(JSON.stringify(@Html.Raw(Json.Encode(Model)))).patientrationlist;
+                IpOpChart(data[0].totalop, data[0].totalip);
+            }
+        function IpOpChart(totalop, totalip) {
+            if (chartview)
+                chartview.destroy();
+                var options = {
+                    series: [totalop,totalip],
+                    colors: ['#FF425C', '#19BCBF'],
+                    chart: {
+                        id: 'mychart',
+                        height: 270,
+                        type: 'pie',
+                    },
+                    legend: {
+                        position: 'bottom',
+                        offsetX: 0
+                    },
+                    labels: ['OP', 'IP'],
+                    enabled: true
+                };
+            chartview = new ApexCharts(document.querySelector("#hospital-chart-01"), options);
+            chartview.render();
+                const body = document.querySelector('body')
+                if (body.classList.contains('dark')) {
+                    apexChartUpdate(chartview, {
+                        dark: true
+                    })
+            }
+                document.addEventListener('ChangeColorMode', function (e) {
+                    apexChartUpdate(chartview, e.detail)
+                })
+            }
+
+          if (jQuery("#hospital-chart-02").length) {
+                debugger;
+                var billing = JSON.parse(JSON.stringify(@Html.Raw(Json.Encode(Model)))).billinglist;
+              BillingChart(billing[0].totaldirectbilling, billing[0].totalamountip, billing[0].totalamountop);
+        }
+
+        function BillingChart(totaldirectbilling, totalamountip, totalamountop) {
+            if (chartbilling)
+                chartbilling.destroy();
+            var options = {
+                series: [totaldirectbilling, totalamountip, totalamountop],
+                colors: ['#FF425C', '#13bd8a', '#2DCEE3'],
+                chart: {
+                    height: 270,
+                    type: 'pie',
+                },
+                legend: {
+                    position: 'bottom',
+                    offsetX: 0
+                },
+                labels: ['Direct Biling', 'IP', 'OP'],
+
+            };
+            chartbilling = new ApexCharts(document.querySelector("#hospital-chart-02"), options);
+            chartbilling.render();
+            const body = document.querySelector('body')
+            if (body.classList.contains('dark')) {
+                apexChartUpdate(chartbilling, {
+                    dark: true
+                })
+            }
+
+            document.addEventListener('ChangeColorMode', function (e) {
+                apexChartUpdate(chartbilling, e.detail)
+            })
+        }
+
+
+    </script>
+
+}
+
+
+
+
+
+
